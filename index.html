@@ -1,29 +1,39 @@
+
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f2a24">
-  <meta name="description" content="أكاديمية القرآن الكريم وعلومه - منصة تعليمية متخصصة">
-  <title>أكاديمية القرآن الكريم وعلومه</title>
+  <meta name="description" content="أكاديمية متخصصة في حفظ القرآن الكريم ومراجعته وتعليم التجويد">
+  <title>أكاديمية القرآن الكريم | الحفظ والتجويد</title>
+
   <link rel="stylesheet" href="/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
   <script src="/app.js" defer></script>
 </head>
+
 <body>
+
   <header class="site-header">
-    <a class="brand" href="#" aria-label="الصفحة الرئيسية">
+    <a class="brand" href="#home" aria-label="الصفحة الرئيسية">
       <span class="brand-mark">۞</span>
-      <span><strong data-ar="أكاديمية القرآن الكريم وعلومه" data-en="Quran Sciences Academy">أكاديمية القرآن الكريم وعلومه</strong><small data-ar="منارة العلم والإتقان" data-en="A home for learning and excellence">منارة العلم والإتقان</small></span>
+      <span>
+        <strong data-ar="أكاديمية القرآن الكريم" data-en="Quran Academy">أكاديمية القرآن الكريم</strong>
+        <small data-ar="منارة الحفظ والإتقان" data-en="A home for memorization and excellence">منارة الحفظ والإتقان</small>
+      </span>
     </a>
+
     <nav class="main-nav" aria-label="Main navigation">
       <a href="#home" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
-      <a href="#departments" data-ar="الأقسام العلمية" data-en="Departments">الأقسام العلمية</a>
+      <a href="#departments" data-ar="الأقسام" data-en="Departments">الأقسام</a>
       <a href="#about" data-ar="عن الأكاديمية" data-en="About">عن الأكاديمية</a>
       <a href="#contact" data-ar="تواصل معنا" data-en="Contact">تواصل معنا</a>
     </nav>
+
     <div class="header-actions">
       <button class="language-button" id="languageToggle" type="button" aria-label="Switch language">English</button>
       <a class="login-link" href="#login" data-ar="دخول الطلاب" data-en="Student login">دخول الطلاب</a>
@@ -31,48 +41,178 @@
   </header>
 
   <main>
+
     <section class="hero" id="home">
       <div class="hero-content">
-        <span class="eyebrow" data-ar="تعلم • تدبر • إتقان" data-en="Learn • Reflect • Excel">تعلم • تدبر • إتقان</span>
-        <h1 data-ar="رحلتك في تعلم القرآن الكريم وعلومه تبدأ هنا" data-en="Your journey into the Quran and its sciences starts here">رحلتك في تعلم القرآن الكريم وعلومه تبدأ هنا</h1>
-        <p data-ar="منصة تعليمية متخصصة تجمع العلوم القرآنية والتعلم المنظم في بيئة علمية موثوقة." data-en="A dedicated learning platform bringing Quranic sciences and structured study together in one trusted academic environment.">منصة تعليمية متخصصة تجمع العلوم القرآنية والتعلم المنظم في بيئة علمية موثوقة.</p>
+
+        <span class="eyebrow" data-ar="حفظ • مراجعة • تجويد" data-en="Memorize • Revise • Recite">
+          حفظ • مراجعة • تجويد
+        </span>
+
+        <h1
+          data-ar="رحلتك في حفظ القرآن الكريم وإتقان تلاوته تبدأ هنا"
+          data-en="Your journey to memorizing the Holy Quran and mastering its recitation starts here">
+          رحلتك في حفظ القرآن الكريم وإتقان تلاوته تبدأ هنا
+        </h1>
+
+        <p
+          data-ar="منصة تعليمية متخصصة في تحفيظ القرآن الكريم ومراجعته وتعليم أحكام التجويد، بإشراف معلمين ومعلمات."
+          data-en="A dedicated educational platform for Quran memorization, revision and Tajweed, guided by qualified teachers.">
+          منصة تعليمية متخصصة في تحفيظ القرآن الكريم ومراجعته وتعليم أحكام التجويد، بإشراف معلمين ومعلمات.
+        </p>
+
         <div class="hero-actions">
-          <a class="button button-gold" href="#departments" data-ar="استكشف الأقسام" data-en="Explore departments">استكشف الأقسام</a>
-          <a class="button button-outline" href="#about" data-ar="تعرف على الأكاديمية" data-en="Discover the academy">تعرف على الأكاديمية</a>
+          <a class="button button-gold" href="#departments" data-ar="اكتشف برامجنا" data-en="Explore our programs">
+            اكتشف برامجنا
+          </a>
+
+          <a class="button button-outline" href="#about" data-ar="تعرف على الأكاديمية" data-en="Discover the academy">
+            تعرف على الأكاديمية
+          </a>
         </div>
-        <div class="hero-note"><span>✦</span><span data-ar="تعليم حضوري مباشر وعن بُعد — قريباً" data-en="Live and online learning — coming soon">تعليم حضوري مباشر وعن بُعد — قريباً</span></div>
+
+        <div class="hero-note">
+          <span>✦</span>
+          <span data-ar="تعليم مباشر وعن بُعد — قريباً" data-en="Live and online learning — coming soon">
+            تعليم مباشر وعن بُعد — قريباً
+          </span>
+        </div>
+
       </div>
+
       <div class="hero-art" aria-hidden="true">
-        <div class="ornament ornament-one"></div><div class="ornament ornament-two"></div>
-        <div class="book-emblem"><span>۞</span><strong data-ar="القرآن الكريم" data-en="The Holy Quran">القرآن الكريم</strong><small data-ar="وعلومه" data-en="and its sciences">وعلومه</small></div>
+        <div class="ornament ornament-one"></div>
+        <div class="ornament ornament-two"></div>
+
+        <div class="book-emblem">
+          <span>۞</span>
+          <strong data-ar="القرآن الكريم" data-en="The Holy Quran">القرآن الكريم</strong>
+          <small data-ar="حفظاً وتلاوةً" data-en="Memorization and recitation">حفظاً وتلاوةً</small>
+        </div>
       </div>
     </section>
+
 
     <section class="section" id="departments">
+
       <div class="section-heading">
-        <span class="eyebrow" data-ar="مسارات التعلم" data-en="Learning paths">مسارات التعلم</span>
-        <h2 data-ar="الأقسام العلمية" data-en="Academic departments">الأقسام العلمية</h2>
-        <p data-ar="مسارات متخصصة لدراسة القرآن الكريم من جوانب متعددة." data-en="Specialized paths to study the Quran from a range of scholarly perspectives.">مسارات متخصصة لدراسة القرآن الكريم من جوانب متعددة.</p>
+        <span class="eyebrow" data-ar="برامج الأكاديمية" data-en="Academy programs">
+          برامج الأكاديمية
+        </span>
+
+        <h2 data-ar="أقسامنا التعليمية" data-en="Our learning departments">
+          أقسامنا التعليمية
+        </h2>
+
+        <p
+          data-ar="مساران متخصصان لخدمة كتاب الله تعالى حفظاً وتلاوةً."
+          data-en="Two dedicated programs serving the Book of Allah through memorization and accurate recitation.">
+          مساران متخصصان لخدمة كتاب الله تعالى حفظاً وتلاوةً.
+        </p>
       </div>
+
       <div class="department-grid">
-        <article class="department-card"><span class="card-icon">۞</span><h3 data-ar="علوم القرآن" data-en="Quranic Sciences">علوم القرآن</h3><p data-ar="مباحث الوحي، وأسباب النزول، والمكي والمدني، وجمع القرآن." data-en="Revelation, occasions of revelation, Meccan and Medinan chapters, and compilation.">مباحث الوحي، وأسباب النزول، والمكي والمدني، وجمع القرآن.</p></article>
-        <article class="department-card"><span class="card-icon">۩</span><h3 data-ar="التجويد" data-en="Tajwid">التجويد</h3><p data-ar="المخارج والصفات والأحكام العملية لتلاوة متقنة." data-en="Articulation points, characteristics, and practical rules for accurate recitation.">المخارج والصفات والأحكام العملية لتلاوة متقنة.</p></article>
-        <article class="department-card"><span class="card-icon">❖</span><h3 data-ar="القراءات" data-en="Qira'at">القراءات</h3><p data-ar="أصول القراء وفرش الحروف والطرق والروايات." data-en="Principles of the readers, verse variations, transmissions, and routes.">أصول القراء وفرش الحروف والطرق والروايات.</p></article>
-        <article class="department-card"><span class="card-icon">۝</span><h3 data-ar="التفسير" data-en="Tafsir">التفسير</h3><p data-ar="دراسة معاني الآيات ومناهج المفسرين وغريب القرآن." data-en="The meanings of verses, methods of exegetes, and rare Quranic vocabulary.">دراسة معاني الآيات ومناهج المفسرين وغريب القرآن.</p></article>
-        <article class="department-card"><span class="card-icon">۞</span><h3 data-ar="الوقف والابتداء" data-en="Waqf and Ibtida">الوقف والابتداء</h3><p data-ar="معرفة مواضع الوقف والابتداء وأثرها في المعنى." data-en="Where to pause and resume, and how this affects meaning.">معرفة مواضع الوقف والابتداء وأثرها في المعنى.</p></article>
-        <article class="department-card"><span class="card-icon">✧</span><h3 data-ar="الرسم والضبط" data-en="Rasm and Dabt">الرسم والضبط</h3><p data-ar="قواعد رسم المصحف وعلامات الضبط." data-en="The orthography of the Mushaf and its notation system.">قواعد رسم المصحف وعلامات الضبط.</p></article>
-        <article class="department-card"><span class="card-icon">ا</span><h3 data-ar="إعراب القرآن" data-en="Quranic Grammar">إعراب القرآن</h3><p data-ar="دراسة التراكيب والإعراب والوجوه اللغوية." data-en="Syntax, grammatical analysis, and linguistic interpretations.">دراسة التراكيب والإعراب والوجوه اللغوية.</p></article>
-        <article class="department-card"><span class="card-icon">⌁</span><h3 data-ar="الحفظ والمراجعة" data-en="Memorization">الحفظ والمراجعة</h3><p data-ar="خطط للحفظ والمراجعة ومتابعة الإنجاز." data-en="Structured memorization plans, revision, and progress tracking.">خطط للحفظ والمراجعة ومتابعة الإنجاز.</p></article>
+
+        <article class="department-card">
+          <span class="card-icon">۞</span>
+
+          <h3 data-ar="الحفظ والمراجعة" data-en="Memorization and Revision">
+            الحفظ والمراجعة
+          </h3>
+
+          <p
+            data-ar="برامج منظمة لحفظ القرآن الكريم، وتثبيت المحفوظ، ومراجعته، ومتابعة تقدم الطلاب وفق خطط تعليمية مناسبة."
+            data-en="Structured programs for Quran memorization, strengthening what has been learned, regular revision and tracking student progress.">
+            برامج منظمة لحفظ القرآن الكريم، وتثبيت المحفوظ، ومراجعته، ومتابعة تقدم الطلاب وفق خطط تعليمية مناسبة.
+          </p>
+        </article>
+
+
+        <article class="department-card">
+          <span class="card-icon">۩</span>
+
+          <h3 data-ar="التجويد" data-en="Tajweed">
+            التجويد
+          </h3>
+
+          <p
+            data-ar="تعلم أحكام التجويد ومخارج الحروف وصفاتها، والتطبيق العملي لتصحيح التلاوة وإتقان قراءة القرآن الكريم."
+            data-en="Learn Tajweed rules, articulation points and letter characteristics, with practical recitation lessons to improve Quran reading.">
+            تعلم أحكام التجويد ومخارج الحروف وصفاتها، والتطبيق العملي لتصحيح التلاوة وإتقان قراءة القرآن الكريم.
+          </p>
+        </article>
+
       </div>
     </section>
+
 
     <section class="about-section" id="about">
-      <div><span class="eyebrow" data-ar="بيئة علمية منظمة" data-en="A structured learning environment">بيئة علمية منظمة</span><h2 data-ar="علمٌ يُتعلّم، ومهارةٌ تُتقن" data-en="Knowledge to learn. Skills to master.">علمٌ يُتعلّم، ومهارةٌ تُتقن</h2></div>
-      <p data-ar="تسعى الأكاديمية إلى تيسير دراسة القرآن الكريم وعلومه عبر مقررات منظمة، ومعلمين، ومصادر تعليمية. التسجيل والدخول سيكونان للطلاب والمعلمين المعتمدين." data-en="The academy aims to make the study of the Quran and its sciences accessible through structured courses, teachers, and learning resources. Registration and access will be available to approved students and teachers.">تسعى الأكاديمية إلى تيسير دراسة القرآن الكريم وعلومه عبر مقررات منظمة، ومعلمين، ومصادر تعليمية. التسجيل والدخول سيكونان للطلاب والمعلمين المعتمدين.</p>
+
+      <div>
+        <span class="eyebrow" data-ar="رسالتنا التعليمية" data-en="Our educational mission">
+          رسالتنا التعليمية
+        </span>
+
+        <h2
+          data-ar="حفظٌ راسخ، وتلاوةٌ متقنة"
+          data-en="Strong memorization. Excellent recitation.">
+          حفظٌ راسخ، وتلاوةٌ متقنة
+        </h2>
+      </div>
+
+      <p
+        data-ar="تسعى الأكاديمية إلى خدمة القرآن الكريم من خلال برامج متخصصة في الحفظ والمراجعة والتجويد، ضمن بيئة تعليمية منظمة، وبإشراف المعلمين والمعلمات. وتوفر الأكاديمية متابعة أكاديمية تساعد الطلاب على تحقيق أهدافهم."
+        data-en="The academy aims to serve the Holy Quran through specialized memorization, revision and Tajweed programs in a structured learning environment guided by teachers. Academic support helps students achieve their learning goals.">
+        تسعى الأكاديمية إلى خدمة القرآن الكريم من خلال برامج متخصصة في الحفظ والمراجعة والتجويد، ضمن بيئة تعليمية منظمة، وبإشراف المعلمين والمعلمات. وتوفر الأكاديمية متابعة أكاديمية تساعد الطلاب على تحقيق أهدافهم.
+      </p>
+
     </section>
 
-    <section class="cta-section" id="login"><span class="eyebrow" data-ar="قريباً" data-en="Coming soon">قريباً</span><h2 data-ar="ابدأ رحلتك العلمية" data-en="Begin your learning journey">ابدأ رحلتك العلمية</h2><p data-ar="سيتم تفعيل طلبات الالتحاق وحسابات الطلاب والمعلمين في المرحلة القادمة." data-en="Applications and student and teacher accounts will be introduced in the next stage.">سيتم تفعيل طلبات الالتحاق وحسابات الطلاب والمعلمين في المرحلة القادمة.</p><a class="button button-gold" href="#contact" data-ar="تابع التحديثات" data-en="Follow updates">تابع التحديثات</a></section>
+
+    <section class="cta-section" id="login">
+
+      <span class="eyebrow" data-ar="قريباً" data-en="Coming soon">قريباً</span>
+
+      <h2 data-ar="ابدأ رحلتك مع القرآن الكريم" data-en="Begin your Quran learning journey">
+        ابدأ رحلتك مع القرآن الكريم
+      </h2>
+
+      <p
+        data-ar="سيتم تفعيل التسجيل وحسابات الطلاب والمعلمين، والالتحاق ببرامج الحفظ والمراجعة والتجويد في المرحلة القادمة."
+        data-en="Student and teacher accounts, registration and enrolment in memorization, revision and Tajweed programs will be introduced in the next stage.">
+        سيتم تفعيل التسجيل وحسابات الطلاب والمعلمين، والالتحاق ببرامج الحفظ والمراجعة والتجويد في المرحلة القادمة.
+      </p>
+
+      <a class="button button-gold" href="#contact" data-ar="تابع التحديثات" data-en="Follow updates">
+        تابع التحديثات
+      </a>
+
+    </section>
+
   </main>
-  <footer id="contact"><span>۞ <strong data-ar="أكاديمية القرآن الكريم وعلومه" data-en="Quran Sciences Academy">أكاديمية القرآن الكريم وعلومه</strong></span><span data-ar="منارة العلم والإتقان" data-en="A home for learning and excellence">منارة العلم والإتقان</span><small>© <span id="year"></span> <span data-ar="جميع الحقوق محفوظة" data-en="All rights reserved">جميع الحقوق محفوظة</span></small></footer>
+
+
+  <footer id="contact">
+
+    <span>
+      ۞
+      <strong data-ar="أكاديمية القرآن الكريم" data-en="Quran Academy">
+        أكاديمية القرآن الكريم
+      </strong>
+    </span>
+
+    <span data-ar="منارة الحفظ والإتقان" data-en="A home for memorization and excellence">
+      منارة الحفظ والإتقان
+    </span>
+
+    <small>
+      © <span id="year"></span>
+      <span data-ar="جميع الحقوق محفوظة" data-en="All rights reserved">
+        جميع الحقوق محفوظة
+      </span>
+    </small>
+
+  </footer>
+
 </body>
 </html>

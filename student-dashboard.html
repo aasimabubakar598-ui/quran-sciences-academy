@@ -1,0 +1,538 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"
+  data-title-ar="لوحة الطالب | أكاديمية القرآن الكريم"
+  data-title-en="Student Dashboard | Quran Sciences Academy">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f2a24">
+  <meta name="description" content="لوحة الطالب في أكاديمية القرآن الكريم وعلومه">
+  <title>لوحة الطالب | أكاديمية القرآن الكريم</title>
+
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/app.js" defer></script>
+
+  <style>
+    .dashboard {
+      max-width: 1150px;
+      margin: 35px auto;
+      padding: 0 18px 50px;
+    }
+
+    .welcome-card {
+      background: #0f2a24;
+      color: white;
+      padding: 30px;
+      border-radius: 18px;
+      margin-bottom: 30px;
+    }
+
+    .welcome-card h1 {
+      margin-top: 0;
+      color: #d8bd78;
+    }
+
+    .dashboard-section {
+      margin: 30px 0;
+    }
+
+    .dashboard-section h2 {
+      color: #0f2a24;
+      border-bottom: 2px solid #d8bd78;
+      padding-bottom: 10px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
+    }
+
+    .dashboard-card {
+      background: white;
+      border: 1px solid #e4e8e4;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 5px 18px rgba(0,0,0,.04);
+    }
+
+    .dashboard-card h3 {
+      color: #0f2a24;
+      margin-top: 0;
+    }
+
+    .dashboard-card p {
+      color: #64746e;
+      line-height: 1.8;
+    }
+
+    .dashboard-card a {
+      color: #997a35;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: #edf4ee;
+      color: #176438;
+      font-size: 13px;
+    }
+
+    .empty-state {
+      background: white;
+      padding: 22px;
+      border-radius: 12px;
+      color: #64746e;
+      text-align: center;
+    }
+
+    .dashboard-message {
+      padding: 14px;
+      border-radius: 9px;
+      margin: 18px 0;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .dashboard-message.error {
+      background: #fcebea;
+      color: #a12622;
+    }
+
+    .dashboard-message.info {
+      background: #edf4ee;
+      color: #176438;
+    }
+
+    .dashboard-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .dashboard-actions button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 18px;
+      background: #d8bd78;
+      color: #19362e;
+      font-family: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .dashboard-actions a {
+      color: #d8bd78;
+      align-self: center;
+    }
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 600px) {
+      .welcome-card {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="site-header">
+  <a href="/index.html" class="logo">
+    <span>أكاديمية القرآن الكريم</span>
+  </a>
+
+  <button id="languageToggle" type="button">English</button>
+</header>
+
+<main class="dashboard">
+
+  <section class="welcome-card">
+    <h1 id="welcomeTitle">مرحباً بك في الأكاديمية</h1>
+    <p id="welcomeDescription">
+      هذه لوحتك الخاصة لمتابعة مقرراتك الدراسية.
+    </p>
+
+    <div class="dashboard-actions">
+      <button type="button" id="refreshButton">
+        تحديث البيانات
+      </button>
+
+      <a href="/index.html" id="homeLink">
+        الصفحة الرئيسية
+      </a>
+
+      <button type="button" id="logoutButton">
+        تسجيل الخروج
+      </button>
+    </div>
+  </section>
+
+  <div id="dashboardMessage" class="dashboard-message info">
+    جارٍ تحميل بياناتك...
+  </div>
+
+  <section class="dashboard-section">
+    <h2 id="departmentsHeading">الأقسام العلمية</h2>
+    <div id="departmentsList" class="dashboard-grid">
+      <div class="empty-state">جارٍ التحميل...</div>
+    </div>
+  </section>
+
+  <section class="dashboard-section">
+    <h2 id="coursesHeading">المقررات المتاحة</h2>
+    <div id="coursesList" class="dashboard-grid">
+      <div class="empty-state">جارٍ التحميل...</div>
+    </div>
+  </section>
+
+  <section class="dashboard-section">
+    <h2 id="enrollmentsHeading">مقرراتي المسجلة</h2>
+    <div id="enrollmentsList" class="dashboard-grid">
+      <div class="empty-state">جارٍ التحميل...</div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>
+    © <span id="year"></span>
+    أكاديمية القرآن الكريم وعلومه
+  </p>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+
+  const SUPABASE_URL =
+    "https://kxaovcknyddctnqvrudi.supabase.co";
+
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+
+  const message = document.getElementById("dashboardMessage");
+  const departmentsList = document.getElementById("departmentsList");
+  const coursesList = document.getElementById("coursesList");
+  const enrollmentsList = document.getElementById("enrollmentsList");
+
+  if (!window.supabase) {
+    showMessage("Supabase could not load. Please refresh.", "error");
+    return;
+  }
+
+  const client = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+  let currentUser = null;
+  let currentProfile = null;
+  let departments = [];
+  let courses = [];
+  let enrollments = [];
+
+  function language() {
+    return document.documentElement.lang === "en" ? "en" : "ar";
+  }
+
+  function t(ar, en) {
+    return language() === "ar" ? ar : en;
+  }
+
+  function showMessage(text, type = "info") {
+    message.textContent = text;
+    message.className = "dashboard-message " + type;
+  }
+
+  function emptyState(ar, en) {
+    const div = document.createElement("div");
+    div.className = "empty-state";
+    div.textContent = t(ar, en);
+    return div;
+  }
+
+  function createCard(title, description, extra) {
+    const card = document.createElement("article");
+    card.className = "dashboard-card";
+
+    const heading = document.createElement("h3");
+    heading.textContent = title;
+    card.appendChild(heading);
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = description || t(
+      "لا يوجد وصف لهذا العنصر حالياً.",
+      "No description is available yet."
+    );
+    card.appendChild(paragraph);
+
+    if (extra) {
+      card.appendChild(extra);
+    }
+
+    return card;
+  }
+
+  function renderDepartments() {
+    departmentsList.replaceChildren();
+
+    if (!departments.length) {
+      departmentsList.appendChild(
+        emptyState("لا توجد أقسام متاحة حالياً.", "No departments available.")
+      );
+      return;
+    }
+
+    departments.forEach(department => {
+      const name = department.name_ar || "";
+
+      const englishName =
+        name.includes("تجويد") ? "Tajweed" :
+        name.includes("حفظ") ? "Memorization & Revision" :
+        name;
+
+      const card = createCard(
+        language() === "ar" ? name : englishName,
+        name.includes("تجويد")
+          ? t("قسم دراسة أحكام التجويد وتطبيقها.", "Study and practice of Tajweed rules.")
+          : t("قسم حفظ القرآن الكريم ومراجعته.", "Quran memorization and revision.")
+      );
+
+      departmentsList.appendChild(card);
+    });
+  }
+
+  function renderCourses() {
+    coursesList.replaceChildren();
+
+    if (!courses.length) {
+      coursesList.appendChild(
+        emptyState("لا توجد مقررات متاحة حالياً.", "No courses are available yet.")
+      );
+      return;
+    }
+
+    courses.forEach(course => {
+      const department = departments.find(
+        item => String(item.id) === String(course.department_id)
+      );
+
+      const departmentName = department
+        ? department.name_ar
+        : t("قسم غير محدد", "Unassigned department");
+
+      const card = createCard(
+        course.title || t("مقرر بدون عنوان", "Untitled course"),
+        course.description || t("لا يوجد وصف للمقرر.", "No course description."),
+        (() => {
+          const label = document.createElement("span");
+          label.className = "status";
+          label.textContent = language() === "ar"
+            ? departmentName
+            : departmentName.includes("تجويد")
+              ? "Tajweed"
+              : departmentName.includes("حفظ")
+                ? "Memorization & Revision"
+                : departmentName;
+          return label;
+        })()
+      );
+
+      coursesList.appendChild(card);
+    });
+  }
+
+  function renderEnrollments() {
+    enrollmentsList.replaceChildren();
+
+    if (!enrollments.length) {
+      enrollmentsList.appendChild(
+        emptyState(
+          "لم تسجل في أي مقرر بعد.",
+          "You have not enrolled in any courses yet."
+        )
+      );
+      return;
+    }
+
+    enrollments.forEach(enrollment => {
+      const course = courses.find(
+        item => String(item.id) === String(enrollment.course_id)
+      );
+
+      const title = course
+        ? course.title
+        : t("مقرر غير متاح", "Unavailable course");
+
+      const statusNames = {
+        pending: t("قيد المراجعة", "Pending"),
+        approved: t("مقبول", "Approved"),
+        active: t("نشط", "Active"),
+        rejected: t("مرفوض", "Rejected"),
+        completed: t("مكتمل", "Completed")
+      };
+
+      const status = statusNames[enrollment.status] ||
+        enrollment.status ||
+        t("غير محدد", "Not specified");
+
+      const statusLabel = document.createElement("span");
+      statusLabel.className = "status";
+      statusLabel.textContent = status;
+
+      enrollmentsList.appendChild(
+        createCard(title, t("حالة التسجيل:", "Enrollment status:") + " " + status, statusLabel)
+      );
+    });
+  }
+
+  function renderAll() {
+    renderDepartments();
+    renderCourses();
+    renderEnrollments();
+
+    document.getElementById("departmentsHeading").textContent =
+      t("الأقسام العلمية", "Departments");
+
+    document.getElementById("coursesHeading").textContent =
+      t("المقررات المتاحة", "Available Courses");
+
+    document.getElementById("enrollmentsHeading").textContent =
+      t("مقرراتي المسجلة", "My Enrolled Courses");
+
+    document.getElementById("refreshButton").textContent =
+      t("تحديث البيانات", "Refresh");
+
+    document.getElementById("logoutButton").textContent =
+      t("تسجيل الخروج", "Log out");
+
+    document.getElementById("homeLink").textContent =
+      t("الصفحة الرئيسية", "Homepage");
+
+    if (currentProfile) {
+      document.getElementById("welcomeTitle").textContent =
+        t("مرحباً، ", "Welcome, ") + (currentProfile.full_name || "");
+      document.getElementById("welcomeDescription").textContent =
+        t(
+          "هذه لوحتك الخاصة لمتابعة مقرراتك الدراسية.",
+          "Your personal dashboard for following your courses."
+        );
+    }
+  }
+
+  async function loadDashboard() {
+    showMessage(t("جارٍ تحميل بياناتك...", "Loading your information..."));
+
+    const { data: authData, error: authError } =
+      await client.auth.getUser();
+
+    if (authError || !authData.user) {
+      window.location.href = "/login.html";
+      return;
+    }
+
+    currentUser = authData.user;
+
+    const { data: profile, error: profileError } = await client
+      .from("profiles")
+      .select("id, full_name, role")
+      .eq("id", currentUser.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    currentProfile = profile;
+
+    if (profile.role !== "student") {
+      showMessage(
+        t(
+          "هذه اللوحة مخصصة للطلاب فقط. نوع حسابك: ",
+          "This dashboard is for students only. Your account role is: "
+        ) + profile.role,
+        "error"
+      );
+      return;
+    }
+
+    const results = await Promise.all([
+      client.from("departments").select("id, name_ar"),
+      client.from("courses").select("id, title, description, department_id, created_at"),
+      client.from("enrollments")
+        .select("id, student_id, course_id, status, created_at")
+        .eq("student_id", currentUser.id)
+    ]);
+
+    const departmentResult = results[0];
+    const courseResult = results[1];
+    const enrollmentResult = results[2];
+
+    if (departmentResult.error) throw departmentResult.error;
+    if (courseResult.error) throw courseResult.error;
+    if (enrollmentResult.error) throw enrollmentResult.error;
+
+    departments = departmentResult.data || [];
+    courses = courseResult.data || [];
+    enrollments = enrollmentResult.data || [];
+
+    renderAll();
+
+    showMessage(
+      t("تم تحميل لوحة الطالب بنجاح.", "Student dashboard loaded successfully.")
+    );
+  }
+
+  document.getElementById("refreshButton")
+    .addEventListener("click", async () => {
+      try {
+        await loadDashboard();
+      } catch (error) {
+        showMessage(error.message, "error");
+      }
+    });
+
+  document.getElementById("logoutButton")
+    .addEventListener("click", async () => {
+      const { error } = await client.auth.signOut();
+
+      if (error) {
+        showMessage(error.message, "error");
+        return;
+      }
+
+      window.location.href = "/login.html";
+    });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+  });
+
+  loadDashboard().catch(error => {
+    showMessage(
+      t("حدث خطأ أثناء تحميل البيانات: ", "Could not load dashboard: ") +
+      error.message,
+      "error"
+    );
+  });
+
+})();
+</script>
+
+</body>
+</html>

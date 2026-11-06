@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"
+data-title-ar="تسجيل الدخول | أكاديمية القرآن الكريم"
+data-title-en="Login | Quran Sciences Academy">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f2a24">
+<title>تسجيل الدخول | أكاديمية القرآن الكريم</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/app.js" defer></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ min-height:100vh;
+ background:#f7f6f0;
+ color:#19362e;
+ font-family:"Tajawal",Arial,sans-serif;
+}
+header{
+ background:#0f2a24;
+ color:white;
+ padding:18px 6%;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:15px;
+}
+.brand{
+ color:white;
+ text-decoration:none;
+ font-size:21px;
+ font-weight:800;
+}
+.language-button{
+ background:transparent;
+ color:#e2c77e;
+ border:1px solid #d8bd78;
+ border-radius:8px;
+ padding:9px 15px;
+ cursor:pointer;
+ font-family:inherit;
+}
+main{
+ width:min(100% - 30px,480px);
+ margin:55px auto;
+}
+.panel{
+ background:white;
+ padding:32px;
+ border-radius:18px;
+ box-shadow:0 8px 35px rgba(0,0,0,.07);
+}
+h1{
+ font-family:"Amiri",serif;
+ color:#0f2a24;
+ text-align:center;
+ font-size:34px;
+ margin:0 0 8px;
+}
+.subtitle{
+ text-align:center;
+ color:#718078;
+ margin-bottom:25px;
+}
+.tabs{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+ margin-bottom:25px;
+}
+.tab{
+ padding:12px;
+ border:1px solid #d9e0d9;
+ background:#f7f8f5;
+ border-radius:9px;
+ cursor:pointer;
+ font-family:inherit;
+ font-weight:700;
+}
+.tab.active{
+ background:#0f2a24;
+ color:white;
+ border-color:#0f2a24;
+}
+form{display:none}
+form.active{display:block}
+label{
+ display:block;
+ margin:15px 0 7px;
+ font-weight:700;
+}
+input{
+ width:100%;
+ padding:13px;
+ border:1px solid #d9dfd8;
+ border-radius:8px;
+ font-family:inherit;
+ font-size:15px;
+}
+input:focus{
+ outline:2px solid #d8bd78;
+ border-color:#d8bd78;
+}
+.submit{
+ width:100%;
+ margin-top:22px;
+ padding:14px;
+ background:#0f2a24;
+ color:white;
+ border:0;
+ border-radius:9px;
+ font-family:inherit;
+ font-size:16px;
+ font-weight:700;
+ cursor:pointer;
+}
+.submit:disabled{opacity:.6;cursor:wait}
+.message{
+ margin-top:18px;
+ padding:12px;
+ border-radius:8px;
+ display:none;
+ line-height:1.7;
+ overflow-wrap:anywhere;
+}
+.message.show{display:block}
+.message.error{background:#fff0ee;color:#a33125}
+.message.success{background:#edf7ef;color:#21653a}
+.back{
+ display:block;
+ text-align:center;
+ margin-top:22px;
+ color:#0f2a24;
+ text-decoration:none;
+ font-weight:700;
+}
+.note{
+ font-size:13px;
+ color:#758078;
+ line-height:1.7;
+ margin-top:15px;
+}
+@media(max-width:480px){
+ .panel{padding:23px}
+ main{margin:30px auto}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<a class="brand" href="/index.html"
+data-ar="أكاديمية القرآن الكريم"
+data-en="Quran Sciences Academy">
+أكاديمية القرآن الكريم
+</a>
+
+<button class="language-button" id="languageToggle" type="button">
+English
+</button>
+</header>
+
+<main>
+<section class="panel">
+
+<h1 data-ar="مرحباً بك" data-en="Welcome">
+مرحباً بك
+</h1>
+
+<p class="subtitle"
+data-ar="أكاديمية القرآن الكريم وعلومه"
+data-en="Quran Sciences Academy">
+أكاديمية القرآن الكريم وعلومه
+</p>
+
+<div class="tabs">
+<button class="tab active" id="loginTab" type="button"
+data-ar="تسجيل الدخول" data-en="Login">
+تسجيل الدخول
+</button>
+
+<button class="tab" id="registerTab" type="button"
+data-ar="حساب طالب جديد" data-en="Student Registration">
+حساب طالب جديد
+</button>
+</div>
+
+<form id="loginForm" class="active">
+
+<label for="loginEmail"
+data-ar="البريد الإلكتروني"
+data-en="Email Address">البريد الإلكتروني</label>
+
+<input id="loginEmail" type="email" required
+autocomplete="email"
+placeholder="example@email.com">
+
+<label for="loginPassword"
+data-ar="كلمة المرور"
+data-en="Password">كلمة المرور</label>
+
+<input id="loginPassword" type="password" required
+autocomplete="current-password">
+
+<button class="submit" type="submit"
+data-ar="دخول"
+data-en="Sign In">دخول</button>
+
+</form>
+
+<form id="registerForm">
+
+<label for="fullName"
+data-ar="الاسم الكامل"
+data-en="Full Name">الاسم الكامل</label>
+
+<input id="fullName" type="text" required
+autocomplete="name">
+
+<label for="registerEmail"
+data-ar="البريد الإلكتروني"
+data-en="Email Address">البريد الإلكتروني</label>
+
+<input id="registerEmail" type="email" required
+autocomplete="email"
+placeholder="example@email.com">
+
+<label for="registerPassword"
+data-ar="كلمة المرور"
+data-en="Password">كلمة المرور</label>
+
+<input id="registerPassword" type="password"
+required minlength="8"
+autocomplete="new-password">
+
+<button class="submit" type="submit"
+data-ar="إنشاء حساب طالب"
+data-en="Create Student Account">
+إنشاء حساب طالب
+</button>
+
+<p class="note"
+data-ar="التسجيل العام مخصص للطلاب. حسابات المعلمين والإدارة تُنشأ وتُعتمد بشكل منفصل."
+data-en="Public registration is for students. Teacher and administrator accounts are created and approved separately.">
+التسجيل العام مخصص للطلاب. حسابات المعلمين والإدارة تُنشأ وتُعتمد بشكل منفصل.
+</p>
+
+</form>
+
+<div id="message" class="message" role="status"></div>
+
+<a class="back" href="/index.html"
+data-ar="العودة إلى الصفحة الرئيسية"
+data-en="Back to Homepage">
+العودة إلى الصفحة الرئيسية
+</a>
+
+</section>
+</main>
+
+<script>
+(() => {
+  // ENTER YOUR SUPABASE PUBLIC PROJECT DETAILS BELOW
+  const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+  const SUPABASE_PUBLIC_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+
+  const client = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLIC_KEY
+  );
+
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const loginTab = document.getElementById("loginTab");
+  const registerTab = document.getElementById("registerTab");
+  const message = document.getElementById("message");
+
+  let busy = false;
+
+  function showMessage(text, type) {
+    message.textContent = text;
+    message.className = "message show " + type;
+  }
+
+  function setTab(tab) {
+    const isLogin = tab === "login";
+
+    loginForm.classList.toggle("active", isLogin);
+    registerForm.classList.toggle("active", !isLogin);
+
+    loginTab.classList.toggle("active", isLogin);
+    registerTab.classList.toggle("active", !isLogin);
+
+    message.className = "message";
+    message.textContent = "";
+  }
+
+  function setBusy(form, value) {
+    form.querySelector(".submit").disabled = value;
+    busy = value;
+  }
+
+  loginTab.addEventListener("click", () => setTab("login"));
+  registerTab.addEventListener("click", () => setTab("register"));
+
+  registerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (busy) return;
+
+    const fullName = document.getElementById("fullName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
+
+    if (!fullName) {
+      showMessage("Please enter your full name.", "error");
+      return;
+    }
+
+    setBusy(registerForm, true);
+
+    try {
+      const { data, error } = await client.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+          emailRedirectTo: window.location.origin + "/login.html"
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.session) {
+        showMessage(
+          "Account created. Your student profile is ready.",
+          "success"
+        );
+      } else {
+        showMessage(
+          "Registration received. Please check your email to confirm your account.",
+          "success"
+        );
+      }
+
+      registerForm.reset();
+
+    } catch (error) {
+      showMessage(error.message, "error");
+    } finally {
+      setBusy(registerForm, false);
+    }
+  });
+
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (busy) return;
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    setBusy(loginForm, true);
+
+    try {
+      const { data, error } = await client.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      const { data: profile, error: profileError } = await client
+        .from("profiles")
+        .select("full_name, role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profileError) {
+        await client.auth.signOut();
+        throw new Error(
+          "Your account profile could not be loaded. Please contact the Academy administrator."
+        );
+      }
+
+      const roleNames = {
+        student: "Student",
+        teacher: "Teacher",
+        admin: "Administrator"
+      };
+
+      showMessage(
+        "Welcome " + (profile.full_name || "") +
+        ". Signed in as " + (roleNames[profile.role] || "User") +
+        ". Your account is authenticated.",
+        "success"
+      );
+
+    } catch (error) {
+      showMessage(error.message, "error");
+    } finally {
+      setBusy(loginForm, false);
+    }
+  });
+
+})();
+</script>
+
+</body>
+  </html>
+  

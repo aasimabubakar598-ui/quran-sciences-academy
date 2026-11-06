@@ -1,279 +1,318 @@
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl"
-data-title-ar="تسجيل الدخول | أكاديمية القرآن الكريم"
-data-title-en="Login | Quran Sciences Academy">
+  data-title-ar="تسجيل الدخول | أكاديمية القرآن الكريم"
+  data-title-en="Login | Quran Sciences Academy">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0f2a24">
-<title>تسجيل الدخول | أكاديمية القرآن الكريم</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f2a24">
+  <meta name="description" content="تسجيل الدخول إلى أكاديمية القرآن الكريم وعلومه">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <title>تسجيل الدخول | أكاديمية القرآن الكريم</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/app.js" defer></script>
+  <link rel="stylesheet" href="/style.css">
 
-<style>
-*{box-sizing:border-box}
-body{
- margin:0;
- min-height:100vh;
- background:#f7f6f0;
- color:#19362e;
- font-family:"Tajawal",Arial,sans-serif;
-}
-header{
- background:#0f2a24;
- color:white;
- padding:18px 6%;
- display:flex;
- justify-content:space-between;
- align-items:center;
- gap:15px;
-}
-.brand{
- color:white;
- text-decoration:none;
- font-size:21px;
- font-weight:800;
-}
-.language-button{
- background:transparent;
- color:#e2c77e;
- border:1px solid #d8bd78;
- border-radius:8px;
- padding:9px 15px;
- cursor:pointer;
- font-family:inherit;
-}
-main{
- width:min(100% - 30px,480px);
- margin:55px auto;
-}
-.panel{
- background:white;
- padding:32px;
- border-radius:18px;
- box-shadow:0 8px 35px rgba(0,0,0,.07);
-}
-h1{
- font-family:"Amiri",serif;
- color:#0f2a24;
- text-align:center;
- font-size:34px;
- margin:0 0 8px;
-}
-.subtitle{
- text-align:center;
- color:#718078;
- margin-bottom:25px;
-}
-.tabs{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:10px;
- margin-bottom:25px;
-}
-.tab{
- padding:12px;
- border:1px solid #d9e0d9;
- background:#f7f8f5;
- border-radius:9px;
- cursor:pointer;
- font-family:inherit;
- font-weight:700;
-}
-.tab.active{
- background:#0f2a24;
- color:white;
- border-color:#0f2a24;
-}
-form{display:none}
-form.active{display:block}
-label{
- display:block;
- margin:15px 0 7px;
- font-weight:700;
-}
-input{
- width:100%;
- padding:13px;
- border:1px solid #d9dfd8;
- border-radius:8px;
- font-family:inherit;
- font-size:15px;
-}
-input:focus{
- outline:2px solid #d8bd78;
- border-color:#d8bd78;
-}
-.submit{
- width:100%;
- margin-top:22px;
- padding:14px;
- background:#0f2a24;
- color:white;
- border:0;
- border-radius:9px;
- font-family:inherit;
- font-size:16px;
- font-weight:700;
- cursor:pointer;
-}
-.submit:disabled{opacity:.6;cursor:wait}
-.message{
- margin-top:18px;
- padding:12px;
- border-radius:8px;
- display:none;
- line-height:1.7;
- overflow-wrap:anywhere;
-}
-.message.show{display:block}
-.message.error{background:#fff0ee;color:#a33125}
-.message.success{background:#edf7ef;color:#21653a}
-.back{
- display:block;
- text-align:center;
- margin-top:22px;
- color:#0f2a24;
- text-decoration:none;
- font-weight:700;
-}
-.note{
- font-size:13px;
- color:#758078;
- line-height:1.7;
- margin-top:15px;
-}
-@media(max-width:480px){
- .panel{padding:23px}
- main{margin:30px auto}
-}
-</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/app.js" defer></script>
+
+  <style>
+    .auth-page {
+      min-height: 75vh;
+      padding: 45px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.08);
+    }
+
+    .auth-container h1 {
+      text-align: center;
+      color: #0f2a24;
+      margin-top: 0;
+    }
+
+    .auth-description {
+      text-align: center;
+      color: #64746e;
+      margin-bottom: 25px;
+    }
+
+    .auth-form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .auth-form label {
+      font-weight: 700;
+      color: #19362e;
+    }
+
+    .auth-form input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #d8dfda;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 16px;
+      margin-top: 6px;
+    }
+
+    .auth-form button {
+      border: 0;
+      border-radius: 9px;
+      padding: 14px;
+      background: #0f2a24;
+      color: white;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .auth-form button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 22px;
+      color: #64746e;
+    }
+
+    .auth-switch button {
+      border: 0;
+      background: none;
+      color: #997a35;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: inherit;
+    }
+
+    .auth-message {
+      display: none;
+      padding: 12px;
+      margin-top: 18px;
+      border-radius: 8px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .auth-message.success {
+      display: block;
+      background: #e8f5ec;
+      color: #176438;
+    }
+
+    .auth-message.error {
+      display: block;
+      background: #fcebea;
+      color: #a12622;
+    }
+
+    .auth-message.info {
+      display: block;
+      background: #edf3f5;
+      color: #244b5a;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .auth-back {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #997a35;
+      text-decoration: none;
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
-<a class="brand" href="/index.html"
-data-ar="أكاديمية القرآن الكريم"
-data-en="Quran Sciences Academy">
-أكاديمية القرآن الكريم
-</a>
+<header class="site-header">
+  <a href="/index.html" class="logo">
+    <span>أكاديمية القرآن الكريم</span>
+  </a>
 
-<button class="language-button" id="languageToggle" type="button">
-English
-</button>
+  <button id="languageToggle" type="button">English</button>
 </header>
 
-<main>
-<section class="panel">
+<main class="auth-page">
 
-<h1 data-ar="مرحباً بك" data-en="Welcome">
-مرحباً بك
-</h1>
+  <section class="auth-container">
 
-<p class="subtitle"
-data-ar="أكاديمية القرآن الكريم وعلومه"
-data-en="Quran Sciences Academy">
-أكاديمية القرآن الكريم وعلومه
-</p>
+    <h1 data-ar="مرحباً بك في الأكاديمية"
+        data-en="Welcome to the Academy">
+      مرحباً بك في الأكاديمية
+    </h1>
 
-<div class="tabs">
-<button class="tab active" id="loginTab" type="button"
-data-ar="تسجيل الدخول" data-en="Login">
-تسجيل الدخول
-</button>
+    <p class="auth-description"
+       data-ar="سجّل الدخول أو أنشئ حساباً للانضمام إلى الأكاديمية."
+       data-en="Log in or create an account to join the academy.">
+      سجّل الدخول أو أنشئ حساباً للانضمام إلى الأكاديمية.
+    </p>
 
-<button class="tab" id="registerTab" type="button"
-data-ar="حساب طالب جديد" data-en="Student Registration">
-حساب طالب جديد
-</button>
-</div>
+    <!-- LOGIN FORM -->
 
-<form id="loginForm" class="active">
+    <form id="loginForm" class="auth-form">
 
-<label for="loginEmail"
-data-ar="البريد الإلكتروني"
-data-en="Email Address">البريد الإلكتروني</label>
+      <h2 data-ar="تسجيل الدخول"
+          data-en="Login">
+        تسجيل الدخول
+      </h2>
 
-<input id="loginEmail" type="email" required
-autocomplete="email"
-placeholder="example@email.com">
+      <label>
+        <span data-ar="البريد الإلكتروني"
+              data-en="Email address">
+          البريد الإلكتروني
+        </span>
 
-<label for="loginPassword"
-data-ar="كلمة المرور"
-data-en="Password">كلمة المرور</label>
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="example@email.com"
+          autocomplete="email"
+          required>
+      </label>
 
-<input id="loginPassword" type="password" required
-autocomplete="current-password">
+      <label>
+        <span data-ar="كلمة المرور"
+              data-en="Password">
+          كلمة المرور
+        </span>
 
-<button class="submit" type="submit"
-data-ar="دخول"
-data-en="Sign In">دخول</button>
+        <input
+          type="password"
+          id="loginPassword"
+          autocomplete="current-password"
+          required>
+      </label>
 
-</form>
+      <button type="submit" id="loginButton"
+              data-ar="دخول"
+              data-en="Log in">
+        دخول
+      </button>
 
-<form id="registerForm">
+    </form>
 
-<label for="fullName"
-data-ar="الاسم الكامل"
-data-en="Full Name">الاسم الكامل</label>
+    <!-- REGISTRATION FORM -->
 
-<input id="fullName" type="text" required
-autocomplete="name">
+    <form id="registerForm" class="auth-form hidden">
 
-<label for="registerEmail"
-data-ar="البريد الإلكتروني"
-data-en="Email Address">البريد الإلكتروني</label>
+      <h2 data-ar="إنشاء حساب طالب"
+          data-en="Create Student Account">
+        إنشاء حساب طالب
+      </h2>
 
-<input id="registerEmail" type="email" required
-autocomplete="email"
-placeholder="example@email.com">
+      <label>
+        <span data-ar="الاسم الكامل"
+              data-en="Full name">
+          الاسم الكامل
+        </span>
 
-<label for="registerPassword"
-data-ar="كلمة المرور"
-data-en="Password">كلمة المرور</label>
+        <input
+          type="text"
+          id="fullName"
+          autocomplete="name"
+          required>
+      </label>
 
-<input id="registerPassword" type="password"
-required minlength="8"
-autocomplete="new-password">
+      <label>
+        <span data-ar="البريد الإلكتروني"
+              data-en="Email address">
+          البريد الإلكتروني
+        </span>
 
-<button class="submit" type="submit"
-data-ar="إنشاء حساب طالب"
-data-en="Create Student Account">
-إنشاء حساب طالب
-</button>
+        <input
+          type="email"
+          id="registerEmail"
+          autocomplete="email"
+          required>
+      </label>
 
-<p class="note"
-data-ar="التسجيل العام مخصص للطلاب. حسابات المعلمين والإدارة تُنشأ وتُعتمد بشكل منفصل."
-data-en="Public registration is for students. Teacher and administrator accounts are created and approved separately.">
-التسجيل العام مخصص للطلاب. حسابات المعلمين والإدارة تُنشأ وتُعتمد بشكل منفصل.
-</p>
+      <label>
+        <span data-ar="كلمة المرور"
+              data-en="Password">
+          كلمة المرور
+        </span>
 
-</form>
+        <input
+          type="password"
+          id="registerPassword"
+          minlength="6"
+          autocomplete="new-password"
+          required>
+      </label>
 
-<div id="message" class="message" role="status"></div>
+      <button type="submit" id="registerButton"
+              data-ar="إنشاء الحساب"
+              data-en="Create account">
+        إنشاء الحساب
+      </button>
 
-<a class="back" href="/index.html"
-data-ar="العودة إلى الصفحة الرئيسية"
-data-en="Back to Homepage">
-العودة إلى الصفحة الرئيسية
-</a>
+    </form>
 
-</section>
+    <div class="auth-switch">
+
+      <span id="switchText"
+            data-ar="ليس لديك حساب؟"
+            data-en="Don't have an account?">
+        ليس لديك حساب؟
+      </span>
+
+      <button type="button" id="switchButton"
+              data-ar="إنشاء حساب"
+              data-en="Register">
+        إنشاء حساب
+      </button>
+
+    </div>
+
+    <div id="authMessage" class="auth-message"
+         role="status" aria-live="polite"></div>
+
+    <a href="/index.html" class="auth-back"
+       data-ar="العودة إلى الصفحة الرئيسية"
+       data-en="Back to homepage">
+      العودة إلى الصفحة الرئيسية
+    </a>
+
+  </section>
+
 </main>
+
+<footer class="site-footer">
+  <p>
+    © <span id="year"></span>
+    <span data-ar="أكاديمية القرآن الكريم وعلومه"
+          data-en="Quran Sciences Academy">
+      أكاديمية القرآن الكريم وعلومه
+    </span>
+  </p>
+</footer>
 
 <script>
 (() => {
-  // ENTER YOUR SUPABASE PUBLIC PROJECT DETAILS BELOW
-  const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-  const SUPABASE_PUBLIC_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+  const SUPABASE_URL =
+    "https://ejynanimpmwkkhxjquut.supabase.co";
+
+  const SUPABASE_PUBLIC_KEY =
+    "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
 
   const client = window.supabase.createClient(
     SUPABASE_URL,
@@ -282,60 +321,95 @@ data-en="Back to Homepage">
 
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
-  const loginTab = document.getElementById("loginTab");
-  const registerTab = document.getElementById("registerTab");
-  const message = document.getElementById("message");
 
-  let busy = false;
+  const switchButton = document.getElementById("switchButton");
+  const switchText = document.getElementById("switchText");
+
+  const message = document.getElementById("authMessage");
+
+  const loginButton = document.getElementById("loginButton");
+  const registerButton = document.getElementById("registerButton");
+
+  let isRegistering = false;
+
+  function currentLanguage() {
+    return document.documentElement.lang === "en" ? "en" : "ar";
+  }
 
   function showMessage(text, type) {
     message.textContent = text;
-    message.className = "message show " + type;
+    message.className = "auth-message " + type;
   }
 
-  function setTab(tab) {
-    const isLogin = tab === "login";
-
-    loginForm.classList.toggle("active", isLogin);
-    registerForm.classList.toggle("active", !isLogin);
-
-    loginTab.classList.toggle("active", isLogin);
-    registerTab.classList.toggle("active", !isLogin);
-
-    message.className = "message";
+  function clearMessage() {
     message.textContent = "";
+    message.className = "auth-message";
   }
 
-  function setBusy(form, value) {
-    form.querySelector(".submit").disabled = value;
-    busy = value;
+  function setLoading(button, loading) {
+    button.disabled = loading;
+
+    if (button === loginButton) {
+      button.textContent = loading
+        ? (currentLanguage() === "ar" ? "جارٍ الدخول..." : "Logging in...")
+        : (currentLanguage() === "ar" ? "دخول" : "Log in");
+    }
+
+    if (button === registerButton) {
+      button.textContent = loading
+        ? (currentLanguage() === "ar" ? "جارٍ إنشاء الحساب..." : "Creating account...")
+        : (currentLanguage() === "ar" ? "إنشاء الحساب" : "Create account");
+    }
   }
 
-  loginTab.addEventListener("click", () => setTab("login"));
-  registerTab.addEventListener("click", () => setTab("register"));
+  switchButton.addEventListener("click", () => {
+    isRegistering = !isRegistering;
+
+    clearMessage();
+
+    loginForm.classList.toggle("hidden", isRegistering);
+    registerForm.classList.toggle("hidden", !isRegistering);
+
+    const language = currentLanguage();
+
+    switchText.textContent = isRegistering
+      ? (language === "ar" ? "لديك حساب بالفعل؟" : "Already have an account?")
+      : (language === "ar" ? "ليس لديك حساب؟" : "Don't have an account?");
+
+    switchButton.textContent = isRegistering
+      ? (language === "ar" ? "تسجيل الدخول" : "Log in")
+      : (language === "ar" ? "إنشاء حساب" : "Register");
+  });
+
+  // STUDENT REGISTRATION
 
   registerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (busy) return;
 
-    const fullName = document.getElementById("fullName").value.trim();
-    const email = document.getElementById("registerEmail").value.trim();
-    const password = document.getElementById("registerPassword").value;
+    clearMessage();
+    setLoading(registerButton, true);
 
-    if (!fullName) {
-      showMessage("Please enter your full name.", "error");
-      return;
-    }
+    const fullName =
+      document.getElementById("fullName").value.trim();
 
-    setBusy(registerForm, true);
+    const email =
+      document.getElementById("registerEmail").value.trim();
+
+    const password =
+      document.getElementById("registerPassword").value;
+
+    const language = currentLanguage();
 
     try {
       const { data, error } = await client.auth.signUp({
         email,
         password,
         options: {
-          data: { full_name: fullName },
-          emailRedirectTo: window.location.origin + "/login.html"
+          data: {
+            full_name: fullName
+          },
+          emailRedirectTo:
+            "https://quran-sciences-academy.aasimabubakar598.workers.dev/"
         }
       });
 
@@ -343,12 +417,16 @@ data-en="Back to Homepage">
 
       if (data.session) {
         showMessage(
-          "Account created. Your student profile is ready.",
+          language === "ar"
+            ? "تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول."
+            : "Your account has been created successfully. You can now log in.",
           "success"
         );
       } else {
         showMessage(
-          "Registration received. Please check your email to confirm your account.",
+          language === "ar"
+            ? "تم إنشاء الحساب. يرجى مراجعة بريدك الإلكتروني لتأكيد الحساب قبل تسجيل الدخول."
+            : "Your account has been created. Please check your email to confirm your account before logging in.",
           "success"
         );
       }
@@ -358,18 +436,25 @@ data-en="Back to Homepage">
     } catch (error) {
       showMessage(error.message, "error");
     } finally {
-      setBusy(registerForm, false);
+      setLoading(registerButton, false);
     }
   });
 
+  // LOGIN
+
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (busy) return;
 
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
+    clearMessage();
+    setLoading(loginButton, true);
 
-    setBusy(loginForm, true);
+    const email =
+      document.getElementById("loginEmail").value.trim();
+
+    const password =
+      document.getElementById("loginPassword").value;
+
+    const language = currentLanguage();
 
     try {
       const { data, error } = await client.auth.signInWithPassword({
@@ -379,36 +464,41 @@ data-en="Back to Homepage">
 
       if (error) throw error;
 
+      const user = data.user;
+
       const { data: profile, error: profileError } = await client
         .from("profiles")
         .select("full_name, role")
-        .eq("id", data.user.id)
+        .eq("id", user.id)
         .single();
 
       if (profileError) {
-        await client.auth.signOut();
-        throw new Error(
-          "Your account profile could not be loaded. Please contact the Academy administrator."
-        );
+        throw profileError;
       }
 
       const roleNames = {
-        student: "Student",
-        teacher: "Teacher",
-        admin: "Administrator"
+        student: language === "ar" ? "طالب" : "Student",
+        teacher: language === "ar" ? "معلم" : "Teacher",
+        admin: language === "ar" ? "مدير" : "Administrator"
       };
 
+      const role = roleNames[profile.role] || profile.role;
+
       showMessage(
-        "Welcome " + (profile.full_name || "") +
-        ". Signed in as " + (roleNames[profile.role] || "User") +
-        ". Your account is authenticated.",
+        language === "ar"
+          ? "مرحباً " + (profile.full_name || "") +
+            ". تم تسجيل الدخول بنجاح. نوع الحساب: " + role +
+            ". لوحة التحكم ستكون متاحة بعد إعدادها."
+          : "Welcome " + (profile.full_name || "") +
+            ". Login successful. Account type: " + role +
+            ". Your dashboard will be available after it is configured.",
         "success"
       );
 
     } catch (error) {
       showMessage(error.message, "error");
     } finally {
-      setBusy(loginForm, false);
+      setLoading(loginButton, false);
     }
   });
 
@@ -416,5 +506,4 @@ data-en="Back to Homepage">
 </script>
 
 </body>
-  </html>
-  
+</html>

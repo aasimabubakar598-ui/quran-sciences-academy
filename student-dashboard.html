@@ -1,14 +1,10 @@
 
 <!DOCTYPE html>
-<html lang="ar" dir="rtl"
-  data-title-ar="لوحة الطالب | أكاديمية القرآن الكريم"
-  data-title-en="Student Dashboard | Quran Sciences Academy">
-
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f2a24">
-  <meta name="description" content="لوحة الطالب في أكاديمية القرآن الكريم وعلومه">
   <title>لوحة الطالب | أكاديمية القرآن الكريم</title>
 
   <link rel="stylesheet" href="/style.css">
@@ -30,14 +26,9 @@
       margin-bottom: 30px;
     }
 
-    .welcome-card h1 {
-      margin-top: 0;
-      color: #d8bd78;
-    }
+    .welcome-card h1 { color: #d8bd78; }
 
-    .dashboard-section {
-      margin: 30px 0;
-    }
+    .dashboard-section { margin: 30px 0; }
 
     .dashboard-section h2 {
       color: #0f2a24;
@@ -67,12 +58,6 @@
     .dashboard-card p {
       color: #64746e;
       line-height: 1.8;
-    }
-
-    .dashboard-card a {
-      color: #997a35;
-      font-weight: bold;
-      text-decoration: none;
     }
 
     .status {
@@ -142,9 +127,7 @@
     }
 
     @media (max-width: 600px) {
-      .welcome-card {
-        padding: 22px;
-      }
+      .welcome-card { padding: 22px; }
     }
   </style>
 </head>
@@ -155,7 +138,6 @@
   <a href="/index.html" class="logo">
     <span>أكاديمية القرآن الكريم</span>
   </a>
-
   <button id="languageToggle" type="button">English</button>
 </header>
 
@@ -168,17 +150,9 @@
     </p>
 
     <div class="dashboard-actions">
-      <button type="button" id="refreshButton">
-        تحديث البيانات
-      </button>
-
-      <a href="/index.html" id="homeLink">
-        الصفحة الرئيسية
-      </a>
-
-      <button type="button" id="logoutButton">
-        تسجيل الخروج
-      </button>
+      <button type="button" id="refreshButton">تحديث البيانات</button>
+      <a href="/index.html" id="homeLink">الصفحة الرئيسية</a>
+      <button type="button" id="logoutButton">تسجيل الخروج</button>
     </div>
   </section>
 
@@ -210,10 +184,7 @@
 </main>
 
 <footer class="site-footer">
-  <p>
-    © <span id="year"></span>
-    أكاديمية القرآن الكريم وعلومه
-  </p>
+  <p>© <span id="year"></span> أكاديمية القرآن الكريم وعلومه</p>
 </footer>
 
 <script>
@@ -232,7 +203,8 @@
   const enrollmentsList = document.getElementById("enrollmentsList");
 
   if (!window.supabase) {
-    showMessage("Supabase could not load. Please refresh.", "error");
+    message.textContent = "Supabase could not load. Please refresh.";
+    message.className = "dashboard-message error";
     return;
   }
 
@@ -267,6 +239,21 @@
     return div;
   }
 
+  function courseTitle(course) {
+    return language() === "ar"
+      ? (course.title_ar || course.title_en || "مقرر بدون عنوان")
+      : (course.title_en || course.title_ar || "Untitled course");
+  }
+
+  function departmentTitle(name) {
+    if (language() === "ar") return name || "";
+
+    if (name && name.includes("تجويد")) return "Tajweed";
+    if (name && name.includes("حفظ")) return "Memorization & Revision";
+
+    return name || "";
+  }
+
   function createCard(title, description, extra) {
     const card = document.createElement("article");
     card.className = "dashboard-card";
@@ -282,9 +269,7 @@
     );
     card.appendChild(paragraph);
 
-    if (extra) {
-      card.appendChild(extra);
-    }
+    if (extra) card.appendChild(extra);
 
     return card;
   }
@@ -302,19 +287,13 @@
     departments.forEach(department => {
       const name = department.name_ar || "";
 
-      const englishName =
-        name.includes("تجويد") ? "Tajweed" :
-        name.includes("حفظ") ? "Memorization & Revision" :
-        name;
+      const description = name.includes("تجويد")
+        ? t("قسم دراسة أحكام التجويد وتطبيقها.", "Study and practice of Tajweed rules.")
+        : t("قسم حفظ القرآن الكريم ومراجعته.", "Quran memorization and revision.");
 
-      const card = createCard(
-        language() === "ar" ? name : englishName,
-        name.includes("تجويد")
-          ? t("قسم دراسة أحكام التجويد وتطبيقها.", "Study and practice of Tajweed rules.")
-          : t("قسم حفظ القرآن الكريم ومراجعته.", "Quran memorization and revision.")
+      departmentsList.appendChild(
+        createCard(departmentTitle(name), description)
       );
-
-      departmentsList.appendChild(card);
     });
   }
 
@@ -334,27 +313,20 @@
       );
 
       const departmentName = department
-        ? department.name_ar
+        ? departmentTitle(department.name_ar)
         : t("قسم غير محدد", "Unassigned department");
 
-      const card = createCard(
-        course.title || t("مقرر بدون عنوان", "Untitled course"),
-        course.description || t("لا يوجد وصف للمقرر.", "No course description."),
-        (() => {
-          const label = document.createElement("span");
-          label.className = "status";
-          label.textContent = language() === "ar"
-            ? departmentName
-            : departmentName.includes("تجويد")
-              ? "Tajweed"
-              : departmentName.includes("حفظ")
-                ? "Memorization & Revision"
-                : departmentName;
-          return label;
-        })()
-      );
+      const label = document.createElement("span");
+      label.className = "status";
+      label.textContent = departmentName;
 
-      coursesList.appendChild(card);
+      coursesList.appendChild(
+        createCard(
+          courseTitle(course),
+          course.description || t("لا يوجد وصف للمقرر.", "No course description."),
+          label
+        )
+      );
     });
   }
 
@@ -363,10 +335,7 @@
 
     if (!enrollments.length) {
       enrollmentsList.appendChild(
-        emptyState(
-          "لم تسجل في أي مقرر بعد.",
-          "You have not enrolled in any courses yet."
-        )
+        emptyState("لم تسجل في أي مقرر بعد.", "You have not enrolled in any courses yet.")
       );
       return;
     }
@@ -377,7 +346,7 @@
       );
 
       const title = course
-        ? course.title
+        ? courseTitle(course)
         : t("مقرر غير متاح", "Unavailable course");
 
       const statusNames = {
@@ -397,7 +366,11 @@
       statusLabel.textContent = status;
 
       enrollmentsList.appendChild(
-        createCard(title, t("حالة التسجيل:", "Enrollment status:") + " " + status, statusLabel)
+        createCard(
+          title,
+          t("حالة التسجيل:", "Enrollment status:") + " " + status,
+          statusLabel
+        )
       );
     });
   }
@@ -428,6 +401,7 @@
     if (currentProfile) {
       document.getElementById("welcomeTitle").textContent =
         t("مرحباً، ", "Welcome, ") + (currentProfile.full_name || "");
+
       document.getElementById("welcomeDescription").textContent =
         t(
           "هذه لوحتك الخاصة لمتابعة مقرراتك الدراسية.",
@@ -471,9 +445,16 @@
     }
 
     const results = await Promise.all([
-      client.from("departments").select("id, name_ar"),
-      client.from("courses").select("id, title, description, department_id, created_at"),
-      client.from("enrollments")
+      client
+        .from("departments")
+        .select("id, name_ar"),
+
+      client
+        .from("courses")
+        .select("id, title_en, title_ar, description, department_id, created_at"),
+
+      client
+        .from("enrollments")
         .select("id, student_id, course_id, status, created_at")
         .eq("student_id", currentUser.id)
     ]);
@@ -518,10 +499,8 @@
       window.location.href = "/login.html";
     });
 
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("year").textContent =
-      new Date().getFullYear();
-  });
+  document.getElementById("year").textContent =
+    new Date().getFullYear();
 
   loadDashboard().catch(error => {
     showMessage(

@@ -1,1 +1,198 @@
 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-title-ar="الحفظ والمراجعة | أكاديمية القرآن الكريم" data-title-en="Memorization and Revision | Quran Sciences Academy">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f2a24">
+  <meta name="description" content="قسم حفظ القرآن الكريم ومراجعته في أكاديمية القرآن الكريم وعلومه">
+
+  <title>الحفظ والمراجعة | أكاديمية القرآن الكريم</title>
+
+  <link rel="stylesheet" href="/style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <script src="/app.js" defer></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+
+      <a class="brand" href="/index.html">
+        <span class="brand-mark">ق</span>
+        <span data-ar="أكاديمية القرآن الكريم وعلومه"
+              data-en="Quran Sciences Academy">
+          أكاديمية القرآن الكريم وعلومه
+        </span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="/index.html#home" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <a href="/index.html#departments" data-ar="الأقسام" data-en="Departments">الأقسام</a>
+        <a href="/index.html#about" data-ar="عن الأكاديمية" data-en="About">عن الأكاديمية</a>
+        <a href="/index.html#contact" data-ar="التواصل" data-en="Contact">التواصل</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="language-button" id="languageToggle" type="button">English</button>
+        <a class="login-link" href="/index.html#login"
+           data-ar="تسجيل الدخول"
+           data-en="Login">
+          تسجيل الدخول
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <main>
+
+    <section class="department-hero">
+      <div class="container">
+
+        <span class="eyebrow"
+              data-ar="أقسام الأكاديمية"
+              data-en="Academy Departments">
+          أقسام الأكاديمية
+        </span>
+
+        <h1 data-ar="قسم الحفظ والمراجعة"
+            data-en="Memorization and Revision Department">
+          قسم الحفظ والمراجعة
+        </h1>
+
+        <p data-ar="برنامج تعليمي يهدف إلى مساعدة الطلاب على حفظ القرآن الكريم وإتقان المحفوظ من خلال خطة منظمة ومراجعة مستمرة."
+           data-en="An educational programme designed to help students memorize the Holy Quran and strengthen their memorization through structured plans and regular revision.">
+          برنامج تعليمي يهدف إلى مساعدة الطلاب على حفظ القرآن الكريم وإتقان المحفوظ من خلال خطة منظمة ومراجعة مستمرة.
+        </p>
+
+      </div>
+    </section>
+
+    <section class="department-content">
+      <div class="container">
+
+        <h2 data-ar="عن قسم الحفظ والمراجعة"
+            data-en="About Memorization and Revision">
+          عن قسم الحفظ والمراجعة
+        </h2>
+
+        <p data-ar="يركز هذا القسم على تعليم القرآن الكريم حفظاً ومراجعةً، مع الاهتمام بمستوى الطالب ومراعاة التدرج في الحفظ والتثبيت."
+           data-en="This department focuses on Quran memorization and revision, taking each student's level into account and encouraging gradual progress and strong retention.">
+          يركز هذا القسم على تعليم القرآن الكريم حفظاً ومراجعةً، مع الاهتمام بمستوى الطالب ومراعاة التدرج في الحفظ والتثبيت.
+        </p>
+
+        <h2 data-ar="المجالات التعليمية"
+            data-en="Learning Areas">
+          المجالات التعليمية
+        </h2>
+
+        <div class="learning-list">
+
+          <article class="learning-item">
+            <h3 data-ar="خطة حفظ القرآن الكريم"
+                data-en="Quran Memorization Plan">
+              خطة حفظ القرآن الكريم
+            </h3>
+
+            <p data-ar="تنظيم الحفظ وفق خطة تعليمية مناسبة لمستوى الطالب وقدرته."
+               data-en="Organize memorization through a learning plan suited to each student's level and ability.">
+              تنظيم الحفظ وفق خطة تعليمية مناسبة لمستوى الطالب وقدرته.
+            </p>
+          </article>
+
+          <article class="learning-item">
+            <h3 data-ar="تثبيت المحفوظ"
+                data-en="Strengthening Memorization">
+              تثبيت المحفوظ
+            </h3>
+
+            <p data-ar="مساعدة الطالب على إتقان الآيات والسور التي سبق له حفظها."
+               data-en="Help students strengthen and master the verses and surahs they have already memorized.">
+              مساعدة الطالب على إتقان الآيات والسور التي سبق له حفظها.
+            </p>
+          </article>
+
+          <article class="learning-item">
+            <h3 data-ar="المراجعة المنتظمة"
+                data-en="Regular Revision">
+              المراجعة المنتظمة
+            </h3>
+
+            <p data-ar="اتباع برنامج مراجعة يساعد على المحافظة على المحفوظ."
+               data-en="Follow a revision programme that helps students maintain what they have memorized.">
+              اتباع برنامج مراجعة يساعد على المحافظة على المحفوظ.
+            </p>
+          </article>
+
+          <article class="learning-item">
+            <h3 data-ar="متابعة التقدم"
+                data-en="Progress Tracking">
+              متابعة التقدم
+            </h3>
+
+            <p data-ar="متابعة مستوى الطالب وتقدمه في الحفظ والمراجعة."
+               data-en="Monitor each student's progress in memorization and revision.">
+              متابعة مستوى الطالب وتقدمه في الحفظ والمراجعة.
+            </p>
+          </article>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container">
+
+        <span class="eyebrow"
+              data-ar="قريباً"
+              data-en="Coming Soon">
+          قريباً
+        </span>
+
+        <h2 data-ar="برامج الحفظ والمراجعة التعليمية"
+            data-en="Memorization and Revision Programmes">
+          برامج الحفظ والمراجعة التعليمية
+        </h2>
+
+        <p data-ar="سيتم الإعلان عن البرامج والدورات وطريقة التسجيل قريباً."
+           data-en="Programme details, courses, and enrolment information will be announced soon.">
+          سيتم الإعلان عن البرامج والدورات وطريقة التسجيل قريباً.
+        </p>
+
+        <a class="primary-button"
+           href="/index.html#departments"
+           data-ar="العودة إلى الأقسام"
+           data-en="Back to Departments">
+          العودة إلى الأقسام
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer-inner">
+
+      <p data-ar="أكاديمية القرآن الكريم وعلومه"
+         data-en="Quran Sciences Academy">
+        أكاديمية القرآن الكريم وعلومه
+      </p>
+
+      <p>© <span id="year"></span></p>
+
+    </div>
+  </footer>
+
+</body>
+</html>
+

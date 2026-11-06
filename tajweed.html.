@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-title-ar="التجويد | أكاديمية القرآن الكريم" data-title-en="Tajweed | Quran Sciences Academy">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f2a24">
+  <meta name="description" content="قسم التجويد في أكاديمية القرآن الكريم وعلومه">
+  <title>التجويد | أكاديمية القرآن الكريم</title>
+
+  <link rel="stylesheet" href="/style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <script src="/app.js" defer></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+
+      <a class="brand" href="/index.html">
+        <span class="brand-mark">ق</span>
+        <span data-ar="أكاديمية القرآن الكريم وعلومه"
+              data-en="Quran Sciences Academy">
+          أكاديمية القرآن الكريم وعلومه
+        </span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="/index.html#home" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+        <a href="/index.html#departments" data-ar="الأقسام" data-en="Departments">الأقسام</a>
+        <a href="/index.html#about" data-ar="عن الأكاديمية" data-en="About">عن الأكاديمية</a>
+        <a href="/index.html#contact" data-ar="التواصل" data-en="Contact">التواصل</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="language-button" id="languageToggle" type="button">English</button>
+        <a class="login-link" href="/index.html#login" data-ar="تسجيل الدخول" data-en="Login">تسجيل الدخول</a>
+      </div>
+
+    </div>
+  </header>
+
+  <main>
+
+    <section class="department-hero">
+      <div class="container">
+        <span class="eyebrow"
+              data-ar="أقسام الأكاديمية"
+              data-en="Academy Departments">
+          أقسام الأكاديمية
+        </span>
+
+        <h1 data-ar="قسم التجويد" data-en="Tajweed Department">
+          قسم التجويد
+        </h1>
+
+        <p data-ar="تعلم أحكام التجويد نظرياً وتطبيقياً، لتحسين التلاوة وإتقان قراءة القرآن الكريم."
+           data-en="Learn the rules of Tajweed through theory and practice to improve your recitation of the Holy Quran.">
+          تعلم أحكام التجويد نظرياً وتطبيقياً، لتحسين التلاوة وإتقان قراءة القرآن الكريم.
+        </p>
+      </div>
+    </section>
+
+    <section class="department-content">
+      <div class="container">
+
+        <h2 data-ar="عن قسم التجويد" data-en="About the Tajweed Department">
+          عن قسم التجويد
+        </h2>
+
+        <p data-ar="يهدف هذا القسم إلى مساعدة الطلاب على تعلم أحكام التجويد وفهمها وتطبيقها أثناء تلاوة القرآن الكريم، وفق منهج تعليمي متدرج."
+           data-en="This department aims to help students learn, understand, and apply Tajweed rules while reciting the Holy Quran through a structured learning programme.">
+          يهدف هذا القسم إلى مساعدة الطلاب على تعلم أحكام التجويد وفهمها وتطبيقها أثناء تلاوة القرآن الكريم، وفق منهج تعليمي متدرج.
+        </p>
+
+        <h2 data-ar="المجالات التعليمية" data-en="Learning Areas">
+          المجالات التعليمية
+        </h2>
+
+        <div class="learning-list">
+
+          <article class="learning-item">
+            <h3 data-ar="أحكام النون الساكنة والتنوين" data-en="Rules of Noon Sakinah and Tanween">
+              أحكام النون الساكنة والتنوين
+            </h3>
+            <p data-ar="تعلم الإظهار والإدغام والإقلاب والإخفاء."
+               data-en="Learn Izhar, Idgham, Iqlab, and Ikhfa.">
+              تعلم الإظهار والإدغام والإقلاب والإخفاء.
+            </p>
+          </article>
+
+          <article class="learning-item">
+            <h3 data-ar="أحكام الميم الساكنة" data-en="Rules of Meem Sakinah">
+              أحكام الميم الساكنة
+            </h3>
+            <p data-ar="دراسة الإخفاء الشفوي والإدغام الشفوي والإظهار الشفوي."
+               data-en="Study Ikhfa Shafawi, Idgham Shafawi, and Izhar Shafawi.">
+              دراسة الإخفاء الشفوي والإدغام الشفوي والإظهار الشفوي.
+            </p>
+          </article>
+
+          <article class="learning-item">
+            <h3 data-ar="أحكام المدود" data-en="Rules of Madd">
+              أحكام المدود
+            </h3>
+            <p data-ar="التعرف على أنواع المدود ومقاديرها وكيفية تطبيقها."
+               data-en="Understand the types of Madd, their durations, and how to apply them.">
+              التعرف على أنواع المدود ومقاديرها وكيفية تطبيقها.
+            </p>
+          </article>
+
+          <article class="learning-item">
+            <h3 data-ar="مخارج الحروف وصفاتها" data-en="Articulation Points and Characteristics">
+              مخارج الحروف وصفاتها
+            </h3>
+            <p data-ar="تعلم مخارج الحروف العربية وصفاتها لتحسين النطق."
+               data-en="Learn the articulation points and characteristics of Arabic letters to improve pronunciation.">
+              تعلم مخارج الحروف العربية وصفاتها لتحسين النطق.
+            </p>
+          </article>
+
+          <article class="learning-item">
+            <h3 data-ar="التطبيق العملي" data-en="Practical Application">
+              التطبيق العملي
+            </h3>
+            <p data-ar="تطبيق أحكام التجويد أثناء التلاوة والتدرب على القراءة الصحيحة."
+               data-en="Apply Tajweed rules during recitation and practise accurate Quran reading.">
+              تطبيق أحكام التجويد أثناء التلاوة والتدرب على القراءة الصحيحة.
+            </p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container">
+        <span class="eyebrow" data-ar="قريباً" data-en="Coming Soon">قريباً</span>
+
+        <h2 data-ar="برامج التجويد التعليمية"
+            data-en="Tajweed Learning Programmes">
+          برامج التجويد التعليمية
+        </h2>
+
+        <p data-ar="سيتم الإعلان عن البرامج والدورات وطريقة التسجيل قريباً."
+           data-en="Programme details, courses, and enrolment information will be announced soon.">
+          سيتم الإعلان عن البرامج والدورات وطريقة التسجيل قريباً.
+        </p>
+
+        <a class="primary-button" href="/index.html#departments"
+           data-ar="العودة إلى الأقسام"
+           data-en="Back to Departments">
+          العودة إلى الأقسام
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer-inner">
+      <p data-ar="أكاديمية القرآن الكريم وعلومه"
+         data-en="Quran Sciences Academy">
+        أكاديمية القرآن الكريم وعلومه
+      </p>
+      <p>© <span id="year"></span></p>
+    </div>
+  </footer>
+
+</body>
+</html>

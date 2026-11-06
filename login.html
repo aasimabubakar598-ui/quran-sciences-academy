@@ -158,7 +158,6 @@
       سجّل الدخول أو أنشئ حساباً للانضمام إلى الأكاديمية.
     </p>
 
-    <!-- LOGIN FORM -->
     <form id="loginForm" class="auth-form">
 
       <h2 data-ar="تسجيل الدخول" data-en="Login">
@@ -197,7 +196,6 @@
 
     </form>
 
-    <!-- STUDENT REGISTRATION FORM -->
     <form id="registerForm" class="auth-form hidden">
 
       <h2 data-ar="إنشاء حساب طالب"
@@ -297,8 +295,10 @@
   if (!window.supabase) {
     document.getElementById("authMessage").textContent =
       "Supabase library could not load. Please refresh the page.";
+
     document.getElementById("authMessage").className =
       "auth-message error";
+
     return;
   }
 
@@ -334,22 +334,20 @@
   function setLoading(button, loading) {
     button.disabled = loading;
 
-    const language = currentLanguage();
+    const lang = currentLanguage();
 
     if (button === loginButton) {
       button.textContent = loading
-        ? (language === "ar" ? "جارٍ الدخول..." : "Logging in...")
-        : (language === "ar" ? "دخول" : "Log in");
+        ? (lang === "ar" ? "جارٍ الدخول..." : "Logging in...")
+        : (lang === "ar" ? "دخول" : "Log in");
     }
 
     if (button === registerButton) {
       button.textContent = loading
-        ? (language === "ar" ? "جارٍ إنشاء الحساب..." : "Creating account...")
-        : (language === "ar" ? "إنشاء الحساب" : "Create account");
+        ? (lang === "ar" ? "جارٍ إنشاء الحساب..." : "Creating account...")
+        : (lang === "ar" ? "إنشاء الحساب" : "Create account");
     }
   }
-
-  // SWITCH BETWEEN LOGIN AND REGISTRATION
 
   switchButton.addEventListener("click", () => {
     isRegistering = !isRegistering;
@@ -359,15 +357,15 @@
     loginForm.classList.toggle("hidden", isRegistering);
     registerForm.classList.toggle("hidden", !isRegistering);
 
-    const language = currentLanguage();
+    const lang = currentLanguage();
 
     switchText.textContent = isRegistering
-      ? (language === "ar" ? "لديك حساب بالفعل؟" : "Already have an account?")
-      : (language === "ar" ? "ليس لديك حساب؟" : "Don't have an account?");
+      ? (lang === "ar" ? "لديك حساب بالفعل؟" : "Already have an account?")
+      : (lang === "ar" ? "ليس لديك حساب؟" : "Don't have an account?");
 
     switchButton.textContent = isRegistering
-      ? (language === "ar" ? "تسجيل الدخول" : "Log in")
-      : (language === "ar" ? "إنشاء حساب" : "Register");
+      ? (lang === "ar" ? "تسجيل الدخول" : "Log in")
+      : (lang === "ar" ? "إنشاء حساب" : "Register");
   });
 
   // STUDENT REGISTRATION
@@ -387,7 +385,7 @@
     const password =
       document.getElementById("registerPassword").value;
 
-    const language = currentLanguage();
+    const lang = currentLanguage();
 
     try {
       const { data, error } = await client.auth.signUp({
@@ -406,14 +404,14 @@
 
       if (data.session) {
         showMessage(
-          language === "ar"
+          lang === "ar"
             ? "تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول."
             : "Your account has been created successfully. You can now log in.",
           "success"
         );
       } else {
         showMessage(
-          language === "ar"
+          lang === "ar"
             ? "تم إنشاء الحساب. يرجى مراجعة بريدك الإلكتروني لتأكيد الحساب قبل تسجيل الدخول."
             : "Your account has been created. Please check your email to confirm your account before logging in.",
           "success"
@@ -429,7 +427,7 @@
     }
   });
 
-  // LOGIN
+  // LOGIN AND STUDENT REDIRECTION
 
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -443,7 +441,7 @@
     const password =
       document.getElementById("loginPassword").value;
 
-    const language = currentLanguage();
+    const lang = currentLanguage();
 
     try {
       const { data, error } = await client.auth.signInWithPassword({
@@ -463,22 +461,33 @@
 
       if (profileError) throw profileError;
 
+      if (profile.role === "student") {
+        showMessage(
+          lang === "ar"
+            ? "تم تسجيل الدخول بنجاح. جارٍ فتح لوحة الطالب..."
+            : "Login successful. Opening your student dashboard...",
+          "success"
+        );
+
+        window.location.href = "/student-dashboard.html";
+        return;
+      }
+
       const roleNames = {
-        student: language === "ar" ? "طالب" : "Student",
-        teacher: language === "ar" ? "معلم" : "Teacher",
-        admin: language === "ar" ? "مدير" : "Administrator"
+        teacher: lang === "ar" ? "معلم" : "Teacher",
+        admin: lang === "ar" ? "مدير" : "Administrator"
       };
 
       const role = roleNames[profile.role] || profile.role;
 
       showMessage(
-        language === "ar"
+        lang === "ar"
           ? "مرحباً " + (profile.full_name || "") +
             ". تم تسجيل الدخول بنجاح. نوع الحساب: " + role +
-            ". لوحة التحكم ستكون متاحة بعد إعدادها."
+            ". لوحة هذا الحساب لم تُجهّز بعد."
           : "Welcome " + (profile.full_name || "") +
             ". Login successful. Account type: " + role +
-            ". Your dashboard will be available after it is configured.",
+            ". The dashboard for this account has not been configured yet.",
         "success"
       );
 
@@ -493,4 +502,5 @@
 </script>
 
 </body>
-</html>
+  </html>
+  

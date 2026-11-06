@@ -9,7 +9,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f2a24">
   <meta name="description" content="تسجيل الدخول إلى أكاديمية القرآن الكريم وعلومه">
-
   <title>تسجيل الدخول | أكاديمية القرآن الكريم</title>
 
   <link rel="stylesheet" href="/style.css">
@@ -121,12 +120,6 @@
       color: #a12622;
     }
 
-    .auth-message.info {
-      display: block;
-      background: #edf3f5;
-      color: #244b5a;
-    }
-
     .hidden {
       display: none !important;
     }
@@ -152,7 +145,6 @@
 </header>
 
 <main class="auth-page">
-
   <section class="auth-container">
 
     <h1 data-ar="مرحباً بك في الأكاديمية"
@@ -167,17 +159,14 @@
     </p>
 
     <!-- LOGIN FORM -->
-
     <form id="loginForm" class="auth-form">
 
-      <h2 data-ar="تسجيل الدخول"
-          data-en="Login">
+      <h2 data-ar="تسجيل الدخول" data-en="Login">
         تسجيل الدخول
       </h2>
 
       <label>
-        <span data-ar="البريد الإلكتروني"
-              data-en="Email address">
+        <span data-ar="البريد الإلكتروني" data-en="Email address">
           البريد الإلكتروني
         </span>
 
@@ -190,8 +179,7 @@
       </label>
 
       <label>
-        <span data-ar="كلمة المرور"
-              data-en="Password">
+        <span data-ar="كلمة المرور" data-en="Password">
           كلمة المرور
         </span>
 
@@ -203,15 +191,13 @@
       </label>
 
       <button type="submit" id="loginButton"
-              data-ar="دخول"
-              data-en="Log in">
+              data-ar="دخول" data-en="Log in">
         دخول
       </button>
 
     </form>
 
-    <!-- REGISTRATION FORM -->
-
+    <!-- STUDENT REGISTRATION FORM -->
     <form id="registerForm" class="auth-form hidden">
 
       <h2 data-ar="إنشاء حساب طالب"
@@ -220,8 +206,7 @@
       </h2>
 
       <label>
-        <span data-ar="الاسم الكامل"
-              data-en="Full name">
+        <span data-ar="الاسم الكامل" data-en="Full name">
           الاسم الكامل
         </span>
 
@@ -233,8 +218,7 @@
       </label>
 
       <label>
-        <span data-ar="البريد الإلكتروني"
-              data-en="Email address">
+        <span data-ar="البريد الإلكتروني" data-en="Email address">
           البريد الإلكتروني
         </span>
 
@@ -246,8 +230,7 @@
       </label>
 
       <label>
-        <span data-ar="كلمة المرور"
-              data-en="Password">
+        <span data-ar="كلمة المرور" data-en="Password">
           كلمة المرور
         </span>
 
@@ -260,15 +243,13 @@
       </label>
 
       <button type="submit" id="registerButton"
-              data-ar="إنشاء الحساب"
-              data-en="Create account">
+              data-ar="إنشاء الحساب" data-en="Create account">
         إنشاء الحساب
       </button>
 
     </form>
 
     <div class="auth-switch">
-
       <span id="switchText"
             data-ar="ليس لديك حساب؟"
             data-en="Don't have an account?">
@@ -276,11 +257,9 @@
       </span>
 
       <button type="button" id="switchButton"
-              data-ar="إنشاء حساب"
-              data-en="Register">
+              data-ar="إنشاء حساب" data-en="Register">
         إنشاء حساب
       </button>
-
     </div>
 
     <div id="authMessage" class="auth-message"
@@ -293,7 +272,6 @@
     </a>
 
   </section>
-
 </main>
 
 <footer class="site-footer">
@@ -308,25 +286,32 @@
 
 <script>
 (() => {
-  const SUPABASE_URL =
-    "https://ejynanimpmwkkhxjquut.supabase.co";
+  "use strict";
 
-  const SUPABASE_PUBLIC_KEY =
-    "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
+  const SUPABASE_URL =
+    "https://kxaovcknyddctnqvrudi.supabase.co";
+
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+
+  if (!window.supabase) {
+    document.getElementById("authMessage").textContent =
+      "Supabase library could not load. Please refresh the page.";
+    document.getElementById("authMessage").className =
+      "auth-message error";
+    return;
+  }
 
   const client = window.supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_PUBLIC_KEY
+    SUPABASE_ANON_KEY
   );
 
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
-
   const switchButton = document.getElementById("switchButton");
   const switchText = document.getElementById("switchText");
-
   const message = document.getElementById("authMessage");
-
   const loginButton = document.getElementById("loginButton");
   const registerButton = document.getElementById("registerButton");
 
@@ -349,18 +334,22 @@
   function setLoading(button, loading) {
     button.disabled = loading;
 
+    const language = currentLanguage();
+
     if (button === loginButton) {
       button.textContent = loading
-        ? (currentLanguage() === "ar" ? "جارٍ الدخول..." : "Logging in...")
-        : (currentLanguage() === "ar" ? "دخول" : "Log in");
+        ? (language === "ar" ? "جارٍ الدخول..." : "Logging in...")
+        : (language === "ar" ? "دخول" : "Log in");
     }
 
     if (button === registerButton) {
       button.textContent = loading
-        ? (currentLanguage() === "ar" ? "جارٍ إنشاء الحساب..." : "Creating account...")
-        : (currentLanguage() === "ar" ? "إنشاء الحساب" : "Create account");
+        ? (language === "ar" ? "جارٍ إنشاء الحساب..." : "Creating account...")
+        : (language === "ar" ? "إنشاء الحساب" : "Create account");
     }
   }
+
+  // SWITCH BETWEEN LOGIN AND REGISTRATION
 
   switchButton.addEventListener("click", () => {
     isRegistering = !isRegistering;
@@ -472,9 +461,7 @@
         .eq("id", user.id)
         .single();
 
-      if (profileError) {
-        throw profileError;
-      }
+      if (profileError) throw profileError;
 
       const roleNames = {
         student: language === "ar" ? "طالب" : "Student",

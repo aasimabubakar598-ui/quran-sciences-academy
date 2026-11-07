@@ -541,3 +541,462 @@ footer {
       setMessage("Dashboard error: " + error.message, "error");
     }
   }
+    async function loadCourses() {
+    const { data, error } = await supabase
+      .from("courses")
+      .select("id, title_ar, title_en, description, status")
+      .eq("teacher_id", teacherId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      setMessage("Could not load courses: " + error.message, "error");
+      return;
+    }
+
+    courses = data || [];
+    renderCourses();
+
+    if (courses.length === 0) {
+      enrollments = [];
+      attendanceStudents = [];
+      renderRequests();
+      renderStudents();
+      renderAttendanceRows();
+
+      setMessage(
+        language === "ar"
+          ? "لا توجد مقررات معينة لك حالياً."
+          : "No courses are assigned to you yet."
+      );
+      return;
+    }
+
+    await loadEnrollments();
+  }
+
+  async function loadEnrollments() {
+    const courseIds = courses.map(course => course.id);
+
+    const { data, error } = await supabase
+      .from("enrollments")
+      .select("id, student_id, course_id, status")
+      .in("course_id", courseIds);
+
+    if (error) {
+      setMessage("Could not load enrolments: " + error.message, "error");
+      return;
+    }
+
+    enrollments = data || [];
+
+    const studentIds = [...new Set(enrollments.map(e => e.student_id))];
+    let profiles = [];
+
+    if (studentIds.length > 0) {
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", studentIds);
+
+      if (profileError) {
+        setMessage(
+          "Could not load student profiles: " + profileError.message,
+          "error"
+        );
+        return;
+      }
+
+      profiles = profileData || [];
+    }
+
+    const profileMap = new Map(profiles.map(p => [p.id, p]));
+
+    enrollments = enrollments.map(e => ({
+      ...e,
+      student_name: profileMap.get(e.student_id)?.full_name || e.student_id
+    }));
+
+    renderRequests();
+    renderStudents();
+
+    $("courseCount").textContent = courses.length;
+
+    $("studentCount").textContent = new Set(
+      enrollments
+        .filter(e => e.status === "approved")
+        .map(e => e.student_id)
+    ).size;
+
+    $("requestCount").textContent =
+      enrollments.filter(e => e.status === "pending").length;
+
+    setMessage(
+      language === "ar"
+        ? "تم تحميل بيانات لوحة المعلم بنجاح."
+        : "Teacher dashboard loaded successfully.",
+      "success"
+    );
+
+    await loadAttendance();
+  }
+
+  function renderCourses() {
+    $("coursesList").innerHTML = "";
+
+    const selectedCourse = $("attendanceCourse").value;
+    $("attendanceCourse").innerHTML = "";
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent =
+      language === "ar" ? "اختر المقرر" : "Select a course";
+
+    $("attendanceCourse").appendChild(placeholder);
+
+    courses.forEach(course => {
+      const option = document.createElement("option");
+      option.value = course.id;
+      option.textContent = courseName(course);
+      $("attendanceCourse").appendChild(option);
+    });
+
+    if (courses.some(c => c.id === selectedCourse)) {
+      $("attendanceCourse").value = selectedCourse;
+    } else if (courses.length) {
+      $("attendanceCourse").value = courses[0].id;
+    }
+
+    if (!courses.length) {
+      $("coursesList").textContent =
+        language === "ar" ? "لا توجد مقررات." : "No courses found.";
+      return;
+    }
+
+    courses.forEach(course => {
+      const div = document.createElement("div");
+      div.className = "course";
+
+      const heading = document.createElement("h3");
+      heading.textContent = courseName(course);
+
+      const description = document.createElement("p");
+      description.textContent = course.description || "";
+
+      const status = document.createElement("div");
+      status.className = "status";
+      status.textContent =
+        (language === "ar" ? "الحالة: " : "Status: ") +
+        (course.status || "");
+
+      div.append(heading, description, status);
+      $("coursesList").appendChild(div);
+    });
+  }
+
+  function renderRequests() {
+    $("requestsList").innerHTML = "";
+
+    const pending = enrollments.filter(e => e.status === "pending");
+    $("requestCount").textContent = pending.length;
+
+    if (!pending.length) {
+      $("requestsList").textContent =
+        language === "ar"
+          ? "لا توجد طلبات تسجيل معلقة."
+          : "There are no pending enrolment requests.";
+      return;
+    }
+
+    pending.forEach(enrollment => {
+      const course = courses.find(c => c.id === enrollment.course_id);
+
+      const div = document.createElement("div");
+      div.className = "request";
+
+      const info = document.createElement("div");
+
+      const name = document.createElement("strong");
+      name.textContent = enrollment.student_name;
+
+      const courseLabel = document.createElement("div");
+      courseLabel.className = "muted";
+      courseLabel.textContent = course ? courseName(course) : "";
+
+      info.append(name, courseLabel);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const approve = document.createElement("button");
+      approve.className = "approve";
+      approve.textContent = language === "ar" ? "قبول" : "Approve";
+      approve.addEventListener("click", () =>
+        updateEnrollment(enrollment.id, "approved")
+      );
+
+      const reject = document.createElement("button");
+      reject.className = "reject";
+      reject.textContent = language === "ar" ? "رفض" : "Reject";
+      reject.addEventListener("click", () =>
+        updateEnrollment(enrollment.id, "rejected")
+      );
+
+      actions.append(approve, reject);
+      div.append(info, actions);
+      $("requestsList").appendChild(div);
+    });
+  }
+
+  function renderStudents() {
+    $("studentsList").innerHTML = "";
+
+    const approved = enrollments.filter(e => e.status === "approved");
+    const unique = new Map();
+
+    approved.forEach(e => {
+      if (!unique.has(e.student_id)) unique.set(e.student_id, e);
+    });
+
+    $("studentCount").textContent = unique.size;
+
+    if (!unique.size) {
+      $("studentsList").textContent =
+        language === "ar"
+          ? "لا يوجد طلاب مسجلون حالياً."
+          : "No approved students yet.";
+      return;
+    }
+
+    unique.forEach(enrollment => {
+      const div = document.createElement("div");
+      div.className = "student";
+      div.textContent = enrollment.student_name;
+      $("studentsList").appendChild(div);
+    });
+  }
+
+  async function updateEnrollment(enrollmentId, newStatus) {
+    const { error } = await supabase
+      .from("enrollments")
+      .update({ status: newStatus })
+      .eq("id", enrollmentId);
+
+    if (error) {
+      setMessage("Could not update enrolment: " + error.message, "error");
+      return;
+    }
+
+    setMessage(
+      language === "ar" ? "تم تحديث طلب التسجيل." : "Enrolment updated.",
+      "success"
+    );
+
+    await loadEnrollments();
+  }
+
+  async function loadAttendance() {
+    clearAttendanceMessage();
+
+    $("attendanceList").innerHTML = "";
+    $("attendanceSummary").style.display = "none";
+    $("saveAttendanceBtn").disabled = true;
+
+    const courseId = $("attendanceCourse").value;
+    const attendanceDate = $("attendanceDate").value;
+
+    if (!courseId || !attendanceDate) {
+      attendanceStudents = [];
+      setAttendanceMessage(
+        language === "ar"
+          ? "يرجى اختيار المقرر وتاريخ الدرس."
+          : "Please select a course and lesson date."
+      );
+      return;
+    }
+
+    const approved = enrollments.filter(
+      e => e.course_id === courseId && e.status === "approved"
+    );
+
+    const uniqueStudents = new Map();
+
+    approved.forEach(enrollment => {
+      if (!uniqueStudents.has(enrollment.student_id)) {
+        uniqueStudents.set(enrollment.student_id, {
+          student_id: enrollment.student_id,
+          student_name: enrollment.student_name,
+          status: "present",
+          remarks: ""
+        });
+      }
+    });
+
+    if (uniqueStudents.size === 0) {
+      attendanceStudents = [];
+      renderAttendanceRows();
+
+      setAttendanceMessage(
+        language === "ar"
+          ? "لا يوجد طلاب مقبولون في هذا المقرر."
+          : "There are no approved students in this course."
+      );
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("attendance")
+      .select("student_id, status, remarks")
+      .eq("course_id", courseId)
+      .eq("attendance_date", attendanceDate);
+
+    if (error) {
+      attendanceStudents = [];
+      setAttendanceMessage(
+        "Could not load attendance: " + error.message,
+        "error"
+      );
+      return;
+    }
+
+    const existing = new Map((data || []).map(a => [a.student_id, a]));
+
+    attendanceStudents = [...uniqueStudents.values()].map(student => {
+      const record = existing.get(student.student_id);
+      return record
+        ? { ...student, status: record.status, remarks: record.remarks || "" }
+        : student;
+    });
+
+    renderAttendanceRows();
+    updateAttendanceSummary();
+    $("attendanceSummary").style.display = "flex";
+    $("saveAttendanceBtn").disabled = false;
+
+    setAttendanceMessage(
+      language === "ar"
+        ? "تم تحميل الطلاب بنجاح."
+        : "Students loaded successfully.",
+      "success"
+    );
+  }
+    function renderAttendanceRows() {
+    const container = $("attendanceList");
+    container.innerHTML = "";
+
+    if (!attendanceStudents.length) return;
+
+    attendanceStudents.forEach((student, index) => {
+      const row = document.createElement("div");
+      row.className = "attendance-row";
+
+      const name = document.createElement("strong");
+      name.textContent = student.student_name;
+
+      const status = document.createElement("select");
+
+      [
+        { value: "present", ar: "حاضر", en: "Present" },
+        { value: "absent", ar: "غائب", en: "Absent" },
+        { value: "late", ar: "متأخر", en: "Late" }
+      ].forEach(optionData => {
+        const option = document.createElement("option");
+        option.value = optionData.value;
+        option.textContent =
+          language === "ar" ? optionData.ar : optionData.en;
+        status.appendChild(option);
+      });
+
+      status.value = student.status;
+
+      status.addEventListener("change", () => {
+        attendanceStudents[index].status = status.value;
+        updateAttendanceSummary();
+      });
+
+      const remarks = document.createElement("textarea");
+      remarks.placeholder =
+        language === "ar" ? "ملاحظات (اختياري)" : "Remarks (optional)";
+      remarks.value = student.remarks || "";
+
+      remarks.addEventListener("input", () => {
+        attendanceStudents[index].remarks = remarks.value;
+      });
+
+      row.append(name, status, remarks);
+      container.appendChild(row);
+    });
+  }
+
+  function updateAttendanceSummary() {
+    const total = attendanceStudents.length;
+    const present = attendanceStudents.filter(s => s.status === "present").length;
+    const absent = attendanceStudents.filter(s => s.status === "absent").length;
+    const late = attendanceStudents.filter(s => s.status === "late").length;
+
+    $("attendanceTotal").textContent = total;
+    $("presentTotal").textContent = present;
+    $("absentTotal").textContent = absent;
+    $("lateTotal").textContent = late;
+  }
+
+  async function saveAttendance() {
+    const courseId = $("attendanceCourse").value;
+    const attendanceDate = $("attendanceDate").value;
+
+    if (!courseId || !attendanceDate || !attendanceStudents.length) {
+      setAttendanceMessage(
+        language === "ar"
+          ? "لا توجد بيانات حضور للحفظ."
+          : "There is no attendance data to save.",
+        "error"
+      );
+      return;
+    }
+
+    $("saveAttendanceBtn").disabled = true;
+    setAttendanceMessage(
+      language === "ar" ? "جاري حفظ الحضور..." : "Saving attendance..."
+    );
+
+    const records = attendanceStudents.map(student => ({
+      student_id: student.student_id,
+      course_id: courseId,
+      attendance_date: attendanceDate,
+      status: student.status,
+      remarks: student.remarks || null,
+      marked_by: teacherId
+    }));
+
+    const { error } = await supabase
+      .from("attendance")
+      .upsert(records, {
+        onConflict: "student_id,course_id,attendance_date"
+      });
+
+    $("saveAttendanceBtn").disabled = false;
+
+    if (error) {
+      setAttendanceMessage(
+        "Could not save attendance: " + error.message,
+        "error"
+      );
+      return;
+    }
+
+    setAttendanceMessage(
+      language === "ar"
+        ? "تم حفظ الحضور بنجاح."
+        : "Attendance saved successfully.",
+      "success"
+    );
+
+    updateAttendanceSummary();
+  }
+
+  translatePage();
+  loadDashboard();
+})();
+</script>
+
+</body>
+</html>

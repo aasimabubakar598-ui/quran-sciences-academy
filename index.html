@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
@@ -13,7 +14,109 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 
   <script src="/app.js" defer></script>
+
+  <style>
+    .contact-section {
+      padding: 65px 6%;
+      background: #102f28;
+      border-top: 1px solid rgba(216,189,120,.2);
+    }
+
+    .contact-container {
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .contact-heading {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .contact-heading h2 {
+      color: #d8bd78;
+      font-size: 30px;
+      margin: 12px 0;
+    }
+
+    .contact-heading p {
+      color: #c3cbbf;
+      line-height: 1.9;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .contact-card {
+      background: #183b32;
+      border: 1px solid rgba(216,189,120,.25);
+      border-radius: 15px;
+      padding: 23px;
+      text-align: center;
+    }
+
+    .contact-icon {
+      font-size: 30px;
+      color: #d8bd78;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .contact-card h3 {
+      color: #d8bd78;
+      margin: 8px 0;
+      font-size: 19px;
+    }
+
+    .contact-card p {
+      color: #c3cbbf;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .contact-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: #d8bd78;
+      color: #0f2a24;
+      font-weight: 800;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+      transition: .2s;
+    }
+
+    .contact-link:hover {
+      background: #ead49b;
+      transform: translateY(-2px);
+    }
+
+    .contact-email,
+    .contact-number {
+      direction: ltr;
+      display: inline-block;
+    }
+
+    .contact-number {
+      color: #f5f1e7;
+      margin-top: 8px;
+    }
+
+    @media(max-width: 600px) {
+      .contact-section {
+        padding: 45px 18px;
+      }
+
+      .contact-heading h2 {
+        font-size: 25px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
 <header class="site-header">
@@ -133,13 +236,104 @@
     <a class="button button-gold" href="/login.html" data-ar="تسجيل الدخول" data-en="Sign in">تسجيل الدخول</a>
   </section>
 
+  <!-- Contact Us -->
+  <section class="contact-section" id="contact">
+    <div class="contact-container">
+
+      <div class="contact-heading">
+        <span class="eyebrow" data-ar="نحن هنا لخدمتكم" data-en="We are here to help">نحن هنا لخدمتكم</span>
+
+        <h2 data-ar="تواصل معنا" data-en="Contact Us">تواصل معنا</h2>
+
+        <p
+          data-ar="يسعدنا استقبال استفساراتكم وأسئلتكم حول برامج الأكاديمية والتسجيل."
+          data-en="We welcome your questions and enquiries about academy programs and registration.">
+          يسعدنا استقبال استفساراتكم وأسئلتكم حول برامج الأكاديمية والتسجيل.
+        </p>
+      </div>
+
+      <div class="contact-grid">
+
+        <div class="contact-card">
+          <span class="contact-icon">✉</span>
+          <h3 data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</h3>
+          <p data-ar="للاستفسارات والمراسلات الرسمية"
+             data-en="For enquiries and official correspondence">
+            للاستفسارات والمراسلات الرسمية
+          </p>
+          <a class="contact-link contact-email"
+             href="mailto:quransciencesacademy61@gmail.com">
+            quransciencesacademy61@gmail.com
+          </a>
+        </div>
+
+        <div class="contact-card">
+          <span class="contact-icon">☏</span>
+          <h3 data-ar="واتساب - التواصل الأول" data-en="WhatsApp - Contact 1">واتساب - التواصل الأول</h3>
+          <p data-ar="المملكة العربية السعودية"
+             data-en="Saudi Arabia">
+            المملكة العربية السعودية
+          </p>
+          <span class="contact-number">+966 54 178 6043</span>
+          <a class="contact-link"
+             href="https://wa.me/966541786043"
+             target="_blank" rel="noopener noreferrer"
+             data-ar="تواصل عبر واتساب" data-en="Chat on WhatsApp">
+            تواصل عبر واتساب
+          </a>
+          <p data-ar="غانا" data-en="Ghana">غانا</p>
+          <span class="contact-number">+233 55 758 6747</span>
+          <a class="contact-link"
+             href="https://wa.me/233557586747"
+             target="_blank" rel="noopener noreferrer"
+             data-ar="تواصل عبر واتساب" data-en="Chat on WhatsApp">
+            تواصل عبر واتساب
+          </a>
+        </div>
+
+        <div class="contact-card">
+          <span class="contact-icon">☏</span>
+          <h3 data-ar="واتساب - التواصل الثاني" data-en="WhatsApp - Contact 2">واتساب - التواصل الثاني</h3>
+          <p data-ar="المملكة العربية السعودية"
+             data-en="Saudi Arabia">
+            المملكة العربية السعودية
+          </p>
+          <span class="contact-number">+966 54 503 4102</span>
+          <a class="contact-link"
+             href="https://wa.me/966545034102"
+             target="_blank" rel="noopener noreferrer"
+             data-ar="تواصل عبر واتساب" data-en="Chat on WhatsApp">
+            تواصل عبر واتساب
+          </a>
+        </div>
+
+        <div class="contact-card">
+          <span class="contact-icon">☏</span>
+          <h3 data-ar="واتساب - التواصل الثالث" data-en="WhatsApp - Contact 3">واتساب - التواصل الثالث</h3>
+          <p data-ar="المملكة العربية السعودية"
+             data-en="Saudi Arabia">
+            المملكة العربية السعودية
+          </p>
+          <span class="contact-number">+966 56 762 9125</span>
+          <a class="contact-link"
+             href="https://wa.me/966567629125"
+             target="_blank" rel="noopener noreferrer"
+             data-ar="تواصل عبر واتساب" data-en="Chat on WhatsApp">
+            تواصل عبر واتساب
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
 </main>
 
-<footer id="contact">
+<footer>
   <span>۞ <strong data-ar="أكاديمية القرآن الكريم" data-en="Quran Academy">أكاديمية القرآن الكريم</strong></span>
   <span data-ar="منارة الحفظ والإتقان" data-en="A home for memorization and excellence">منارة الحفظ والإتقان</span>
   <small>© <span id="year"></span> <span data-ar="جميع الحقوق محفوظة" data-en="All rights reserved">جميع الحقوق محفوظة</span></small>
 </footer>
 
 </body>
-  </html>
+</html>

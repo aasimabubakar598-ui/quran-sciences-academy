@@ -1,0 +1,623 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f2a24">
+  <title>لوحة المعلم | أكاديمية القرآن الكريم</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #0f2a24;
+      --panel: #183b32;
+      --panel2: #20483d;
+      --gold: #d8bd78;
+      --text: #f5f1e7;
+      --muted: #c3cbbf;
+      --border: rgba(216,189,120,.2);
+      --green: #80c69a;
+      --red: #e69b91;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Tajawal, sans-serif;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    header {
+      background: #102f28;
+      border-bottom: 1px solid var(--border);
+      padding: 18px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      color: var(--gold);
+      font-size: 21px;
+      font-weight: 800;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 9px;
+    }
+
+    .header-actions button {
+      background: var(--panel2);
+      color: white;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 14px;
+    }
+
+    main {
+      max-width: 1150px;
+      margin: 30px auto;
+      padding: 0 18px 50px;
+    }
+
+    .welcome {
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      color: var(--gold);
+      margin-bottom: 6px;
+      font-size: 29px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 15px;
+      margin: 25px 0;
+    }
+
+    .stat, .section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 20px;
+    }
+
+    .stat strong {
+      display: block;
+      color: var(--gold);
+      font-size: 30px;
+      margin-top: 8px;
+    }
+
+    .section { margin-bottom: 22px; }
+
+    h2 {
+      color: var(--gold);
+      margin-top: 0;
+      font-size: 21px;
+    }
+
+    .course, .request, .student {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 15px;
+      margin-top: 12px;
+    }
+
+    .course h3 {
+      margin: 0 0 8px;
+      color: var(--gold);
+    }
+
+    .request {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .approve, .reject {
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 15px;
+      font-weight: 700;
+    }
+
+    .approve {
+      background: #286b4b;
+      color: white;
+    }
+
+    .reject {
+      background: #75413d;
+      color: white;
+    }
+
+    .status {
+      color: var(--gold);
+      font-size: 14px;
+      margin-top: 7px;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 9px;
+      margin: 12px 0;
+      background: var(--panel2);
+      color: var(--muted);
+    }
+
+    .error { color: var(--red); }
+    .success { color: var(--green); }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 25px;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 24px; }
+      .request { align-items: flex-start; }
+      .actions { width: 100%; }
+      .actions button { flex: 1; }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand" data-ar="أكاديمية القرآن الكريم وعلومه"
+       data-en="Quran Sciences Academy">
+    أكاديمية القرآن الكريم وعلومه
+  </div>
+
+  <div class="header-actions">
+    <button id="languageBtn" type="button">English</button>
+    <button id="logoutBtn" type="button"
+      data-ar="تسجيل الخروج" data-en="Logout">تسجيل الخروج</button>
+  </div>
+</header>
+
+<main>
+  <div class="welcome">
+    <h1 data-ar="لوحة تحكم المعلم" data-en="Teacher Dashboard">
+      لوحة تحكم المعلم
+    </h1>
+    <div class="muted">
+      <span data-ar="مرحباً، " data-en="Welcome, ">مرحباً، </span>
+      <strong id="teacherName">...</strong>
+    </div>
+  </div>
+
+  <div id="message" class="message"
+       data-ar="جاري تحميل البيانات..."
+       data-en="Loading data...">
+    جاري تحميل البيانات...
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <span data-ar="المقررات" data-en="Courses">المقررات</span>
+      <strong id="courseCount">0</strong>
+    </div>
+
+    <div class="stat">
+      <span data-ar="الطلاب" data-en="Students">الطلاب</span>
+      <strong id="studentCount">0</strong>
+    </div>
+
+    <div class="stat">
+      <span data-ar="طلبات التسجيل" data-en="Pending Requests">
+        طلبات التسجيل
+      </span>
+      <strong id="requestCount">0</strong>
+    </div>
+  </div>
+
+  <section class="section">
+    <h2 data-ar="مقرراتي" data-en="My Courses">مقرراتي</h2>
+    <div id="coursesList"></div>
+  </section>
+
+  <section class="section">
+    <h2 data-ar="طلبات تسجيل الطلاب" data-en="Student Enrolment Requests">
+      طلبات تسجيل الطلاب
+    </h2>
+    <div id="requestsList"></div>
+  </section>
+
+  <section class="section">
+    <h2 data-ar="طلابي" data-en="My Students">طلابي</h2>
+    <div id="studentsList"></div>
+  </section>
+</main>
+
+<footer>
+  © <span id="year"></span>
+  <span data-ar="أكاديمية القرآن الكريم وعلومه"
+        data-en="Quran Sciences Academy">
+    أكاديمية القرآن الكريم وعلومه
+  </span>
+</footer>
+
+<script>
+(() => {
+  const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
+
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+
+  const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+  let language = localStorage.getItem("academy-language") || "ar";
+  let teacherId = null;
+  let courses = [];
+  let enrollments = [];
+
+  const $ = id => document.getElementById(id);
+
+  function setMessage(message, type = "") {
+    $("message").textContent = message;
+    $("message").className = "message " + type;
+  }
+
+  function translatePage() {
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+
+    document.querySelectorAll("[data-ar]").forEach(el => {
+      el.textContent = el.dataset[language];
+    });
+
+    $("languageBtn").textContent =
+      language === "ar" ? "English" : "العربية";
+  }
+
+  $("languageBtn").addEventListener("click", () => {
+    language = language === "ar" ? "en" : "ar";
+    localStorage.setItem("academy-language", language);
+    translatePage();
+    renderCourses();
+    renderRequests();
+    renderStudents();
+  });
+
+  function courseName(course) {
+    return language === "ar"
+      ? (course.title_ar || course.title_en || "")
+      : (course.title_en || course.title_ar || "");
+  }
+
+  async function loadDashboard() {
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser();
+
+    if (authError || !authData.user) {
+      window.location.href = "/login.html";
+      return;
+    }
+
+    teacherId = authData.user.id;
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("full_name, role")
+      .eq("id", teacherId)
+      .single();
+
+    if (profileError || !profile || profile.role !== "teacher") {
+      setMessage(
+        language === "ar"
+          ? "ليس لديك صلاحية الدخول إلى لوحة المعلم."
+          : "You are not authorized to access the teacher dashboard.",
+        "error"
+      );
+      return;
+    }
+
+    $("teacherName").textContent = profile.full_name || authData.user.email;
+
+    await loadCourses();
+  }
+
+  async function loadCourses() {
+    const { data, error } = await supabase
+      .from("courses")
+      .select("id, title_ar, title_en, description, status")
+      .eq("teacher_id", teacherId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      setMessage("Could not load courses: " + error.message, "error");
+      return;
+    }
+
+    courses = data || [];
+    renderCourses();
+
+    if (courses.length === 0) {
+      enrollments = [];
+      renderRequests();
+      renderStudents();
+      setMessage(
+        language === "ar"
+          ? "لا توجد مقررات معينة لك حالياً."
+          : "No courses are assigned to you yet."
+      );
+      return;
+    }
+
+    await loadEnrollments();
+  }
+
+  async function loadEnrollments() {
+    const courseIds = courses.map(course => course.id);
+
+    const { data, error } = await supabase
+      .from("enrollments")
+      .select("id, student_id, course_id, status")
+      .in("course_id", courseIds);
+
+    if (error) {
+      setMessage("Could not load enrolments: " + error.message, "error");
+      return;
+    }
+
+    enrollments = data || [];
+
+    const studentIds = [...new Set(enrollments.map(e => e.student_id))];
+
+    let profiles = [];
+
+    if (studentIds.length > 0) {
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", studentIds);
+
+      if (profileError) {
+        setMessage(
+          "Could not load student profiles: " + profileError.message,
+          "error"
+        );
+        return;
+      }
+
+      profiles = profileData || [];
+    }
+
+    const profileMap = new Map(profiles.map(p => [p.id, p]));
+
+    enrollments = enrollments.map(e => ({
+      ...e,
+      student_name:
+        profileMap.get(e.student_id)?.full_name || e.student_id
+    }));
+
+    renderRequests();
+    renderStudents();
+
+    $("courseCount").textContent = courses.length;
+    $("studentCount").textContent =
+      new Set(
+        enrollments
+          .filter(e => e.status === "approved")
+          .map(e => e.student_id)
+      ).size;
+
+    $("requestCount").textContent =
+      enrollments.filter(e => e.status === "pending").length;
+
+    setMessage(
+      language === "ar"
+        ? "تم تحميل بيانات لوحة المعلم بنجاح."
+        : "Teacher dashboard loaded successfully.",
+      "success"
+    );
+  }
+
+  function renderCourses() {
+    $("coursesList").innerHTML = "";
+
+    $("courseCount").textContent = courses.length;
+
+    if (!courses.length) {
+      $("coursesList").textContent =
+        language === "ar" ? "لا توجد مقررات." : "No courses found.";
+      return;
+    }
+
+    courses.forEach(course => {
+      const div = document.createElement("div");
+      div.className = "course";
+
+      const heading = document.createElement("h3");
+      heading.textContent = courseName(course);
+
+      const description = document.createElement("p");
+      description.textContent = course.description || "";
+
+      const status = document.createElement("div");
+      status.className = "status";
+      status.textContent =
+        (language === "ar" ? "الحالة: " : "Status: ") +
+        (course.status || "");
+
+      div.append(heading, description, status);
+      $("coursesList").appendChild(div);
+    });
+  }
+
+  function renderRequests() {
+    $("requestsList").innerHTML = "";
+
+    const pending = enrollments.filter(e => e.status === "pending");
+
+    $("requestCount").textContent = pending.length;
+
+    if (!pending.length) {
+      $("requestsList").textContent =
+        language === "ar"
+          ? "لا توجد طلبات تسجيل معلقة."
+          : "There are no pending enrolment requests.";
+      return;
+    }
+
+    pending.forEach(enrollment => {
+      const course = courses.find(c => c.id === enrollment.course_id);
+
+      const div = document.createElement("div");
+      div.className = "request";
+
+      const info = document.createElement("div");
+
+      const name = document.createElement("strong");
+      name.textContent = enrollment.student_name;
+
+      const courseLabel = document.createElement("div");
+      courseLabel.className = "muted";
+      courseLabel.textContent = course ? courseName(course) : "";
+
+      info.append(name, courseLabel);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const approve = document.createElement("button");
+      approve.className = "approve";
+      approve.textContent = language === "ar" ? "قبول" : "Approve";
+      approve.addEventListener("click", () =>
+        updateEnrollment(enrollment.id, "approved")
+      );
+
+      const reject = document.createElement("button");
+      reject.className = "reject";
+      reject.textContent = language === "ar" ? "رفض" : "Reject";
+      reject.addEventListener("click", () =>
+        updateEnrollment(enrollment.id, "rejected")
+      );
+
+      actions.append(approve, reject);
+      div.append(info, actions);
+      $("requestsList").appendChild(div);
+    });
+  }
+
+  function renderStudents() {
+    $("studentsList").innerHTML = "";
+
+    const approved = enrollments.filter(e => e.status === "approved");
+
+    const unique = new Map();
+
+    approved.forEach(e => {
+      if (!unique.has(e.student_id)) {
+        unique.set(e.student_id, e);
+      }
+    });
+
+    $("studentCount").textContent = unique.size;
+
+    if (!unique.size) {
+      $("studentsList").textContent =
+        language === "ar"
+          ? "لا يوجد طلاب مسجلون حالياً."
+          : "No approved students yet.";
+      return;
+    }
+
+    unique.forEach(enrollment => {
+      const div = document.createElement("div");
+      div.className = "student";
+      div.textContent = enrollment.student_name;
+      $("studentsList").appendChild(div);
+    });
+  }
+
+  async function updateEnrollment(id, newStatus) {
+    if (!["approved", "rejected"].includes(newStatus)) return;
+
+    const enrollment = enrollments.find(e => e.id === id);
+
+    if (!enrollment || enrollment.status !== "pending") return;
+
+    const { data, error } = await supabase
+      .from("enrollments")
+      .update({ status: newStatus })
+      .eq("id", id)
+      .eq("course_id", enrollment.course_id)
+      .eq("status", "pending")
+      .select("id");
+
+    if (error) {
+      setMessage("Could not update enrolment: " + error.message, "error");
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      setMessage(
+        language === "ar"
+          ? "لم يتم تحديث الطلب. تحقق من الصلاحيات أو حالة الطلب."
+          : "Request was not updated. Check permissions or request status.",
+        "error"
+      );
+      return;
+    }
+
+    setMessage(
+      language === "ar"
+        ? "تم تحديث حالة طلب التسجيل."
+        : "Enrolment request updated.",
+      "success"
+    );
+
+    await loadEnrollments();
+  }
+
+  $("logoutBtn").addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login.html";
+  });
+
+  $("year").textContent = new Date().getFullYear();
+
+  translatePage();
+  loadDashboard().catch(error => {
+    setMessage("Unexpected error: " + error.message, "error");
+  });
+})();
+</script>
+
+</body>
+</html>

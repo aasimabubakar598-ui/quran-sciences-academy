@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,11 +54,16 @@ th{background:#f0f5f1;color:#244638}
 .present{background:#e0f3e5;color:#176b36}
 .absent{background:#fbe5e5;color:#9b2525}
 .late{background:#fff1cf;color:#805900}
+.draft{background:#fff1cf;color:#805900}
+.published{background:#e0f3e5;color:#176b36}
 .muted{color:#6c7b73}
 .empty{text-align:center;padding:25px;color:#718078}
 .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:15px 0}
 .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
 .detail-card{background:#f3f7f4;padding:13px;border-radius:8px}
+.announcement-card{border:1px solid #e1e9e3;border-radius:9px;padding:15px;margin:12px 0}
+.announcement-card h3{margin:0 0 8px}
+.announcement-body{white-space:pre-wrap;line-height:1.7}
 footer{text-align:center;padding:25px;color:#718078}
 [dir="rtl"] th,[dir="rtl"] td{text-align:right}
 [dir="rtl"] .actions{flex-direction:row}
@@ -112,6 +116,7 @@ footer{text-align:center;padding:25px;color:#718078}
       <button onclick="showTab('enrolments',this)" data-en="Enrolments" data-ar="التسجيلات">Enrolments</button>
       <button onclick="showTab('students',this)" data-en="Student Records" data-ar="سجلات الطلاب">Student Records</button>
       <button onclick="showTab('attendance',this)" data-en="Attendance Records" data-ar="سجلات الحضور">Attendance Records</button>
+      <button onclick="showTab('announcements',this)" data-en="Announcements" data-ar="الإعلانات">Announcements</button>
     </nav>
 
     <section id="overview" class="section active">
@@ -167,9 +172,9 @@ footer{text-align:center;padding:25px;color:#718078}
           <table>
             <thead><tr>
               <th data-en="Course" data-ar="المقرر">Course</th>
-              <th data-en="Department" data-ar="القسم">Department</th>
-              <th data-en="Teacher" data-ar="المعلم">Teacher</th>
-              <th data-en="Status" data-ar="الحالة">Status</th>
+              <th data-en="Department" data-ar="القسم">القسم</th>
+              <th data-en="Teacher" data-ar="المعلم">المعلم</th>
+              <th data-en="Status" data-ar="الحالة">الحالة</th>
             </tr></thead>
             <tbody id="courseRows"></tbody>
           </table>
@@ -303,14 +308,65 @@ footer{text-align:center;padding:25px;color:#718078}
         </div>
       </div>
     </section>
+
+    <section id="announcements" class="section">
+      <div class="panel">
+        <h2 data-en="Create Announcement" data-ar="إنشاء إعلان">Create Announcement</h2>
+        <p class="muted" data-en="Announcements published here will appear on student and teacher dashboards."
+           data-ar="ستظهر الإعلانات المنشورة هنا في لوحتي تحكم الطلاب والمعلمين.">
+          Announcements published here will appear on student and teacher dashboards.
+        </p>
+
+        <form id="announcementForm">
+          <input type="hidden" id="announcementId">
+
+          <div class="form-grid">
+            <div>
+              <label for="announcementTitleEn" data-en="Title (English)" data-ar="العنوان بالإنجليزية">Title (English)</label>
+              <input id="announcementTitleEn" required maxlength="200">
+            </div>
+            <div>
+              <label for="announcementTitleAr" data-en="Title (Arabic)" data-ar="العنوان بالعربية">Title (Arabic)</label>
+              <input id="announcementTitleAr" required maxlength="200">
+            </div>
+          </div>
+
+          <label for="announcementBodyEn" data-en="Announcement (English)" data-ar="نص الإعلان بالإنجليزية">Announcement (English)</label>
+          <textarea id="announcementBodyEn" required></textarea>
+
+          <label for="announcementBodyAr" data-en="Announcement (Arabic)" data-ar="نص الإعلان بالعربية">Announcement (Arabic)</label>
+          <textarea id="announcementBodyAr" required></textarea>
+
+          <label for="announcementStatus" data-en="Publication Status" data-ar="حالة النشر">Publication Status</label>
+          <select id="announcementStatus">
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+
+          <div class="form-actions actions">
+            <button class="primary" type="submit" id="saveAnnouncementButton" data-en="Save Announcement" data-ar="حفظ الإعلان">Save Announcement</button>
+            <button class="secondary hidden" type="button" id="cancelAnnouncementEdit" onclick="resetAnnouncementForm()" data-en="Cancel Edit" data-ar="إلغاء التعديل">Cancel Edit</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="actions" style="justify-content:space-between;align-items:center">
+          <h2 data-en="All Announcements" data-ar="جميع الإعلانات">All Announcements</h2>
+          <button class="secondary" onclick="loadAnnouncements()" data-en="Refresh" data-ar="تحديث">Refresh</button>
+        </div>
+        <div id="announcementMessage" class="muted"></div>
+        <div id="announcementList">
+          <p class="empty" data-en="Announcements will appear here." data-ar="ستظهر الإعلانات هنا.">Announcements will appear here.</p>
+        </div>
+      </div>
+    </section>
   </div>
 </main>
 
 <footer>© Quran Sciences Academy</footer>
 
-<script>
- 
-"use strict";
+<script>"use strict";
 
 const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
@@ -326,6 +382,7 @@ let departments = [];
 let enrolments = [];
 let studentContacts = [];
 let attendanceRecords = [];
+let announcements = [];
 
 function tr(en, ar) {
   return currentLanguage === "ar" ? ar : en;
@@ -401,6 +458,7 @@ function toggleLanguage() {
   renderEnrolments();
   renderStudentRecords();
   renderAttendanceRecords();
+  renderAnnouncements();
 }
 
 function showTab(tabId, button) {
@@ -417,6 +475,10 @@ function showTab(tabId, button) {
 
   if (tabId === "attendance") {
     loadAttendanceRecords();
+  }
+
+  if (tabId === "announcements") {
+    loadAnnouncements();
   }
 }
 
@@ -530,6 +592,10 @@ async function loadDashboard() {
 
   if ($("attendance").classList.contains("active")) {
     await loadAttendanceRecords();
+  }
+
+  if ($("announcements").classList.contains("active")) {
+    await loadAnnouncements();
   }
 }
 
@@ -827,13 +893,7 @@ async function createCourse(event) {
 }
 
 $("courseForm").addEventListener("submit", createCourse);
-
-window.addEventListener("DOMContentLoaded", () => {
-  applyLanguage();
-  start();
-});
- 
-// ======================================
+ // ======================================
 // ATTENDANCE MANAGEMENT
 // ======================================
 
@@ -1082,14 +1142,311 @@ $("attendanceDate").addEventListener("change", renderAttendanceRecords);
 $("attendanceStatus").addEventListener("change", renderAttendanceRecords);
 
 // ======================================
+// ANNOUNCEMENTS MANAGEMENT
+// ======================================
+
+async function loadAnnouncements() {
+  const message = $("announcementMessage");
+  const list = $("announcementList");
+
+  message.textContent = tr(
+    "Loading announcements...",
+    "جارٍ تحميل الإعلانات..."
+  );
+
+  list.innerHTML = `<p class="empty">${tr("Loading...", "جارٍ التحميل...")}</p>`;
+
+  const { data, error } = await db
+    .from("announcements")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Announcements loading error:", error);
+
+    announcements = [];
+
+    message.textContent = tr(
+      "Unable to load announcements: ",
+      "تعذر تحميل الإعلانات: "
+    ) + error.message;
+
+    list.innerHTML = `<p class="empty">${tr(
+      "Please check the announcements table permissions.",
+      "يرجى التحقق من أذونات جدول الإعلانات."
+    )}</p>`;
+
+    return;
+  }
+
+  announcements = data || [];
+
+  renderAnnouncements();
+
+  message.textContent = tr(
+    `${announcements.length} announcement(s) loaded.`,
+    `تم تحميل ${announcements.length} إعلان.`
+  );
+}
+
+function renderAnnouncements() {
+  const list = $("announcementList");
+
+  if (!announcements.length) {
+    list.innerHTML = `
+      <p class="empty">
+        ${tr("No announcements have been created yet.",
+             "لم يتم إنشاء أي إعلانات حتى الآن.")}
+      </p>`;
+    return;
+  }
+
+  list.innerHTML = announcements.map(item => {
+    const title = currentLanguage === "ar"
+      ? item.title_ar
+      : item.title_en;
+
+    const body = currentLanguage === "ar"
+      ? item.body_ar
+      : item.body_en;
+
+    const createdDate = item.created_at
+      ? new Date(item.created_at).toLocaleString(
+          currentLanguage === "ar" ? "ar" : "en"
+        )
+      : "—";
+
+    return `
+      <div class="announcement-card">
+        <div class="actions" style="justify-content:space-between;align-items:center">
+          <h3>${escapeHTML(title)}</h3>
+          ${statusBadge(item.status)}
+        </div>
+
+        <p class="announcement-body">${escapeHTML(body)}</p>
+
+        <p class="muted">
+          ${tr("Created:", "تاريخ الإنشاء:")} ${escapeHTML(createdDate)}
+        </p>
+
+        <div class="actions">
+          <button class="primary" onclick="editAnnouncement('${escapeHTML(item.id)}')">
+            ${tr("Edit", "تعديل")}
+          </button>
+
+          ${item.status === "draft" ? `
+            <button class="gold" onclick="publishAnnouncement('${escapeHTML(item.id)}')">
+              ${tr("Publish", "نشر")}
+            </button>
+          ` : `
+            <button class="secondary" onclick="unpublishAnnouncement('${escapeHTML(item.id)}')">
+              ${tr("Move to Draft", "إلغاء النشر")}
+            </button>
+          `}
+
+          <button class="danger" onclick="deleteAnnouncement('${escapeHTML(item.id)}')">
+            ${tr("Delete", "حذف")}
+          </button>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+async function saveAnnouncement(event) {
+  event.preventDefault();
+
+  const id = $("announcementId").value;
+
+  const payload = {
+    title_en: $("announcementTitleEn").value.trim(),
+    title_ar: $("announcementTitleAr").value.trim(),
+    body_en: $("announcementBodyEn").value.trim(),
+    body_ar: $("announcementBodyAr").value.trim(),
+    status: $("announcementStatus").value,
+    published_at: $("announcementStatus").value === "published"
+      ? new Date().toISOString()
+      : null,
+    updated_at: new Date().toISOString()
+  };
+
+  if (
+    !payload.title_en ||
+    !payload.title_ar ||
+    !payload.body_en ||
+    !payload.body_ar
+  ) {
+    $("announcementMessage").textContent = tr(
+      "Please complete all announcement fields.",
+      "يرجى إكمال جميع حقول الإعلان."
+    );
+    return;
+  }
+
+  let result;
+
+  if (id) {
+    result = await db
+      .from("announcements")
+      .update(payload)
+      .eq("id", id);
+  } else {
+    payload.created_by = currentUser.id;
+
+    result = await db
+      .from("announcements")
+      .insert(payload);
+  }
+
+  if (result.error) {
+    console.error("Announcement save error:", result.error);
+
+    $("announcementMessage").textContent =
+      tr("Unable to save announcement: ", "تعذر حفظ الإعلان: ") +
+      result.error.message;
+
+    return;
+  }
+
+  resetAnnouncementForm();
+  await loadAnnouncements();
+
+  $("announcementMessage").textContent = tr(
+    "Announcement saved successfully.",
+    "تم حفظ الإعلان بنجاح."
+  );
+}
+
+function editAnnouncement(id) {
+  const item = announcements.find(a => a.id === id);
+
+  if (!item) return;
+
+  $("announcementId").value = item.id;
+  $("announcementTitleEn").value = item.title_en || "";
+  $("announcementTitleAr").value = item.title_ar || "";
+  $("announcementBodyEn").value = item.body_en || "";
+  $("announcementBodyAr").value = item.body_ar || "";
+  $("announcementStatus").value = item.status || "draft";
+
+  $("saveAnnouncementButton").textContent = tr(
+    "Update Announcement",
+    "تحديث الإعلان"
+  );
+
+  $("cancelAnnouncementEdit").classList.remove("hidden");
+
+  $("announcementForm").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+function resetAnnouncementForm() {
+  $("announcementForm").reset();
+  $("announcementId").value = "";
+  $("announcementStatus").value = "draft";
+
+  $("saveAnnouncementButton").textContent = tr(
+    "Save Announcement",
+    "حفظ الإعلان"
+  );
+
+  $("cancelAnnouncementEdit").classList.add("hidden");
+}
+
+async function publishAnnouncement(id) {
+  const { error } = await db
+    .from("announcements")
+    .update({
+      status: "published",
+      published_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", id);
+
+  if (error) {
+    $("announcementMessage").textContent =
+      tr("Unable to publish announcement: ", "تعذر نشر الإعلان: ") +
+      error.message;
+    return;
+  }
+
+  await loadAnnouncements();
+
+  $("announcementMessage").textContent = tr(
+    "Announcement published. Students and teachers can now see it.",
+    "تم نشر الإعلان. يمكن للطلاب والمعلمين رؤيته الآن."
+  );
+}
+
+async function unpublishAnnouncement(id) {
+  const { error } = await db
+    .from("announcements")
+    .update({
+      status: "draft",
+      published_at: null,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", id);
+
+  if (error) {
+    $("announcementMessage").textContent =
+      tr("Unable to change announcement status: ", "تعذر تغيير حالة الإعلان: ") +
+      error.message;
+    return;
+  }
+
+  await loadAnnouncements();
+
+  $("announcementMessage").textContent = tr(
+    "Announcement moved to draft. It is no longer visible to students and teachers.",
+    "تم تحويل الإعلان إلى مسودة. لن يكون ظاهراً للطلاب والمعلمين."
+  );
+}
+
+async function deleteAnnouncement(id) {
+  const confirmed = confirm(
+    tr(
+      "Are you sure you want to delete this announcement?",
+      "هل أنت متأكد من حذف هذا الإعلان؟"
+    )
+  );
+
+  if (!confirmed) return;
+
+  const { error } = await db
+    .from("announcements")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    $("announcementMessage").textContent =
+      tr("Unable to delete announcement: ", "تعذر حذف الإعلان: ") +
+      error.message;
+    return;
+  }
+
+  if ($("announcementId").value === id) {
+    resetAnnouncementForm();
+  }
+
+  await loadAnnouncements();
+
+  $("announcementMessage").textContent = tr(
+    "Announcement deleted successfully.",
+    "تم حذف الإعلان بنجاح."
+  );
+}
+
+$("announcementForm").addEventListener("submit", saveAnnouncement);
+
+// ======================================
 // INITIALIZE ADMIN DASHBOARD
 // ======================================
 
+// Start only once. The script is already placed at the end of the page.
 start();
 
 </script>
 </body>
 </html>
-
- 
-     

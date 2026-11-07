@@ -292,13 +292,13 @@
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
 
+  const message = document.getElementById("authMessage");
+
   if (!window.supabase) {
-    document.getElementById("authMessage").textContent =
+    message.textContent =
       "Supabase library could not load. Please refresh the page.";
 
-    document.getElementById("authMessage").className =
-      "auth-message error";
-
+    message.className = "auth-message error";
     return;
   }
 
@@ -311,7 +311,6 @@
   const registerForm = document.getElementById("registerForm");
   const switchButton = document.getElementById("switchButton");
   const switchText = document.getElementById("switchText");
-  const message = document.getElementById("authMessage");
   const loginButton = document.getElementById("loginButton");
   const registerButton = document.getElementById("registerButton");
 
@@ -368,7 +367,7 @@
       : (lang === "ar" ? "إنشاء حساب" : "Register");
   });
 
-  // STUDENT REGISTRATION
+  // STUDENT REGISTRATION ONLY
 
   registerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -396,7 +395,7 @@
             full_name: fullName
           },
           emailRedirectTo:
-            "https://quran-sciences-academy.aasimabubakar598.workers.dev/"
+            "https://quran-sciences-academy.aasimabakar598.workers.dev/"
         }
       });
 
@@ -427,7 +426,7 @@
     }
   });
 
-  // LOGIN AND STUDENT REDIRECTION
+  // LOGIN AND ROLE-BASED REDIRECTION
 
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -473,22 +472,32 @@
         return;
       }
 
-      const roleNames = {
-        teacher: lang === "ar" ? "معلم" : "Teacher",
-        admin: lang === "ar" ? "مدير" : "Administrator"
-      };
+      if (profile.role === "teacher") {
+        showMessage(
+          lang === "ar"
+            ? "تم تسجيل دخول المعلم بنجاح. جارٍ فتح لوحة المعلم..."
+            : "Teacher login successful. Opening your teacher dashboard...",
+          "success"
+        );
 
-      const role = roleNames[profile.role] || profile.role;
+        window.location.href = "/teacher-dashboard.html";
+        return;
+      }
 
-      showMessage(
+      if (profile.role === "admin") {
+        showMessage(
+          lang === "ar"
+            ? "تم تسجيل الدخول بنجاح. لوحة المدير لم تُجهّز بعد."
+            : "Login successful. The administrator dashboard is not ready yet.",
+          "success"
+        );
+        return;
+      }
+
+      throw new Error(
         lang === "ar"
-          ? "مرحباً " + (profile.full_name || "") +
-            ". تم تسجيل الدخول بنجاح. نوع الحساب: " + role +
-            ". لوحة هذا الحساب لم تُجهّز بعد."
-          : "Welcome " + (profile.full_name || "") +
-            ". Login successful. Account type: " + role +
-            ". The dashboard for this account has not been configured yet.",
-        "success"
+          ? "نوع الحساب غير معروف. يرجى التواصل مع إدارة الأكاديمية."
+          : "Unknown account role. Please contact the academy administrator."
       );
 
     } catch (error) {
@@ -502,5 +511,4 @@
 </script>
 
 </body>
-  </html>
-  
+</html>

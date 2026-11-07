@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,15 +34,14 @@ th{background:#edf3ef}
 .message{padding:12px;background:#fff4d8;border-radius:8px;margin:12px 0}
 h3{margin-top:0}
 .status{display:inline-block;padding:5px 8px;border-radius:5px;background:#e8f0eb;margin:2px;font-size:13px}
-.status.approved{background:#d9efdf;color:#176332}
-.status.pending{background:#fff0c9;color:#795800}
-.status.rejected{background:#f8dddd;color:#8c2929}
+.status.approved,.status.present{background:#d9efdf;color:#176332}
+.status.pending,.status.late{background:#fff0c9;color:#795800}
+.status.rejected,.status.absent{background:#f8dddd;color:#8c2929}
 .student-courses{min-width:230px}
 .student-courses div{padding:5px 0;border-bottom:1px solid #edf1ee}
 .search-box{max-width:450px}
 .empty{text-align:center;padding:20px;color:#65776d}
 footer{text-align:center;color:#65776d;padding:25px}
-
 .details-button{background:#0f2a24;color:white}
 .details-card{margin-top:18px;border:1px solid #dce7df}
 .details-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
@@ -50,11 +50,14 @@ footer{text-align:center;color:#65776d;padding:25px}
 .detail-history{margin-top:18px}
 .detail-history div{padding:10px;border-bottom:1px solid #e2e9e4}
 .close-button{background:#dfe8e3}
+.attendance-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.attendance-stat{background:#e8f0eb;padding:14px;border-radius:8px;text-align:center}
+.attendance-stat strong{display:block;font-size:23px;margin-top:6px}
 @media(max-width:600px){
-  header{align-items:flex-start}
-  header h2{width:100%}
-  main{padding:8px}
-  .card{padding:13px}
+header{align-items:flex-start}
+header h2{width:100%}
+main{padding:8px}
+.card{padding:13px}
 }
 </style>
 </head>
@@ -92,6 +95,7 @@ footer{text-align:center;color:#65776d;padding:25px}
       <button onclick="showTab('users')">Users</button>
       <button onclick="showTab('enrolments')">Enrolments</button>
       <button onclick="showTab('students')">Student Records</button>
+      <button onclick="showTab('attendance')">Attendance Records</button>
     </div>
 
     <section id="overview" class="card">
@@ -222,6 +226,106 @@ footer{text-align:center;color:#65776d;padding:25px}
       </section>
     </section>
 
+    <!-- ATTENDANCE RECORDS -->
+
+    <section id="attendance" class="card hidden">
+
+      <h3>Student Attendance Records</h3>
+
+      <p>View attendance recorded by teachers for approved students.</p>
+
+      <div class="attendance-filters">
+
+        <div>
+          <label for="attendanceSearch">Search student</label>
+          <input
+            id="attendanceSearch"
+            type="search"
+            placeholder="Enter student name..."
+          >
+        </div>
+
+        <div>
+          <label for="attendanceCourse">Filter by course</label>
+          <select id="attendanceCourse">
+            <option value="">All Courses</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="attendanceDate">Filter by date</label>
+          <input id="attendanceDate" type="date">
+        </div>
+
+        <div>
+          <label for="attendanceStatus">Filter by status</label>
+          <select id="attendanceStatus">
+            <option value="">All Statuses</option>
+            <option value="present">Present</option>
+            <option value="absent">Absent</option>
+            <option value="late">Late</option>
+          </select>
+        </div>
+
+      </div>
+
+      <button onclick="loadAttendanceRecords()">Refresh Attendance</button>
+      <button class="secondary" onclick="clearAttendanceFilters()">Clear Filters</button>
+
+      <div class="stats" style="margin-top:15px">
+
+        <div class="attendance-stat">
+          Present
+          <strong id="attendancePresentCount">0</strong>
+        </div>
+
+        <div class="attendance-stat">
+          Absent
+          <strong id="attendanceAbsentCount">0</strong>
+        </div>
+
+        <div class="attendance-stat">
+          Late
+          <strong id="attendanceLateCount">0</strong>
+        </div>
+
+        <div class="attendance-stat">
+          Total Records
+          <strong id="attendanceTotalCount">0</strong>
+        </div>
+
+      </div>
+
+      <p id="attendanceMessage"></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Course</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Teacher</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+
+          <tbody id="attendanceRows">
+            <tr>
+              <td colspan="6" class="empty">
+                Open this tab to load attendance records.
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+
+      <p id="attendanceResultCount"></p>
+
+    </section>
+
   </section>
 </main>
 
@@ -245,6 +349,7 @@ let courses = [];
 let departments = [];
 let enrolments = [];
 let studentContacts = [];
+let attendanceRecords = [];
 
 const $ = id => document.getElementById(id);
 
@@ -282,6 +387,27 @@ function formatDate(value){
       minute:"2-digit"
     }
   ).format(date);
+}
+
+function formatAttendanceDate(value){
+  if(!value) return "Not available";
+
+  const parts = String(value).split("-");
+
+  if(parts.length !== 3) return escapeHTML(value);
+
+  return new Date(
+    Number(parts[0]),
+    Number(parts[1])-1,
+    Number(parts[2])
+  ).toLocaleDateString(
+    language==="ar" ? "ar" : "en",
+    {
+      year:"numeric",
+      month:"long",
+      day:"numeric"
+    }
+  );
 }
 
 async function start(){
@@ -358,6 +484,10 @@ async function loadDashboard(){
     renderStudentRecords();
     fillCourseOptions();
 
+    if(!$("attendance").classList.contains("hidden")){
+      await loadAttendanceRecords();
+    }
+
     $("message").classList.add("hidden");
 
   }catch(error){
@@ -366,12 +496,23 @@ async function loadDashboard(){
 }
 
 function showTab(tab){
-  ["overview","courses","users","enrolments","students"].forEach(id=>{
+  [
+    "overview",
+    "courses",
+    "users",
+    "enrolments",
+    "students",
+    "attendance"
+  ].forEach(id=>{
     $(id).classList.toggle("hidden",id!==tab);
   });
 
   if(tab==="students"){
     renderStudentRecords();
+  }
+
+  if(tab==="attendance"){
+    loadAttendanceRecords();
   }
 }
 
@@ -574,212 +715,294 @@ function viewStudentDetails(studentId){
           <br>
           <span class="status ${escapeHTML(status)}">
             ${escapeHTML(record.status)}
+                </span>
           </span>
         </div>`;
+      }).join("");
 
-      }).join("")
-    : "<p>No course enrolments found for this student.</p>";
+      document.getElementById("studentCourseHistory").innerHTML =
+        historyHTML || "<p>No course history found.</p>";
 
-  $("studentDetailsContent").innerHTML = `
+      document.getElementById("studentDetailsModal").style.display = "flex";
 
-    <div class="details-grid">
-
-      <div class="detail-item">
-        <strong>Full Name</strong>
-        ${escapeHTML(student.full_name || "Not available")}
-      </div>
-
-      <div class="detail-item">
-        <strong>Email Address</strong>
-        ${escapeHTML(contact?.email || "Not available")}
-      </div>
-
-      <div class="detail-item">
-        <strong>Registration Date</strong>
-        ${escapeHTML(formatDate(contact?.registered_at))}
-      </div>
-
-      <div class="detail-item">
-        <strong>Account Role</strong>
-        ${escapeHTML(student.role)}
-      </div>
-
-      <div class="detail-item">
-        <strong>Total Enrolments</strong>
-        ${records.length}
-      </div>
-
-      <div class="detail-item">
-        <strong>Approved Enrolments</strong>
-        ${approved}
-      </div>
-
-      <div class="detail-item">
-        <strong>Pending Enrolments</strong>
-        ${pending}
-      </div>
-
-      <div class="detail-item">
-        <strong>Rejected Enrolments</strong>
-        ${rejected}
-      </div>
-
-    </div>
-
-    <div class="detail-history">
-      <h3>Complete Course History</h3>
-      ${history}
-    </div>
-
-  `;
-
-  $("studentDetails").classList.remove("hidden");
-
-  $("studentDetails").scrollIntoView({
-    behavior:"smooth",
-    block:"start"
-  });
-}
-
-function closeStudentDetails(){
-  $("studentDetails").classList.add("hidden");
-  $("studentDetailsContent").innerHTML = "";
-}
-
-// COURSE OPTIONS
-
-function fillCourseOptions(){
-  $("department").innerHTML = departments.map(d=>
-    `<option value="${d.id}">${escapeHTML(d.name_ar)}</option>`
-  ).join("");
-
-  const teachers = profiles.filter(p=>p.role==="teacher");
-
-  $("teacher").innerHTML =
-    `<option value="">No teacher assigned</option>`+
-    teachers.map(t=>
-      `<option value="${t.id}">${escapeHTML(t.full_name)}</option>`
-    ).join("");
-}
-
-// CREATE COURSE
-
-$("courseForm").addEventListener("submit",async event=>{
-  event.preventDefault();
-
-  const record = {
-    title_en:$("titleEn").value.trim(),
-    title_ar:$("titleAr").value.trim(),
-    department_id:$("department").value,
-    teacher_id:$("teacher").value || null,
-    description:$("description").value.trim(),
-    status:$("courseStatus").value
-  };
-
-  const {error} = await db.from("courses").insert(record);
-
-  if(error){
-    alert("Could not create course: "+error.message);
-    return;
+    } catch (error) {
+      console.error("Student details error:", error);
+      alert("Unable to load student details.");
+    }
   }
 
-  alert("Course created successfully.");
-  event.target.reset();
-
-  await loadDashboard();
-});
-
-// CHANGE USER ROLE
-
-async function changeRole(id){
-  const roleSelect = $("role-"+id);
-
-  if(!roleSelect){
-    alert("Role selector not found.");
-    return;
+  function closeStudentDetails() {
+    document.getElementById("studentDetailsModal").style.display = "none";
   }
 
-  const role = roleSelect.value;
+  async function fillCourseOptions() {
+    const { data: courses, error } = await supabase
+      .from("courses")
+      .select("id,title_en,title_ar")
+      .order("title_en");
 
-  if(!["student","teacher"].includes(role)){
-    alert("Invalid role selected.");
-    return;
-  }
-
-  if(!confirm("Change this user's role to "+role+"?")){
-    return;
-  }
-
-  try{
-    const {data,error} = await db
-      .from("profiles")
-      .update({role:role})
-      .eq("id",id)
-      .select("id,full_name,role")
-      .single();
-
-    if(error) throw error;
-
-    if(!data){
-      throw new Error("No profile was updated. Check administrator permissions and RLS policies.");
+    if (error) {
+      console.error("Course options error:", error);
+      return;
     }
 
-    alert("User role successfully changed to "+data.role+".");
+    const selectors = [
+      document.getElementById("attendanceCourseFilter")
+    ];
 
-    await loadDashboard();
+    selectors.forEach(select => {
+      if (!select) return;
 
-  }catch(error){
-    alert(
-      "Could not update user role.\n\n"+
-      error.message+
-      "\n\nPlease share this exact error so we can correct the database permissions."
+      const previousValue = select.value;
+
+      select.innerHTML =
+        '<option value="">All courses</option>' +
+        (courses || []).map(course => `
+          <option value="${course.id}">
+            ${escapeHTML(course.title_en)}
+          </option>
+        `).join("");
+
+      select.value = previousValue;
+    });
+  }
+
+  async function loadAttendanceRecords() {
+    const container = document.getElementById("attendanceRecordsList");
+    if (!container) return;
+
+    container.innerHTML = "<p>Loading attendance records...</p>";
+
+    try {
+      const { data, error } = await supabase
+        .from("attendance")
+        .select(`
+          id,
+          student_id,
+          course_id,
+          attendance_date,
+          status,
+          remarks,
+          marked_by,
+          created_at
+        `)
+        .order("attendance_date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(1000);
+
+      if (error) throw error;
+
+      attendanceRecords = data || [];
+
+      const studentIds = [
+        ...new Set(attendanceRecords.map(record => record.student_id))
+      ];
+
+      const teacherIds = [
+        ...new Set(attendanceRecords.map(record => record.marked_by).filter(Boolean))
+      ];
+
+      const courseIds = [
+        ...new Set(attendanceRecords.map(record => record.course_id))
+      ];
+
+      let profiles = [];
+      let courses = [];
+
+      if (studentIds.length || teacherIds.length) {
+        const profileIds = [...new Set([...studentIds, ...teacherIds])];
+
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("id,full_name")
+          .in("id", profileIds);
+
+        if (profileError) throw profileError;
+        profiles = profileData || [];
+      }
+
+      if (courseIds.length) {
+        const { data: courseData, error: courseError } = await supabase
+          .from("courses")
+          .select("id,title_en,title_ar")
+          .in("id", courseIds);
+
+        if (courseError) throw courseError;
+        courses = courseData || [];
+      }
+
+      renderAttendanceRecords(attendanceRecords, profiles, courses);
+
+    } catch (error) {
+      console.error("Attendance records error:", error);
+      container.innerHTML =
+        "<p>Unable to load attendance records. Please check your permissions.</p>";
+    }
+  }
+
+  function renderAttendanceRecords(records, profiles, courses) {
+    const container = document.getElementById("attendanceRecordsList");
+    if (!container) return;
+
+    const search = (
+      document.getElementById("attendanceSearch")?.value || ""
+    ).toLowerCase();
+
+    const courseFilter =
+      document.getElementById("attendanceCourseFilter")?.value || "";
+
+    const dateFilter =
+      document.getElementById("attendanceDateFilter")?.value || "";
+
+    const statusFilter =
+      document.getElementById("attendanceStatusFilter")?.value || "";
+
+    const filtered = records.filter(record => {
+      const student = profiles.find(profile => profile.id === record.student_id);
+      const course = courses.find(item => item.id === record.course_id);
+
+      const studentName = student?.full_name || "Unknown student";
+      const courseName = course?.title_en || "Unknown course";
+
+      const matchesSearch =
+        studentName.toLowerCase().includes(search) ||
+        courseName.toLowerCase().includes(search);
+
+      const matchesCourse =
+        !courseFilter || record.course_id === courseFilter;
+
+      const matchesDate =
+        !dateFilter || record.attendance_date === dateFilter;
+
+      const matchesStatus =
+        !statusFilter || record.status === statusFilter;
+
+      return matchesSearch && matchesCourse && matchesDate && matchesStatus;
+    });
+
+    const present = filtered.filter(r => r.status === "present").length;
+    const absent = filtered.filter(r => r.status === "absent").length;
+    const late = filtered.filter(r => r.status === "late").length;
+
+    document.getElementById("attendanceTotal").textContent = filtered.length;
+    document.getElementById("attendancePresent").textContent = present;
+    document.getElementById("attendanceAbsent").textContent = absent;
+    document.getElementById("attendanceLate").textContent = late;
+
+    if (!filtered.length) {
+      container.innerHTML = "<p>No attendance records found.</p>";
+      return;
+    }
+
+    container.innerHTML = filtered.map(record => {
+      const student = profiles.find(profile => profile.id === record.student_id);
+      const teacher = profiles.find(profile => profile.id === record.marked_by);
+      const course = courses.find(item => item.id === record.course_id);
+
+      const studentName = student?.full_name || "Unknown student";
+      const teacherName = teacher?.full_name || "Unknown teacher";
+      const courseName = course?.title_en || "Unknown course";
+
+      const status = String(record.status || "unknown").toLowerCase();
+
+      return `
+        <div class="attendance-record">
+          <div class="attendance-record-header">
+            <strong>${escapeHTML(studentName)}</strong>
+            <span class="status ${escapeHTML(status)}">
+              ${escapeHTML(record.status)}
+            </span>
+          </div>
+          <p><strong>Course:</strong> ${escapeHTML(courseName)}</p>
+          <p><strong>Date:</strong> ${formatAttendanceDate(record.attendance_date)}</p>
+          <p><strong>Marked by:</strong> ${escapeHTML(teacherName)}</p>
+          ${
+            record.remarks
+              ? `<p><strong>Remarks:</strong> ${escapeHTML(record.remarks)}</p>`
+              : ""
+          }
+        </div>
+      `;
+    }).join("");
+  }
+
+  function clearAttendanceFilters() {
+    document.getElementById("attendanceSearch").value = "";
+    document.getElementById("attendanceCourseFilter").value = "";
+    document.getElementById("attendanceDateFilter").value = "";
+    document.getElementById("attendanceStatusFilter").value = "";
+
+    renderAttendanceRecords(
+      attendanceRecords,
+      cachedProfiles || [],
+      cachedCourses || []
     );
   }
-}
 
-// UPDATE ENROLMENT
+  async function updateEnrolment(id, status) {
+    const { error } = await supabase
+      .from("enrollments")
+      .update({ status })
+      .eq("id", id);
 
-async function updateEnrolment(id,status){
-  if(!confirm("Change enrolment status to "+status+"?")){
-    return;
+    if (error) {
+      alert("Unable to update enrolment: " + error.message);
+      return;
+    }
+
+    alert("Enrolment updated successfully.");
+    await loadDashboard();
   }
 
-  const {error} = await db.from("enrollments")
-    .update({status})
-    .eq("id",id);
+  async function changeRole(userId, newRole) {
+    if (!["student", "teacher"].includes(newRole)) return;
 
-  if(error){
-    alert("Could not update enrolment: "+error.message);
-    return;
+    const confirmed = confirm(
+      "Are you sure you want to change this user's role?"
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ role: newRole })
+      .eq("id", userId);
+
+    if (error) {
+      alert("Unable to change role: " + error.message);
+      return;
+    }
+
+    alert("User role updated successfully.");
+    await loadDashboard();
   }
 
-  await loadDashboard();
-}
+  async function logout() {
+    const { error } = await supabase.auth.signOut();
 
-// LOGOUT
+    if (error) {
+      alert("Logout failed: " + error.message);
+      return;
+    }
 
-async function logout(){
-  await db.auth.signOut();
-  location.replace("/login.html");
-}
+    window.location.href = "login.html";
+  }
 
-// LANGUAGE TOGGLE
+  function toggleLanguage() {
+    const current = document.documentElement.lang;
+    const next = current === "en" ? "ar" : "en";
 
-function toggleLanguage(){
-  language = language==="en" ? "ar" : "en";
+    document.documentElement.lang = next;
+    document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
 
-  document.documentElement.lang = language;
-  document.documentElement.dir =
-    language==="ar" ? "rtl" : "ltr";
-
-  $("welcome").textContent =
-    language==="ar"
-      ? "لوحة تحكم المدير"
-      : "Administrator Dashboard";
-}
-
-start();
+    document.querySelectorAll("[data-en][data-ar]").forEach(element => {
+      element.textContent =
+        next === "ar"
+          ? element.dataset.ar
+          : element.dataset.en;
+    });
+  }
 </script>
-
 </body>
 </html>
+   

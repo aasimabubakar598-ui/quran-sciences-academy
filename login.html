@@ -12,124 +12,46 @@
   <title>تسجيل الدخول | أكاديمية القرآن الكريم</title>
 
   <link rel="stylesheet" href="/style.css">
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/app.js" defer></script>
 
   <style>
     .auth-page {
-      min-height: 75vh;
-      padding: 45px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      min-height:75vh;padding:45px 18px;
+      display:flex;align-items:center;justify-content:center;
     }
-
     .auth-container {
-      width: 100%;
-      max-width: 480px;
-      background: #fff;
-      padding: 30px;
-      border-radius: 18px;
-      box-shadow: 0 8px 30px rgba(0,0,0,.08);
+      width:100%;max-width:480px;background:#fff;padding:30px;
+      border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,.08);
     }
-
-    .auth-container h1 {
-      text-align: center;
-      color: #0f2a24;
-      margin-top: 0;
+    .auth-container h1{text-align:center;color:#0f2a24;margin-top:0}
+    .auth-description{text-align:center;color:#64746e;margin-bottom:25px}
+    .auth-form{display:grid;gap:14px}
+    .auth-form label{font-weight:700;color:#19362e}
+    .auth-form input{
+      width:100%;padding:13px;border:1px solid #d8dfda;
+      border-radius:9px;font-family:inherit;font-size:16px;margin-top:6px;
     }
-
-    .auth-description {
-      text-align: center;
-      color: #64746e;
-      margin-bottom: 25px;
+    .auth-form button{
+      border:0;border-radius:9px;padding:14px;background:#0f2a24;
+      color:white;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;
     }
-
-    .auth-form {
-      display: grid;
-      gap: 14px;
+    .auth-form button:disabled{opacity:.6;cursor:not-allowed}
+    .auth-switch{text-align:center;margin-top:22px;color:#64746e}
+    .auth-switch button{
+      border:0;background:none;color:#997a35;font-family:inherit;
+      font-weight:700;cursor:pointer;font-size:inherit;
     }
-
-    .auth-form label {
-      font-weight: 700;
-      color: #19362e;
+    .auth-message{
+      display:none;padding:12px;margin-top:18px;border-radius:8px;
+      line-height:1.7;overflow-wrap:anywhere;
     }
-
-    .auth-form input {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #d8dfda;
-      border-radius: 9px;
-      font-family: inherit;
-      font-size: 16px;
-      margin-top: 6px;
-    }
-
-    .auth-form button {
-      border: 0;
-      border-radius: 9px;
-      padding: 14px;
-      background: #0f2a24;
-      color: white;
-      font-family: inherit;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .auth-form button:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
-
-    .auth-switch {
-      text-align: center;
-      margin-top: 22px;
-      color: #64746e;
-    }
-
-    .auth-switch button {
-      border: 0;
-      background: none;
-      color: #997a35;
-      font-family: inherit;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: inherit;
-    }
-
-    .auth-message {
-      display: none;
-      padding: 12px;
-      margin-top: 18px;
-      border-radius: 8px;
-      line-height: 1.7;
-      overflow-wrap: anywhere;
-    }
-
-    .auth-message.success {
-      display: block;
-      background: #e8f5ec;
-      color: #176438;
-    }
-
-    .auth-message.error {
-      display: block;
-      background: #fcebea;
-      color: #a12622;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .auth-back {
-      display: block;
-      text-align: center;
-      margin-top: 20px;
-      color: #997a35;
-      text-decoration: none;
+    .auth-message.success{display:block;background:#e8f5ec;color:#176438}
+    .auth-message.error{display:block;background:#fcebea;color:#a12622}
+    .hidden{display:none!important}
+    .auth-back{
+      display:block;text-align:center;margin-top:20px;
+      color:#997a35;text-decoration:none;
     }
   </style>
 </head>
@@ -140,7 +62,6 @@
   <a href="/index.html" class="logo">
     <span>أكاديمية القرآن الكريم</span>
   </a>
-
   <button id="languageToggle" type="button">English</button>
 </header>
 
@@ -159,113 +80,65 @@
     </p>
 
     <form id="loginForm" class="auth-form">
-
-      <h2 data-ar="تسجيل الدخول" data-en="Login">
-        تسجيل الدخول
-      </h2>
+      <h2 data-ar="تسجيل الدخول" data-en="Login">تسجيل الدخول</h2>
 
       <label>
-        <span data-ar="البريد الإلكتروني" data-en="Email address">
-          البريد الإلكتروني
-        </span>
-
-        <input
-          type="email"
-          id="loginEmail"
-          placeholder="example@email.com"
-          autocomplete="email"
-          required>
+        <span data-ar="البريد الإلكتروني" data-en="Email address">البريد الإلكتروني</span>
+        <input type="email" id="loginEmail"
+          placeholder="example@email.com" autocomplete="email" required>
       </label>
 
       <label>
-        <span data-ar="كلمة المرور" data-en="Password">
-          كلمة المرور
-        </span>
-
-        <input
-          type="password"
-          id="loginPassword"
-          autocomplete="current-password"
-          required>
+        <span data-ar="كلمة المرور" data-en="Password">كلمة المرور</span>
+        <input type="password" id="loginPassword"
+          autocomplete="current-password" required>
       </label>
 
       <button type="submit" id="loginButton"
-              data-ar="دخول" data-en="Log in">
-        دخول
-      </button>
-
+        data-ar="دخول" data-en="Log in">دخول</button>
     </form>
 
     <form id="registerForm" class="auth-form hidden">
-
-      <h2 data-ar="إنشاء حساب طالب"
-          data-en="Create Student Account">
+      <h2 data-ar="إنشاء حساب طالب" data-en="Create Student Account">
         إنشاء حساب طالب
       </h2>
 
       <label>
-        <span data-ar="الاسم الكامل" data-en="Full name">
-          الاسم الكامل
-        </span>
-
-        <input
-          type="text"
-          id="fullName"
-          autocomplete="name"
-          required>
+        <span data-ar="الاسم الكامل" data-en="Full name">الاسم الكامل</span>
+        <input type="text" id="fullName" autocomplete="name" required>
       </label>
 
       <label>
-        <span data-ar="البريد الإلكتروني" data-en="Email address">
-          البريد الإلكتروني
-        </span>
-
-        <input
-          type="email"
-          id="registerEmail"
-          autocomplete="email"
-          required>
+        <span data-ar="البريد الإلكتروني" data-en="Email address">البريد الإلكتروني</span>
+        <input type="email" id="registerEmail" autocomplete="email" required>
       </label>
 
       <label>
-        <span data-ar="كلمة المرور" data-en="Password">
-          كلمة المرور
-        </span>
-
-        <input
-          type="password"
-          id="registerPassword"
-          minlength="6"
-          autocomplete="new-password"
-          required>
+        <span data-ar="كلمة المرور" data-en="Password">كلمة المرور</span>
+        <input type="password" id="registerPassword"
+          minlength="6" autocomplete="new-password" required>
       </label>
 
       <button type="submit" id="registerButton"
-              data-ar="إنشاء الحساب" data-en="Create account">
+        data-ar="إنشاء الحساب" data-en="Create account">
         إنشاء الحساب
       </button>
-
     </form>
 
     <div class="auth-switch">
-      <span id="switchText"
-            data-ar="ليس لديك حساب؟"
-            data-en="Don't have an account?">
-        ليس لديك حساب؟
-      </span>
+      <span id="switchText" data-ar="ليس لديك حساب؟"
+        data-en="Don't have an account?">ليس لديك حساب؟</span>
 
       <button type="button" id="switchButton"
-              data-ar="إنشاء حساب" data-en="Register">
-        إنشاء حساب
-      </button>
+        data-ar="إنشاء حساب" data-en="Register">إنشاء حساب</button>
     </div>
 
     <div id="authMessage" class="auth-message"
-         role="status" aria-live="polite"></div>
+      role="status" aria-live="polite"></div>
 
     <a href="/index.html" class="auth-back"
-       data-ar="العودة إلى الصفحة الرئيسية"
-       data-en="Back to homepage">
+      data-ar="العودة إلى الصفحة الرئيسية"
+      data-en="Back to homepage">
       العودة إلى الصفحة الرئيسية
     </a>
 
@@ -276,7 +149,7 @@
   <p>
     © <span id="year"></span>
     <span data-ar="أكاديمية القرآن الكريم وعلومه"
-          data-en="Quran Sciences Academy">
+      data-en="Quran Sciences Academy">
       أكاديمية القرآن الكريم وعلومه
     </span>
   </p>
@@ -290,14 +163,12 @@
     "https://kxaovcknyddctnqvrudi.supabase.co";
 
   const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJub25fZXhwZWN0ZWQiLCJyZWYiOiJreGFvdmNrbnlkZGN0bnF2cnVkaSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzkzOTg5MTY3LCJleHAiOjIxMDk1NjUxNjd9.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
 
   const message = document.getElementById("authMessage");
 
   if (!window.supabase) {
-    message.textContent =
-      "Supabase library could not load. Please refresh the page.";
-
+    message.textContent = "Supabase library could not load. Please refresh.";
     message.className = "auth-message error";
     return;
   }
@@ -332,7 +203,6 @@
 
   function setLoading(button, loading) {
     button.disabled = loading;
-
     const lang = currentLanguage();
 
     if (button === loginButton) {
@@ -350,7 +220,6 @@
 
   switchButton.addEventListener("click", () => {
     isRegistering = !isRegistering;
-
     clearMessage();
 
     loginForm.classList.toggle("hidden", isRegistering);
@@ -367,23 +236,16 @@
       : (lang === "ar" ? "إنشاء حساب" : "Register");
   });
 
-  // STUDENT REGISTRATION ONLY
+  // STUDENT REGISTRATION
 
   registerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-
     clearMessage();
     setLoading(registerButton, true);
 
-    const fullName =
-      document.getElementById("fullName").value.trim();
-
-    const email =
-      document.getElementById("registerEmail").value.trim();
-
-    const password =
-      document.getElementById("registerPassword").value;
-
+    const fullName = document.getElementById("fullName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
     const lang = currentLanguage();
 
     try {
@@ -391,31 +253,24 @@
         email,
         password,
         options: {
-          data: {
-            full_name: fullName
-          },
+          data: { full_name: fullName },
           emailRedirectTo:
-            "https://quran-sciences-academy.aasimabakar598.workers.dev/"
+            "https://quran-sciences-academy.aasimabubakar598.workers.dev/"
         }
       });
 
       if (error) throw error;
 
-      if (data.session) {
-        showMessage(
-          lang === "ar"
-            ? "تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول."
-            : "Your account has been created successfully. You can now log in.",
-          "success"
-        );
-      } else {
-        showMessage(
-          lang === "ar"
-            ? "تم إنشاء الحساب. يرجى مراجعة بريدك الإلكتروني لتأكيد الحساب قبل تسجيل الدخول."
-            : "Your account has been created. Please check your email to confirm your account before logging in.",
-          "success"
-        );
-      }
+      showMessage(
+        data.session
+          ? (lang === "ar"
+              ? "تم إنشاء حسابك بنجاح."
+              : "Your account has been created successfully.")
+          : (lang === "ar"
+              ? "تم إنشاء الحساب. يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول."
+              : "Account created. Please confirm your email before logging in."),
+        "success"
+      );
 
       registerForm.reset();
 
@@ -430,16 +285,11 @@
 
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-
     clearMessage();
     setLoading(loginButton, true);
 
-    const email =
-      document.getElementById("loginEmail").value.trim();
-
-    const password =
-      document.getElementById("loginPassword").value;
-
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
     const lang = currentLanguage();
 
     try {
@@ -450,59 +300,41 @@
 
       if (error) throw error;
 
-      const user = data.user;
-
       const { data: profile, error: profileError } = await client
         .from("profiles")
         .select("full_name, role")
-        .eq("id", user.id)
+        .eq("id", data.user.id)
         .single();
 
       if (profileError) throw profileError;
 
-      if (profile.role === "student") {
-        showMessage(
-          lang === "ar"
-            ? "تم تسجيل الدخول بنجاح. جارٍ فتح لوحة الطالب..."
-            : "Login successful. Opening your student dashboard...",
-          "success"
-        );
+      const destinations = {
+        student: "/student-dashboard.html",
+        teacher: "/teacher-dashboard.html",
+        admin: "/admin-dashboard.html"
+      };
 
-        window.location.href = "/student-dashboard.html";
-        return;
+      const destination = destinations[profile.role];
+
+      if (!destination) {
+        throw new Error(
+          lang === "ar"
+            ? "نوع الحساب غير معروف. يرجى التواصل مع إدارة الأكاديمية."
+            : "Unknown account role. Please contact the academy administrator."
+        );
       }
 
-      if (profile.role === "teacher") {
-        showMessage(
-          lang === "ar"
-            ? "تم تسجيل دخول المعلم بنجاح. جارٍ فتح لوحة المعلم..."
-            : "Teacher login successful. Opening your teacher dashboard...",
-          "success"
-        );
-
-        window.location.href = "/teacher-dashboard.html";
-        return;
-      }
-
-      if (profile.role === "admin") {
-        showMessage(
-          lang === "ar"
-            ? "تم تسجيل الدخول بنجاح. لوحة المدير لم تُجهّز بعد."
-            : "Login successful. The administrator dashboard is not ready yet.",
-          "success"
-        );
-        return;
-      }
-
-      throw new Error(
+      showMessage(
         lang === "ar"
-          ? "نوع الحساب غير معروف. يرجى التواصل مع إدارة الأكاديمية."
-          : "Unknown account role. Please contact the academy administrator."
+          ? "تم تسجيل الدخول بنجاح. جارٍ فتح لوحة التحكم..."
+          : "Login successful. Opening your dashboard...",
+        "success"
       );
+
+      window.location.replace(destination);
 
     } catch (error) {
       showMessage(error.message, "error");
-    } finally {
       setLoading(loginButton, false);
     }
   });

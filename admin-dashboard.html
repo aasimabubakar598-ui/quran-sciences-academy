@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +6,7 @@
 <meta name="theme-color" content="#0f2a24">
 <title>Admin Dashboard | Quran Sciences Academy</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#f3f6f4;color:#18352d;font-family:Arial,sans-serif}
@@ -26,15 +26,24 @@ input,select,textarea{width:100%;padding:11px;margin:6px 0 12px;border:1px solid
 textarea{min-height:75px}
 label{font-weight:bold}
 table{width:100%;border-collapse:collapse;min-width:600px}
-th,td{padding:11px;border-bottom:1px solid #e2e9e4;text-align:left}
+th,td{padding:11px;border-bottom:1px solid #e2e9e4;text-align:left;vertical-align:top}
 th{background:#edf3ef}
 .table-wrap{overflow-x:auto}
 .hidden{display:none}
 .message{padding:12px;background:#fff4d8;border-radius:8px;margin:12px 0}
 h3{margin-top:0}
+.status{display:inline-block;padding:5px 8px;border-radius:5px;background:#e8f0eb;margin:2px;font-size:13px}
+.status.approved{background:#d9efdf;color:#176332}
+.status.pending{background:#fff0c9;color:#795800}
+.status.rejected{background:#f8dddd;color:#8c2929}
+.student-courses{min-width:230px}
+.student-courses div{padding:5px 0;border-bottom:1px solid #edf1ee}
+.search-box{max-width:450px}
+.empty{text-align:center;padding:20px;color:#65776d}
 footer{text-align:center;color:#65776d;padding:25px}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -50,8 +59,10 @@ footer{text-align:center;color:#65776d;padding:25px}
   <div id="message" class="message">Checking administrator access...</div>
 
   <section id="dashboard" class="hidden">
+
     <div class="card">
       <h3 id="welcome">Administrator Dashboard</h3>
+
       <div class="stats">
         <div class="stat">Students<strong id="studentCount">0</strong></div>
         <div class="stat">Teachers<strong id="teacherCount">0</strong></div>
@@ -65,6 +76,7 @@ footer{text-align:center;color:#65776d;padding:25px}
       <button onclick="showTab('courses')">Courses</button>
       <button onclick="showTab('users')">Users</button>
       <button onclick="showTab('enrolments')">Enrolments</button>
+      <button onclick="showTab('students')">Student Records</button>
     </div>
 
     <section id="overview" class="card">
@@ -74,28 +86,44 @@ footer{text-align:center;color:#65776d;padding:25px}
 
     <section id="courses" class="card hidden">
       <h3>Create a Course</h3>
+
       <form id="courseForm">
         <label>Course title (English)</label>
         <input id="titleEn" required>
+
         <label>Course title (Arabic)</label>
         <input id="titleAr" required>
+
         <label>Department</label>
         <select id="department" required></select>
+
         <label>Assign Teacher</label>
         <select id="teacher"></select>
+
         <label>Description</label>
         <textarea id="description"></textarea>
+
         <label>Status</label>
         <select id="courseStatus">
           <option value="published">Published</option>
           <option value="draft">Draft</option>
         </select>
+
         <button type="submit">Create Course</button>
       </form>
+
       <h3>Existing Courses</h3>
+
       <div class="table-wrap">
         <table>
-          <thead><tr><th>English Title</th><th>Arabic Title</th><th>Status</th><th>Teacher</th></tr></thead>
+          <thead>
+            <tr>
+              <th>English Title</th>
+              <th>Arabic Title</th>
+              <th>Status</th>
+              <th>Teacher</th>
+            </tr>
+          </thead>
           <tbody id="courseRows"></tbody>
         </table>
       </div>
@@ -103,9 +131,16 @@ footer{text-align:center;color:#65776d;padding:25px}
 
     <section id="users" class="card hidden">
       <h3>Manage Users</h3>
+
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Name</th><th>Role</th><th>Change Role</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Change Role</th>
+            </tr>
+          </thead>
           <tbody id="userRows"></tbody>
         </table>
       </div>
@@ -113,13 +148,57 @@ footer{text-align:center;color:#65776d;padding:25px}
 
     <section id="enrolments" class="card hidden">
       <h3>Manage Enrolments</h3>
+
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Student</th><th>Course</th><th>Status</th><th>Action</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Course</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
           <tbody id="enrolmentRows"></tbody>
         </table>
       </div>
     </section>
+
+    <!-- STUDENT RECORDS -->
+
+    <section id="students" class="card hidden">
+      <h3>Student Records Management</h3>
+
+      <p>Search for students and review their course enrolment history.</p>
+
+      <div class="search-box">
+        <label for="studentSearch">Search students</label>
+        <input
+          id="studentSearch"
+          type="search"
+          placeholder="Enter student name..."
+        >
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Total Enrolments</th>
+              <th>Approved</th>
+              <th>Pending</th>
+              <th>Rejected</th>
+              <th>Course History</th>
+            </tr>
+          </thead>
+          <tbody id="studentRows"></tbody>
+        </table>
+      </div>
+
+      <p id="studentResultCount"></p>
+    </section>
+
   </section>
 </main>
 
@@ -131,7 +210,10 @@ footer{text-align:center;color:#65776d;padding:25px}
 const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 let currentUser = null;
 let language = "en";
@@ -149,7 +231,11 @@ function message(text){
 
 function escapeHTML(value){
   return String(value ?? "").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
   }[c]));
 }
 
@@ -176,6 +262,7 @@ async function start(){
 
   $("dashboard").classList.remove("hidden");
   $("message").classList.add("hidden");
+
   await loadDashboard();
 }
 
@@ -197,15 +284,23 @@ async function loadDashboard(){
     departments = results[2].data || [];
     enrolments = results[3].data || [];
 
-    $("studentCount").textContent = profiles.filter(p=>p.role==="student").length;
-    $("teacherCount").textContent = profiles.filter(p=>p.role==="teacher").length;
+    $("studentCount").textContent =
+      profiles.filter(p=>p.role==="student").length;
+
+    $("teacherCount").textContent =
+      profiles.filter(p=>p.role==="teacher").length;
+
     $("courseCount").textContent = courses.length;
-    $("pendingCount").textContent = enrolments.filter(e=>e.status==="pending").length;
+
+    $("pendingCount").textContent =
+      enrolments.filter(e=>e.status==="pending").length;
 
     renderCourses();
     renderUsers();
     renderEnrolments();
+    renderStudentRecords();
     fillCourseOptions();
+
     $("message").classList.add("hidden");
 
   }catch(error){
@@ -214,9 +309,13 @@ async function loadDashboard(){
 }
 
 function showTab(tab){
-  ["overview","courses","users","enrolments"].forEach(id=>{
+  ["overview","courses","users","enrolments","students"].forEach(id=>{
     $(id).classList.toggle("hidden",id!==tab);
   });
+
+  if(tab==="students"){
+    renderStudentRecords();
+  }
 }
 
 function renderCourses(){
@@ -268,6 +367,94 @@ function renderEnrolments(){
   }).join("") || "<tr><td colspan='4'>No enrolments found.</td></tr>";
 }
 
+// STUDENT RECORDS FUNCTIONS
+
+function renderStudentRecords(){
+  const search = $("studentSearch").value.trim().toLowerCase();
+
+  const students = profiles.filter(p=>
+    p.role==="student"
+  );
+
+  const filteredStudents = students.filter(student=>{
+    const name = String(student.full_name || "").toLowerCase();
+
+    const studentCourses = enrolments
+      .filter(e=>e.student_id===student.id)
+      .map(e=>{
+        const course = courses.find(c=>c.id===e.course_id);
+        return course?.title_en || "";
+      })
+      .join(" ")
+      .toLowerCase();
+
+    return name.includes(search) || studentCourses.includes(search);
+  });
+
+  $("studentRows").innerHTML = filteredStudents.map(student=>{
+
+    const records = enrolments.filter(
+      e=>e.student_id===student.id
+    );
+
+    const approved = records.filter(
+      e=>e.status==="approved"
+    ).length;
+
+    const pending = records.filter(
+      e=>e.status==="pending"
+    ).length;
+
+    const rejected = records.filter(
+      e=>e.status==="rejected"
+    ).length;
+
+    const history = records.length
+      ? records.map(record=>{
+          const course = courses.find(
+            c=>c.id===record.course_id
+          );
+
+          const courseName = course?.title_en || "Unknown course";
+          const status = String(record.status || "unknown").toLowerCase();
+
+          return `<div>
+            <strong>${escapeHTML(courseName)}</strong><br>
+            <span class="status ${escapeHTML(status)}">
+              ${escapeHTML(record.status)}
+            </span>
+          </div>`;
+        }).join("")
+      : "<span>No course enrolments yet.</span>";
+
+    return `<tr>
+      <td>${escapeHTML(student.full_name || "Unnamed student")}</td>
+      <td>${records.length}</td>
+      <td>${approved}</td>
+      <td>${pending}</td>
+      <td>${rejected}</td>
+      <td class="student-courses">${history}</td>
+    </tr>`;
+
+  }).join("") || `
+    <tr>
+      <td colspan="6" class="empty">
+        No students match your search.
+      </td>
+    </tr>
+  `;
+
+  $("studentResultCount").textContent =
+    "Showing "+filteredStudents.length+
+    " of "+students.length+" students.";
+}
+
+$("studentSearch").addEventListener("input",()=>{
+  renderStudentRecords();
+});
+
+// COURSE OPTIONS
+
 function fillCourseOptions(){
   $("department").innerHTML = departments.map(d=>
     `<option value="${d.id}">${escapeHTML(d.name_ar)}</option>`
@@ -281,6 +468,8 @@ function fillCourseOptions(){
       `<option value="${t.id}">${escapeHTML(t.full_name)}</option>`
     ).join("");
 }
+
+// CREATE COURSE
 
 $("courseForm").addEventListener("submit",async event=>{
   event.preventDefault();
@@ -303,10 +492,11 @@ $("courseForm").addEventListener("submit",async event=>{
 
   alert("Course created successfully.");
   event.target.reset();
+
   await loadDashboard();
 });
 
-// UPDATED ROLE CHANGE FUNCTION
+// CHANGE USER ROLE
 
 async function changeRole(id){
   const roleSelect = $("role-"+id);
@@ -335,9 +525,7 @@ async function changeRole(id){
       .select("id,full_name,role")
       .single();
 
-    if(error){
-      throw error;
-    }
+    if(error) throw error;
 
     if(!data){
       throw new Error("No profile was updated. Check administrator permissions and RLS policies.");
@@ -356,6 +544,8 @@ async function changeRole(id){
   }
 }
 
+// UPDATE ENROLMENT
+
 async function updateEnrolment(id,status){
   if(!confirm("Change enrolment status to "+status+"?")){
     return;
@@ -373,21 +563,30 @@ async function updateEnrolment(id,status){
   await loadDashboard();
 }
 
+// LOGOUT
+
 async function logout(){
   await db.auth.signOut();
   location.replace("/login.html");
 }
 
+// LANGUAGE TOGGLE
+
 function toggleLanguage(){
   language = language==="en" ? "ar" : "en";
+
   document.documentElement.lang = language;
-  document.documentElement.dir = language==="ar" ? "rtl" : "ltr";
+  document.documentElement.dir =
+    language==="ar" ? "rtl" : "ltr";
 
   $("welcome").textContent =
-    language==="ar" ? "لوحة تحكم المدير" : "Administrator Dashboard";
+    language==="ar"
+      ? "لوحة تحكم المدير"
+      : "Administrator Dashboard";
 }
 
 start();
 </script>
+
 </body>
-</html>
+  </html>

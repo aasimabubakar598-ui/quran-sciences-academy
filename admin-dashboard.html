@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f2a24">
+<title>Admin Dashboard | Quran Sciences Academy</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f4;color:#18352d;font-family:Arial,sans-serif}
+header{background:#0f2a24;color:white;padding:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+header h2{margin:0;font-size:20px}
+button{border:0;border-radius:7px;padding:10px 14px;background:#c6a65c;color:#102b25;font-weight:bold;cursor:pointer;margin:3px}
+button.secondary{background:#dfe8e3}
+button.danger{background:#b94b4b;color:white}
+main{max-width:1100px;margin:20px auto;padding:12px}
+.card{background:white;border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px #0000000c}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{text-align:center;background:#e8f0eb;padding:18px;border-radius:10px}
+.stat strong{display:block;font-size:27px;margin-top:8px}
+.tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:15px}
+input,select,textarea{width:100%;padding:11px;margin:6px 0 12px;border:1px solid #ccd8d0;border-radius:7px;font:inherit}
+textarea{min-height:75px}
+label{font-weight:bold}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th,td{padding:11px;border-bottom:1px solid #e2e9e4;text-align:left}
+th{background:#edf3ef}
+.table-wrap{overflow-x:auto}
+.hidden{display:none}
+.message{padding:12px;background:#fff4d8;border-radius:8px;margin:12px 0}
+h3{margin-top:0}
+footer{text-align:center;color:#65776d;padding:25px}
+</style>
+</head>
+<body>
+
+<header>
+  <h2>Quran Sciences Academy | Admin</h2>
+  <div>
+    <button class="secondary" onclick="toggleLanguage()">العربية / English</button>
+    <button class="secondary" onclick="loadDashboard()">Refresh</button>
+    <button class="danger" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<main>
+  <div id="message" class="message">Checking administrator access...</div>
+
+  <section id="dashboard" class="hidden">
+    <div class="card">
+      <h3 id="welcome">Administrator Dashboard</h3>
+      <div class="stats">
+        <div class="stat">Students<strong id="studentCount">0</strong></div>
+        <div class="stat">Teachers<strong id="teacherCount">0</strong></div>
+        <div class="stat">Courses<strong id="courseCount">0</strong></div>
+        <div class="stat">Pending Enrolments<strong id="pendingCount">0</strong></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button onclick="showTab('overview')">Overview</button>
+      <button onclick="showTab('courses')">Courses</button>
+      <button onclick="showTab('users')">Users</button>
+      <button onclick="showTab('enrolments')">Enrolments</button>
+    </div>
+
+    <section id="overview" class="card">
+      <h3>Academy Overview</h3>
+      <p>Manage courses, teachers, students and enrolment requests from this dashboard.</p>
+    </section>
+
+    <section id="courses" class="card hidden">
+      <h3>Create a Course</h3>
+      <form id="courseForm">
+        <label>Course title (English)</label>
+        <input id="titleEn" required>
+        <label>Course title (Arabic)</label>
+        <input id="titleAr" required>
+        <label>Department</label>
+        <select id="department" required></select>
+        <label>Assign Teacher</label>
+        <select id="teacher"></select>
+        <label>Description</label>
+        <textarea id="description"></textarea>
+        <label>Status</label>
+        <select id="courseStatus">
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
+        <button type="submit">Create Course</button>
+      </form>
+      <h3>Existing Courses</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>English Title</th><th>Arabic Title</th><th>Status</th><th>Teacher</th></tr></thead>
+          <tbody id="courseRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="users" class="card hidden">
+      <h3>Manage Users</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Role</th><th>Change Role</th></tr></thead>
+          <tbody id="userRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="enrolments" class="card hidden">
+      <h3>Manage Enrolments</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Course</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="enrolmentRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+</main>
+
+<footer>Quran Sciences Academy</footer>
+
+<script>
+const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let currentUser = null;
+let language = "en";
+let profiles = [];
+let courses = [];
+let departments = [];
+let enrolments = [];
+
+const $ = id => document.getElementById(id);
+
+function message(text){
+  $("message").textContent = text;
+  $("message").classList.remove("hidden");
+}
+
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+async function start(){
+  const {data,error} = await db.auth.getSession();
+  if(error || !data.session){
+    location.replace("/login.html");
+    return;
+  }
+
+  currentUser = data.session.user;
+
+  const {data:profile,error:profileError} = await db
+    .from("profiles")
+    .select("id,full_name,role")
+    .eq("id",currentUser.id)
+    .single();
+
+  if(profileError || !profile || profile.role !== "admin"){
+    message("Access denied. Administrator account required.");
+    return;
+  }
+
+  $("dashboard").classList.remove("hidden");
+  $("message").classList.add("hidden");
+  await loadDashboard();
+}
+
+async function loadDashboard(){
+  try{
+    const results = await Promise.all([
+      db.from("profiles").select("id,full_name,role"),
+      db.from("courses").select("id,title_en,title_ar,status,teacher_id,department_id"),
+      db.from("departments").select("id,name_ar"),
+      db.from("enrollments").select("id,student_id,course_id,status")
+    ]);
+
+    for(const result of results){
+      if(result.error) throw result.error;
+    }
+
+    profiles = results[0].data || [];
+    courses = results[1].data || [];
+    departments = results[2].data || [];
+    enrolments = results[3].data || [];
+
+    $("studentCount").textContent = profiles.filter(p=>p.role==="student").length;
+    $("teacherCount").textContent = profiles.filter(p=>p.role==="teacher").length;
+    $("courseCount").textContent = courses.length;
+    $("pendingCount").textContent = enrolments.filter(e=>e.status==="pending").length;
+
+    renderCourses();
+    renderUsers();
+    renderEnrolments();
+    fillCourseOptions();
+    $("message").classList.add("hidden");
+  }catch(error){
+    message("Could not load dashboard: "+error.message);
+  }
+}
+
+function showTab(tab){
+  ["overview","courses","users","enrolments"].forEach(id=>{
+    $(id).classList.toggle("hidden",id!==tab);
+  });
+}
+
+function renderCourses(){
+  $("courseRows").innerHTML = courses.map(c=>{
+    const teacher = profiles.find(p=>p.id===c.teacher_id);
+    return `<tr>
+      <td>${escapeHTML(c.title_en)}</td>
+      <td>${escapeHTML(c.title_ar)}</td>
+      <td>${escapeHTML(c.status)}</td>
+      <td>${escapeHTML(teacher?.full_name || "Not assigned")}</td>
+    </tr>`;
+  }).join("") || "<tr><td colspan='4'>No courses found.</td></tr>";
+}
+
+function renderUsers(){
+  $("userRows").innerHTML = profiles.map(p=>{
+    const isSelf = p.id===currentUser.id;
+    const isAdmin = p.role==="admin";
+    return `<tr>
+      <td>${escapeHTML(p.full_name || "Unnamed user")}</td>
+      <td>${escapeHTML(p.role)}</td>
+      <td>${isSelf || isAdmin ? "Protected account" : `
+        <select id="role-${p.id}">
+          <option value="student" ${p.role==="student"?"selected":""}>Student</option>
+          <option value="teacher" ${p.role==="teacher"?"selected":""}>Teacher</option>
+        </select>
+        <button onclick="changeRole('${p.id}')">Save</button>`}
+      </td>
+    </tr>`;
+  }).join("") || "<tr><td colspan='3'>No users found.</td></tr>";
+}
+
+function renderEnrolments(){
+  $("enrolmentRows").innerHTML = enrolments.map(e=>{
+    const student = profiles.find(p=>p.id===e.student_id);
+    const course = courses.find(c=>c.id===e.course_id);
+    return `<tr>
+      <td>${escapeHTML(student?.full_name || "Unknown student")}</td>
+      <td>${escapeHTML(course?.title_en || "Unknown course")}</td>
+      <td>${escapeHTML(e.status)}</td>
+      <td>${e.status==="pending" ? `
+        <button onclick="updateEnrolment('${e.id}','approved')">Approve</button>
+        <button class="danger" onclick="updateEnrolment('${e.id}','rejected')">Reject</button>
+      ` : "—"}</td>
+    </tr>`;
+  }).join("") || "<tr><td colspan='4'>No enrolments found.</td></tr>";
+}
+
+function fillCourseOptions(){
+  $("department").innerHTML = departments.map(d=>
+    `<option value="${d.id}">${escapeHTML(d.name_ar)}</option>`
+  ).join("");
+
+  const teachers = profiles.filter(p=>p.role==="teacher");
+  $("teacher").innerHTML =
+    `<option value="">No teacher assigned</option>`+
+    teachers.map(t=>`<option value="${t.id}">${escapeHTML(t.full_name)}</option>`).join("");
+}
+
+$("courseForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+
+  const record = {
+    title_en:$("titleEn").value.trim(),
+    title_ar:$("titleAr").value.trim(),
+    department_id:$("department").value,
+    teacher_id:$("teacher").value || null,
+    description:$("description").value.trim(),
+    status:$("courseStatus").value
+  };
+
+  const {error} = await db.from("courses").insert(record);
+  if(error){
+    alert("Could not create course: "+error.message);
+    return;
+  }
+
+  alert("Course created successfully.");
+  event.target.reset();
+  await loadDashboard();
+});
+
+async function changeRole(id){
+  const role = $("role-"+id).value;
+  if(!["student","teacher"].includes(role)) return;
+
+  if(!confirm("Change this user's role to "+role+"?")) return;
+
+  const {error} = await db.from("profiles")
+    .update({role})
+    .eq("id",id);
+
+  if(error){
+    alert("Could not update role: "+error.message);
+    return;
+  }
+
+  alert("User role updated.");
+  await loadDashboard();
+}
+
+async function updateEnrolment(id,status){
+  if(!confirm("Change enrolment status to "+status+"?")) return;
+
+  const {error} = await db.from("enrollments")
+    .update({status})
+    .eq("id",id);
+
+  if(error){
+    alert("Could not update enrolment: "+error.message);
+    return;
+  }
+
+  await loadDashboard();
+}
+
+async function logout(){
+  await db.auth.signOut();
+  location.replace("/login.html");
+}
+
+function toggleLanguage(){
+  language = language==="en" ? "ar" : "en";
+  document.documentElement.lang = language;
+  document.documentElement.dir = language==="ar" ? "rtl" : "ltr";
+  $("welcome").textContent = language==="ar" ? "لوحة تحكم المدير" : "Administrator Dashboard";
+}
+
+start();
+</script>
+</body>
+                                                               </html>

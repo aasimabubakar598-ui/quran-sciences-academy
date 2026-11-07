@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -67,6 +66,7 @@
       background: #edf4ee;
       color: #176438;
       font-size: 13px;
+      margin: 4px 0;
     }
 
     .empty-state {
@@ -102,7 +102,8 @@
       margin-top: 20px;
     }
 
-    .dashboard-actions button {
+    .dashboard-actions button,
+    .enroll-button {
       border: 0;
       border-radius: 8px;
       padding: 11px 18px;
@@ -111,6 +112,16 @@
       font-family: inherit;
       font-weight: bold;
       cursor: pointer;
+    }
+
+    .enroll-button {
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    .enroll-button:disabled {
+      opacity: .65;
+      cursor: not-allowed;
     }
 
     .dashboard-actions a {
@@ -195,7 +206,7 @@
     "https://kxaovcknyddctnqvrudi.supabase.co";
 
   const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
 
   const message = document.getElementById("dashboardMessage");
   const departmentsList = document.getElementById("departmentsList");
@@ -316,15 +327,36 @@
         ? departmentTitle(department.name_ar)
         : t("قسم غير محدد", "Unassigned department");
 
+      const details = document.createElement("div");
+
       const label = document.createElement("span");
       label.className = "status";
       label.textContent = departmentName;
+      details.appendChild(label);
+
+      const alreadyEnrolled = enrollments.some(
+        item => String(item.course_id) === String(course.id)
+      );
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "enroll-button";
+
+      if (alreadyEnrolled) {
+        button.textContent = t("تم التسجيل", "Enrolled");
+        button.disabled = true;
+      } else {
+        button.textContent = t("التسجيل في المقرر", "Enroll");
+        button.addEventListener("click", () => enrollInCourse(course, button));
+      }
+
+      details.appendChild(button);
 
       coursesList.appendChild(
         createCard(
           courseTitle(course),
           course.description || t("لا يوجد وصف للمقرر.", "No course description."),
-          label
+          details
         )
       );
     });
@@ -407,6 +439,54 @@
           "هذه لوحتك الخاصة لمتابعة مقرراتك الدراسية.",
           "Your personal dashboard for following your courses."
         );
+    }
+  }
+
+  async function enrollInCourse(course, button) {
+    button.disabled = true;
+    button.textContent = t("جارٍ التسجيل...", "Enrolling...");
+
+    try {
+      const { data: existing, error: checkError } = await client
+        .from("enrollments")
+        .select("id")
+        .eq("student_id", currentUser.id)
+        .eq("course_id", course.id);
+
+      if (checkError) throw checkError;
+
+      if (existing && existing.length > 0) {
+        showMessage(
+          t("أنت مسجل في هذا المقرر بالفعل.", "You are already enrolled in this course.")
+        );
+        await loadDashboard();
+        return;
+      }
+
+      const { error: insertError } = await client
+        .from("enrollments")
+        .insert({
+          student_id: currentUser.id,
+          course_id: course.id,
+          status: "pending"
+        });
+
+      if (insertError) throw insertError;
+
+      showMessage(
+        t("تم إرسال طلب التسجيل بنجاح.", "Your enrollment request was submitted successfully.")
+      );
+
+      await loadDashboard();
+
+    } catch (error) {
+      button.disabled = false;
+      button.textContent = t("التسجيل في المقرر", "Enroll");
+
+      showMessage(
+        t("تعذر التسجيل: ", "Could not enroll: ") + error.message,
+        "error"
+      );
     }
   }
 

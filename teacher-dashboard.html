@@ -1,268 +1,259 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0f2a24">
-  <title>لوحة المعلم | أكاديمية القرآن الكريم</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f2a24">
+<title>لوحة المعلم | أكاديمية القرآن الكريم</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    :root {
-      --bg: #0f2a24;
-      --panel: #183b32;
-      --panel2: #20483d;
-      --gold: #d8bd78;
-      --text: #f5f1e7;
-      --muted: #c3cbbf;
-      --border: rgba(216,189,120,.2);
-      --green: #80c69a;
-      --red: #e69b91;
-    }
+<style>
+:root {
+  --bg:#0f2a24;
+  --panel:#183b32;
+  --panel2:#20483d;
+  --gold:#d8bd78;
+  --text:#f5f1e7;
+  --muted:#c3cbbf;
+  --border:rgba(216,189,120,.2);
+  --green:#80c69a;
+  --red:#e69b91;
+}
 
-    * { box-sizing: border-box; }
+* { box-sizing:border-box; }
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Tajawal, sans-serif;
-    }
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Tajawal,sans-serif;
+}
 
-    button, input, select, textarea {
-      font-family: inherit;
-    }
+button,input,select,textarea { font-family:inherit; }
+button { cursor:pointer; }
 
-    button { cursor: pointer; }
+header {
+  background:#102f28;
+  border-bottom:1px solid var(--border);
+  padding:18px 5%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
 
-    header {
-      background: #102f28;
-      border-bottom: 1px solid var(--border);
-      padding: 18px 5%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+.brand {
+  color:var(--gold);
+  font-size:21px;
+  font-weight:800;
+}
 
-    .brand {
-      color: var(--gold);
-      font-size: 21px;
-      font-weight: 800;
-    }
+.header-actions {
+  display:flex;
+  gap:9px;
+}
 
-    .header-actions {
-      display: flex;
-      gap: 9px;
-    }
+.header-actions button {
+  background:var(--panel2);
+  color:white;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:9px 14px;
+}
 
-    .header-actions button {
-      background: var(--panel2);
-      color: white;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 9px 14px;
-    }
+main {
+  max-width:1150px;
+  margin:30px auto;
+  padding:0 18px 50px;
+}
 
-    main {
-      max-width: 1150px;
-      margin: 30px auto;
-      padding: 0 18px 50px;
-    }
+.welcome { margin-bottom:25px; }
 
-    .welcome { margin-bottom: 25px; }
+h1 {
+  color:var(--gold);
+  margin-bottom:6px;
+  font-size:29px;
+}
 
-    h1 {
-      color: var(--gold);
-      margin-bottom: 6px;
-      font-size: 29px;
-    }
+.muted { color:var(--muted); }
 
-    .muted { color: var(--muted); }
+.stats {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:15px;
+  margin:25px 0;
+}
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 15px;
-      margin: 25px 0;
-    }
+.stat,.section {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:20px;
+}
 
-    .stat, .section {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      padding: 20px;
-    }
+.stat strong {
+  display:block;
+  color:var(--gold);
+  font-size:30px;
+  margin-top:8px;
+}
 
-    .stat strong {
-      display: block;
-      color: var(--gold);
-      font-size: 30px;
-      margin-top: 8px;
-    }
+.section { margin-bottom:22px; }
 
-    .section { margin-bottom: 22px; }
+h2 {
+  color:var(--gold);
+  margin-top:0;
+  font-size:21px;
+}
 
-    h2 {
-      color: var(--gold);
-      margin-top: 0;
-      font-size: 21px;
-    }
+.course,.request,.student {
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:15px;
+  margin-top:12px;
+}
 
-    .course, .request, .student {
-      background: var(--panel2);
-      border: 1px solid var(--border);
-      border-radius: 11px;
-      padding: 15px;
-      margin-top: 12px;
-    }
+.course h3 {
+  margin:0 0 8px;
+  color:var(--gold);
+}
 
-    .course h3 {
-      margin: 0 0 8px;
-      color: var(--gold);
-    }
+.request {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
 
-    .request {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+.actions {
+  display:flex;
+  gap:8px;
+}
 
-    .actions {
-      display: flex;
-      gap: 8px;
-    }
+.approve,.reject,.primary-btn {
+  border:0;
+  border-radius:8px;
+  padding:10px 15px;
+  font-weight:700;
+  color:white;
+}
 
-    .approve, .reject, .primary-btn {
-      border: 0;
-      border-radius: 8px;
-      padding: 10px 15px;
-      font-weight: 700;
-      color: white;
-    }
+.approve,.primary-btn { background:#286b4b; }
+.reject { background:#75413d; }
 
-    .approve, .primary-btn { background: #286b4b; }
-    .reject { background: #75413d; }
+.primary-btn:disabled {
+  opacity:.5;
+  cursor:not-allowed;
+}
 
-    .primary-btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
+.status {
+  color:var(--gold);
+  font-size:14px;
+  margin-top:7px;
+}
 
-    .status {
-      color: var(--gold);
-      font-size: 14px;
-      margin-top: 7px;
-    }
+.message {
+  padding:12px;
+  border-radius:9px;
+  margin:12px 0;
+  background:var(--panel2);
+  color:var(--muted);
+}
 
-    .message {
-      padding: 12px;
-      border-radius: 9px;
-      margin: 12px 0;
-      background: var(--panel2);
-      color: var(--muted);
-    }
+.error { color:var(--red); }
+.success { color:var(--green); }
 
-    .error { color: var(--red); }
-    .success { color: var(--green); }
+.attendance-controls {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:13px;
+  margin:15px 0;
+}
 
-    .attendance-controls {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 13px;
-      margin: 15px 0;
-    }
+.field {
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
+.field label {
+  color:var(--gold);
+  font-weight:700;
+}
 
-    .field label {
-      color: var(--gold);
-      font-weight: 700;
-    }
+.field input,.field select,
+.attendance-row select,
+.attendance-row textarea {
+  width:100%;
+  padding:11px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#102f28;
+  color:var(--text);
+  font-size:15px;
+}
 
-    .field input, .field select,
-    .attendance-row select,
-    .attendance-row textarea {
-      width: 100%;
-      padding: 11px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #102f28;
-      color: var(--text);
-      font-size: 15px;
-    }
+.attendance-row {
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:13px;
+  margin-top:11px;
+  display:grid;
+  grid-template-columns:minmax(130px,1fr) minmax(140px,.8fr) minmax(150px,1fr);
+  gap:12px;
+  align-items:center;
+}
 
-    .attendance-row {
-      background: var(--panel2);
-      border: 1px solid var(--border);
-      border-radius: 11px;
-      padding: 13px;
-      margin-top: 11px;
-      display: grid;
-      grid-template-columns: minmax(130px, 1fr) minmax(140px, .8fr) minmax(150px, 1fr);
-      gap: 12px;
-      align-items: center;
-    }
+.attendance-row strong {
+  color:var(--text);
+  overflow-wrap:anywhere;
+}
 
-    .attendance-row strong {
-      color: var(--text);
-      overflow-wrap: anywhere;
-    }
+.attendance-row textarea {
+  min-height:42px;
+  resize:vertical;
+}
 
-    .attendance-row textarea {
-      min-height: 42px;
-      resize: vertical;
-    }
+.attendance-summary {
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin:15px 0;
+  color:var(--muted);
+}
 
-    .attendance-summary {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin: 15px 0;
-      color: var(--muted);
-    }
+.attendance-summary strong { color:var(--gold); }
 
-    .attendance-summary strong { color: var(--gold); }
+.attendance-actions {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
 
-    .attendance-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 18px;
-    }
+footer {
+  text-align:center;
+  color:var(--muted);
+  padding:25px;
+  border-top:1px solid var(--border);
+}
 
-    footer {
-      text-align: center;
-      color: var(--muted);
-      padding: 25px;
-      border-top: 1px solid var(--border);
-    }
-
-    @media (max-width: 650px) {
-      h1 { font-size: 24px; }
-      .request { align-items: flex-start; }
-      .actions { width: 100%; }
-      .actions button { flex: 1; }
-
-      .attendance-row {
-        grid-template-columns: 1fr;
-      }
-
-      .attendance-actions button {
-        width: 100%;
-      }
-    }
-  </style>
+@media(max-width:650px) {
+  h1 { font-size:24px; }
+  .request { align-items:flex-start; }
+  .actions { width:100%; }
+  .actions button { flex:1; }
+  .attendance-row { grid-template-columns:1fr; }
+  .attendance-actions button { width:100%; }
+}
+</style>
 </head>
 
 <body>
@@ -291,9 +282,7 @@
     </div>
   </div>
 
-  <div id="message" class="message"
-       data-ar="جاري تحميل البيانات..."
-       data-en="Loading data...">
+  <div id="message" class="message">
     جاري تحميل البيانات...
   </div>
 
@@ -302,16 +291,12 @@
       <span data-ar="المقررات" data-en="Courses">المقررات</span>
       <strong id="courseCount">0</strong>
     </div>
-
     <div class="stat">
       <span data-ar="الطلاب" data-en="Students">الطلاب</span>
       <strong id="studentCount">0</strong>
     </div>
-
     <div class="stat">
-      <span data-ar="طلبات التسجيل" data-en="Pending Requests">
-        طلبات التسجيل
-      </span>
+      <span data-ar="طلبات التسجيل" data-en="Pending Requests">طلبات التسجيل</span>
       <strong id="requestCount">0</strong>
     </div>
   </div>
@@ -332,8 +317,7 @@
     <h2 data-ar="طلابي" data-en="My Students">طلابي</h2>
     <div id="studentsList"></div>
   </section>
-
-  <!-- Attendance Management -->
+    <!-- Attendance Management -->
   <section class="section">
     <h2 data-ar="إدارة الحضور" data-en="Attendance Management">
       إدارة الحضور
@@ -397,10 +381,15 @@
 
 <script>
 (() => {
-  const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
+  "use strict";
 
-  const SUPABASE_ANON_KEY =
-    "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
+  const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
+
+  if (!window.supabase) {
+    alert("Supabase library failed to load. Please refresh the page.");
+    return;
+  }
 
   const supabase = window.supabase.createClient(
     SUPABASE_URL,
@@ -433,6 +422,20 @@
     $("attendanceMessage").className = "message";
   }
 
+  function courseName(course) {
+    return language === "ar"
+      ? (course.title_ar || course.title_en || "")
+      : (course.title_en || course.title_ar || "");
+  }
+
+  function todayLocal() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
   function translatePage() {
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
@@ -456,334 +459,85 @@
     translatePage();
   });
 
-  function courseName(course) {
-    return language === "ar"
-      ? (course.title_ar || course.title_en || "")
-      : (course.title_en || course.title_ar || "");
-  }
+  $("logoutBtn").addEventListener("click", async () => {
+    const { error } = await supabase.auth.signOut();
 
-  function todayLocal() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
+    if (error) {
+      setMessage("Logout failed: " + error.message, "error");
+      return;
+    }
+
+    window.location.href = "/login.html";
+  });
+
+  $("loadAttendanceBtn").addEventListener("click", loadAttendance);
+
+  $("saveAttendanceBtn").addEventListener("click", saveAttendance);
+
+  $("attendanceCourse").addEventListener("change", () => {
+    attendanceStudents = [];
+    $("attendanceList").innerHTML = "";
+    $("attendanceSummary").style.display = "none";
+    $("saveAttendanceBtn").disabled = true;
+    clearAttendanceMessage();
+  });
+
+  $("attendanceDate").addEventListener("change", () => {
+    attendanceStudents = [];
+    $("attendanceList").innerHTML = "";
+    $("attendanceSummary").style.display = "none";
+    $("saveAttendanceBtn").disabled = true;
+    clearAttendanceMessage();
+  });
+
+  window.addEventListener("error", event => {
+    setMessage("JavaScript error: " + event.message, "error");
+  });
+
+  window.addEventListener("unhandledrejection", event => {
+    const reason = event.reason;
+    setMessage(
+      "Unexpected error: " + (reason?.message || String(reason)),
+      "error"
+    );
+  });
 
   async function loadDashboard() {
-    const { data: authData, error: authError } =
-      await supabase.auth.getUser();
+    try {
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser();
 
-    if (authError || !authData.user) {
-      window.location.href = "/login.html";
-      return;
-    }
+      if (authError || !authData.user) {
+        window.location.href = "/login.html";
+        return;
+      }
 
-    teacherId = authData.user.id;
+      teacherId = authData.user.id;
 
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("full_name, role")
-      .eq("id", teacherId)
-      .single();
-
-    if (profileError || !profile || profile.role !== "teacher") {
-      setMessage(
-        language === "ar"
-          ? "ليس لديك صلاحية الدخول إلى لوحة المعلم."
-          : "You are not authorized to access the teacher dashboard.",
-        "error"
-      );
-      return;
-    }
-
-    $("teacherName").textContent = profile.full_name || authData.user.email;
-
-    $("attendanceDate").value = todayLocal();
-
-    await loadCourses();
-  }
-
-  async function loadCourses() {
-    const { data, error } = await supabase
-      .from("courses")
-      .select("id, title_ar, title_en, description, status")
-      .eq("teacher_id", teacherId)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      setMessage("Could not load courses: " + error.message, "error");
-      return;
-    }
-
-    courses = data || [];
-    renderCourses();
-
-    if (courses.length === 0) {
-      enrollments = [];
-      attendanceStudents = [];
-      renderRequests();
-      renderStudents();
-      renderAttendanceRows();
-
-      setMessage(
-        language === "ar"
-          ? "لا توجد مقررات معينة لك حالياً."
-          : "No courses are assigned to you yet."
-      );
-      return;
-    }
-
-    await loadEnrollments();
-  }
-
-  async function loadEnrollments() {
-    const courseIds = courses.map(course => course.id);
-
-    const { data, error } = await supabase
-      .from("enrollments")
-      .select("id, student_id, course_id, status")
-      .in("course_id", courseIds);
-
-    if (error) {
-      setMessage("Could not load enrolments: " + error.message, "error");
-      return;
-    }
-
-    enrollments = data || [];
-
-    const studentIds = [...new Set(enrollments.map(e => e.student_id))];
-
-    let profiles = [];
-
-    if (studentIds.length > 0) {
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("id, full_name")
-        .in("id", studentIds);
+        .select("full_name, role")
+        .eq("id", teacherId)
+        .single();
 
-      if (profileError) {
+      if (profileError || !profile || profile.role !== "teacher") {
         setMessage(
-          "Could not load student profiles: " + profileError.message,
+          language === "ar"
+            ? "ليس لديك صلاحية الدخول إلى لوحة المعلم."
+            : "You are not authorized to access the teacher dashboard.",
           "error"
         );
         return;
       }
 
-      profiles = profileData || [];
+      $("teacherName").textContent =
+        profile.full_name || authData.user.email;
+
+      $("attendanceDate").value = todayLocal();
+      $("year").textContent = new Date().getFullYear();
+
+      await loadCourses();
+    } catch (error) {
+      setMessage("Dashboard error: " + error.message, "error");
     }
-
-    const profileMap = new Map(profiles.map(p => [p.id, p]));
-
-    enrollments = enrollments.map(e => ({
-      ...e,
-      student_name:
-        profileMap.get(e.student_id)?.full_name || e.student_id
-    }));
-
-    renderRequests();
-    renderStudents();
-
-    $("courseCount").textContent = courses.length;
-    $("studentCount").textContent =
-      new Set(
-        enrollments
-          .filter(e => e.status === "approved")
-          .map(e => e.student_id)
-      ).size;
-
-    $("requestCount").textContent =
-      enrollments.filter(e => e.status === "pending").length;
-
-    setMessage(
-      language === "ar"
-        ? "تم تحميل بيانات لوحة المعلم بنجاح."
-        : "Teacher dashboard loaded successfully.",
-      "success"
-    );
-
-    await loadAttendance();
   }
-
-  function renderCourses() {
-    $("coursesList").innerHTML = "";
-
-    const selectedCourse = $("attendanceCourse").value;
-
-    $("attendanceCourse").innerHTML = "";
-
-    const placeholder = document.createElement("option");
-    placeholder.value = "";
-    placeholder.textContent =
-      language === "ar" ? "اختر المقرر" : "Select a course";
-
-    $("attendanceCourse").appendChild(placeholder);
-
-    courses.forEach(course => {
-      const option = document.createElement("option");
-      option.value = course.id;
-      option.textContent = courseName(course);
-      $("attendanceCourse").appendChild(option);
-    });
-
-    if (courses.some(c => c.id === selectedCourse)) {
-      $("attendanceCourse").value = selectedCourse;
-    } else if (courses.length) {
-      $("attendanceCourse").value = courses[0].id;
-    }
-
-    if (!courses.length) {
-      $("coursesList").textContent =
-        language === "ar" ? "لا توجد مقررات." : "No courses found.";
-      return;
-    }
-
-    courses.forEach(course => {
-      const div = document.createElement("div");
-      div.className = "course";
-
-      const heading = document.createElement("h3");
-      heading.textContent = courseName(course);
-
-      const description = document.createElement("p");
-      description.textContent = course.description || "";
-
-      const status = document.createElement("div");
-      status.className = "status";
-      status.textContent =
-        (language === "ar" ? "الحالة: " : "Status: ") +
-        (course.status || "");
-
-      div.append(heading, description, status);
-      $("coursesList").appendChild(div);
-    });
-  }
-
-  function renderRequests() {
-    $("requestsList").innerHTML = "";
-
-    const pending = enrollments.filter(e => e.status === "pending");
-
-    $("requestCount").textContent = pending.length;
-
-    if (!pending.length) {
-      $("requestsList").textContent =
-        language === "ar"
-          ? "لا توجد طلبات تسجيل معلقة."
-          : "There are no pending enrolment requests.";
-      return;
-    }
-
-    pending.forEach(enrollment => {
-      const course = courses.find(c => c.id === enrollment.course_id);
-
-      const div = document.createElement("div");
-      div.className = "request";
-
-      const info = document.createElement("div");
-
-      const name = document.createElement("strong");
-      name.textContent = enrollment.student_name;
-
-      const courseLabel = document.createElement("div");
-      courseLabel.className = "muted";
-      courseLabel.textContent = course ? courseName(course) : "";
-
-      info.append(name, courseLabel);
-
-      const actions = document.createElement("div");
-      actions.className = "actions";
-
-      const approve = document.createElement("button");
-      approve.className = "approve";
-      approve.textContent = language === "ar" ? "قبول" : "Approve";
-      approve.addEventListener("click", () =>
-        updateEnrollment(enrollment.id, "approved")
-      );
-
-      const reject = document.createElement("button");
-      reject.className = "reject";
-      reject.textContent = language === "ar" ? "رفض" : "Reject";
-      reject.addEventListener("click", () =>
-        updateEnrollment(enrollment.id, "rejected")
-      );
-
-      actions.append(approve, reject);
-      div.append(info, actions);
-      $("requestsList").appendChild(div);
-    });
-  }
-
-  function renderStudents() {
-    $("studentsList").innerHTML = "";
-
-    const approved = enrollments.filter(e => e.status === "approved");
-
-    const unique = new Map();
-
-    approved.forEach(e => {
-      if (!unique.has(e.student_id)) {
-        unique.set(e.student_id, e);
-      }
-    });
-
-    $("studentCount").textContent = unique.size;
-
-    if (!unique.size) {
-      $("studentsList").textContent =
-        language === "ar"
-          ? "لا يوجد طلاب مسجلون حالياً."
-          : "No approved students yet.";
-      return;
-    }
-
-    unique.forEach(enrollment => {
-      const div = document.createElement("div");
-      div.className = "student";
-      div.textContent = enrollment.student_name;
-      $("studentsList").appendChild(div);
-    });
-  }
-
-  async function loadAttendance() {
-    clearAttendanceMessage();
-
-    $("attendanceList").innerHTML = "";
-    $("attendanceSummary").style.display = "none";
-    $("saveAttendanceBtn").disabled = true;
-
-    const courseId = $("attendanceCourse").value;
-    const attendanceDate = $("attendanceDate").value;
-
-    if (!courseId || !attendanceDate) {
-      attendanceStudents = [];
-      setAttendanceMessage(
-        language === "ar"
-          ? "يرجى اختيار المقرر وتاريخ الدرس."
-          : "Please select a course and lesson date."
-      );
-      return;
-    }
-
-    const selectedCourse = courses.find(c => c.id === courseId);
-
-    if (!selectedCourse) {
-      attendanceStudents = [];
-      setAttendanceMessage(
-        language === "ar" ? "المقرر غير موجود." : "Course not found.",
-        "error"
-      );
-      return;
-    }
-
-    const approved = enrollments.filter(
-      e => e.course_id === courseId && e.status === "approved"
-    );
-
-    const uniqueStudents = new Map();
-
-    approved.forEach(enrollment => {
-      if (!uniqueStudents.has(enrollment.student_id)) {
-        uniqueStudents.set(enrollment.student_id, {
-          student_id: enrollment.student_id,
-          

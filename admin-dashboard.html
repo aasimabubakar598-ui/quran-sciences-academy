@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,6 +15,7 @@ header h2{margin:0;font-size:20px}
 button{border:0;border-radius:7px;padding:10px 14px;background:#c6a65c;color:#102b25;font-weight:bold;cursor:pointer;margin:3px}
 button.secondary{background:#dfe8e3}
 button.danger{background:#b94b4b;color:white}
+button:disabled{opacity:.6;cursor:not-allowed}
 main{max-width:1100px;margin:20px auto;padding:12px}
 .card{background:white;border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px #0000000c}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
@@ -124,10 +126,13 @@ footer{text-align:center;color:#65776d;padding:25px}
 <footer>Quran Sciences Academy</footer>
 
 <script>
-const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+"use strict";
 
-const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
+const SUPABASE_KEY = "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let currentUser = null;
 let language = "en";
 let profiles = [];
@@ -150,6 +155,7 @@ function escapeHTML(value){
 
 async function start(){
   const {data,error} = await db.auth.getSession();
+
   if(error || !data.session){
     location.replace("/login.html");
     return;
@@ -201,6 +207,7 @@ async function loadDashboard(){
     renderEnrolments();
     fillCourseOptions();
     $("message").classList.add("hidden");
+
   }catch(error){
     message("Could not load dashboard: "+error.message);
   }
@@ -215,6 +222,7 @@ function showTab(tab){
 function renderCourses(){
   $("courseRows").innerHTML = courses.map(c=>{
     const teacher = profiles.find(p=>p.id===c.teacher_id);
+
     return `<tr>
       <td>${escapeHTML(c.title_en)}</td>
       <td>${escapeHTML(c.title_ar)}</td>
@@ -228,6 +236,7 @@ function renderUsers(){
   $("userRows").innerHTML = profiles.map(p=>{
     const isSelf = p.id===currentUser.id;
     const isAdmin = p.role==="admin";
+
     return `<tr>
       <td>${escapeHTML(p.full_name || "Unnamed user")}</td>
       <td>${escapeHTML(p.role)}</td>
@@ -246,6 +255,7 @@ function renderEnrolments(){
   $("enrolmentRows").innerHTML = enrolments.map(e=>{
     const student = profiles.find(p=>p.id===e.student_id);
     const course = courses.find(c=>c.id===e.course_id);
+
     return `<tr>
       <td>${escapeHTML(student?.full_name || "Unknown student")}</td>
       <td>${escapeHTML(course?.title_en || "Unknown course")}</td>
@@ -264,9 +274,12 @@ function fillCourseOptions(){
   ).join("");
 
   const teachers = profiles.filter(p=>p.role==="teacher");
+
   $("teacher").innerHTML =
     `<option value="">No teacher assigned</option>`+
-    teachers.map(t=>`<option value="${t.id}">${escapeHTML(t.full_name)}</option>`).join("");
+    teachers.map(t=>
+      `<option value="${t.id}">${escapeHTML(t.full_name)}</option>`
+    ).join("");
 }
 
 $("courseForm").addEventListener("submit",async event=>{
@@ -282,6 +295,7 @@ $("courseForm").addEventListener("submit",async event=>{
   };
 
   const {error} = await db.from("courses").insert(record);
+
   if(error){
     alert("Could not create course: "+error.message);
     return;
@@ -292,27 +306,60 @@ $("courseForm").addEventListener("submit",async event=>{
   await loadDashboard();
 });
 
+// UPDATED ROLE CHANGE FUNCTION
+
 async function changeRole(id){
-  const role = $("role-"+id).value;
-  if(!["student","teacher"].includes(role)) return;
+  const roleSelect = $("role-"+id);
 
-  if(!confirm("Change this user's role to "+role+"?")) return;
-
-  const {error} = await db.from("profiles")
-    .update({role})
-    .eq("id",id);
-
-  if(error){
-    alert("Could not update role: "+error.message);
+  if(!roleSelect){
+    alert("Role selector not found.");
     return;
   }
 
-  alert("User role updated.");
-  await loadDashboard();
+  const role = roleSelect.value;
+
+  if(!["student","teacher"].includes(role)){
+    alert("Invalid role selected.");
+    return;
+  }
+
+  if(!confirm("Change this user's role to "+role+"?")){
+    return;
+  }
+
+  try{
+    const {data,error} = await db
+      .from("profiles")
+      .update({role:role})
+      .eq("id",id)
+      .select("id,full_name,role")
+      .single();
+
+    if(error){
+      throw error;
+    }
+
+    if(!data){
+      throw new Error("No profile was updated. Check administrator permissions and RLS policies.");
+    }
+
+    alert("User role successfully changed to "+data.role+".");
+
+    await loadDashboard();
+
+  }catch(error){
+    alert(
+      "Could not update user role.\n\n"+
+      error.message+
+      "\n\nPlease share this exact error so we can correct the database permissions."
+    );
+  }
 }
 
 async function updateEnrolment(id,status){
-  if(!confirm("Change enrolment status to "+status+"?")) return;
+  if(!confirm("Change enrolment status to "+status+"?")){
+    return;
+  }
 
   const {error} = await db.from("enrollments")
     .update({status})
@@ -335,10 +382,12 @@ function toggleLanguage(){
   language = language==="en" ? "ar" : "en";
   document.documentElement.lang = language;
   document.documentElement.dir = language==="ar" ? "rtl" : "ltr";
-  $("welcome").textContent = language==="ar" ? "لوحة تحكم المدير" : "Administrator Dashboard";
+
+  $("welcome").textContent =
+    language==="ar" ? "لوحة تحكم المدير" : "Administrator Dashboard";
 }
 
 start();
 </script>
 </body>
-                                                               </html>
+</html>

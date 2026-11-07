@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -138,6 +137,78 @@
       flex-wrap: wrap;
     }
 
+    /* STUDENT ATTENDANCE */
+
+    .attendance-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .attendance-stat {
+      background: white;
+      border: 1px solid #e4e8e4;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .attendance-stat strong {
+      display: block;
+      color: #0f2a24;
+      font-size: 27px;
+      margin-bottom: 6px;
+    }
+
+    .attendance-stat span {
+      color: #64746e;
+      font-size: 14px;
+    }
+
+    .attendance-record {
+      background: white;
+      border: 1px solid #e4e8e4;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+
+    .attendance-record h3 {
+      color: #0f2a24;
+      margin: 0 0 10px;
+    }
+
+    .attendance-record p {
+      color: #64746e;
+      line-height: 1.8;
+      margin: 5px 0;
+    }
+
+    .attendance-status {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .attendance-status.present {
+      background: #e7f5eb;
+      color: #176438;
+    }
+
+    .attendance-status.absent {
+      background: #fcebea;
+      color: #a12622;
+    }
+
+    .attendance-status.late {
+      background: #fff4dc;
+      color: #8a5a00;
+    }
+
     @media (max-width: 600px) {
       .welcome-card { padding: 22px; }
     }
@@ -193,6 +264,23 @@
     </div>
   </section>
 
+  <!-- STUDENT ATTENDANCE SECTION -->
+
+  <section class="dashboard-section">
+    <h2 id="attendanceHeading">سجل الحضور والغياب</h2>
+
+    <div id="attendanceSummary" class="attendance-summary">
+      <div class="attendance-stat">
+        <strong>0</strong>
+        <span>جارٍ التحميل...</span>
+      </div>
+    </div>
+
+    <div id="attendanceList">
+      <div class="empty-state">جارٍ تحميل سجل الحضور...</div>
+    </div>
+  </section>
+
 </main>
 
 <footer class="site-footer">
@@ -206,7 +294,6 @@
   const SUPABASE_URL =
     "https://kxaovcknyddctnqvrudi.supabase.co";
 
-  // Correct Supabase publishable anon key
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
 
@@ -214,6 +301,8 @@
   const departmentsList = document.getElementById("departmentsList");
   const coursesList = document.getElementById("coursesList");
   const enrollmentsList = document.getElementById("enrollmentsList");
+  const attendanceSummary = document.getElementById("attendanceSummary");
+  const attendanceList = document.getElementById("attendanceList");
 
   if (!window.supabase) {
     message.textContent = "Supabase could not load. Please refresh.";
@@ -231,6 +320,7 @@
   let departments = [];
   let courses = [];
   let enrollments = [];
+  let attendanceRecords = [];
 
   function language() {
     return document.documentElement.lang === "en" ? "en" : "ar";
@@ -286,8 +376,7 @@
 
     return card;
   }
-
-  function renderDepartments() {
+    function renderDepartments() {
     departmentsList.replaceChildren();
 
     if (!departments.length) {
@@ -409,10 +498,148 @@
     });
   }
 
-  function renderAll() {
+  // ======================================
+  // STUDENT ATTENDANCE
+  // ======================================
+
+  function attendanceStatusName(status) {
+    const names = {
+      present: t("حاضر", "Present"),
+      absent: t("غائب", "Absent"),
+      late: t("متأخر", "Late")
+    };
+
+    return names[status] || status || t("غير محدد", "Not specified");
+  }
+
+  function renderAttendance() {
+    attendanceSummary.replaceChildren();
+    attendanceList.replaceChildren();
+
+    const counts = {
+      present: 0,
+      absent: 0,
+      late: 0
+    };
+
+    attendanceRecords.forEach(record => {
+      if (Object.prototype.hasOwnProperty.call(counts, record.status)) {
+        counts[record.status]++;
+      }
+    });
+
+    const total = attendanceRecords.length;
+
+    const stats = [
+      {
+        label: t("إجمالي السجلات", "Total Records"),
+        value: total
+      },
+      {
+        label: t("حاضر", "Present"),
+        value: counts.present
+      },
+      {
+        label: t("غائب", "Absent"),
+        value: counts.absent
+      },
+      {
+        label: t("متأخر", "Late"),
+        value: counts.late
+      }
+    ];
+
+    stats.forEach(stat => {
+      const box = document.createElement("div");
+      box.className = "attendance-stat";
+
+      const number = document.createElement("strong");
+      number.textContent = stat.value;
+
+      const label = document.createElement("span");
+      label.textContent = stat.label;
+
+      box.append(number, label);
+      attendanceSummary.appendChild(box);
+    });
+
+    if (!attendanceRecords.length) {
+      attendanceList.appendChild(
+        emptyState(
+          "لا توجد سجلات حضور مسجلة لك حتى الآن.",
+          "There are no attendance records for you yet."
+        )
+      );
+      return;
+    }
+
+    attendanceRecords.forEach(record => {
+      const course = courses.find(
+        item => String(item.id) === String(record.course_id)
+      );
+
+      const card = document.createElement("article");
+      card.className = "attendance-record";
+
+      const heading = document.createElement("h3");
+      heading.textContent = course
+        ? courseTitle(course)
+        : t("مقرر غير متاح", "Unavailable course");
+
+      const date = document.createElement("p");
+      date.textContent =
+        t("التاريخ: ", "Date: ") + (record.attendance_date || "");
+
+      const status = document.createElement("span");
+      status.className = "attendance-status " +
+        (["present", "absent", "late"].includes(record.status)
+          ? record.status
+          : "");
+
+      status.textContent = attendanceStatusName(record.status);
+
+      card.append(heading, date, status);
+
+      if (record.remarks) {
+        const remarks = document.createElement("p");
+        remarks.textContent =
+          t("ملاحظات المعلم: ", "Teacher's remarks: ") + record.remarks;
+        card.appendChild(remarks);
+      }
+
+      attendanceList.appendChild(card);
+    });
+  }
+
+  async function loadAttendance() {
+    attendanceSummary.replaceChildren();
+    attendanceList.replaceChildren();
+
+    attendanceList.appendChild(
+      emptyState("جارٍ تحميل سجل الحضور...", "Loading attendance records...")
+    );
+
+    const { data, error } = await client
+      .from("attendance")
+      .select("student_id, course_id, attendance_date, status, remarks")
+      .eq("student_id", currentUser.id)
+      .order("attendance_date", { ascending: false });
+
+    if (error) {
+      throw new Error(
+        t("تعذر تحميل سجل الحضور: ", "Could not load attendance records: ") +
+        error.message
+      );
+    }
+
+    attendanceRecords = data || [];
+    renderAttendance();
+    }
+    function renderAll() {
     renderDepartments();
     renderCourses();
     renderEnrollments();
+    renderAttendance();
 
     document.getElementById("departmentsHeading").textContent =
       t("الأقسام العلمية", "Departments");
@@ -422,6 +649,9 @@
 
     document.getElementById("enrollmentsHeading").textContent =
       t("مقرراتي المسجلة", "My Enrolled Courses");
+
+    document.getElementById("attendanceHeading").textContent =
+      t("سجل الحضور والغياب", "My Attendance");
 
     document.getElementById("refreshButton").textContent =
       t("تحديث البيانات", "Refresh");
@@ -444,6 +674,10 @@
     }
   }
 
+  // ======================================
+  // COURSE ENROLMENT
+  // ======================================
+
   async function enrollInCourse(course, button) {
     button.disabled = true;
     button.textContent = t("جارٍ التسجيل...", "Enrolling...");
@@ -459,8 +693,12 @@
 
       if (existing && existing.length > 0) {
         showMessage(
-          t("أنت مسجل في هذا المقرر بالفعل.", "You are already enrolled in this course.")
+          t(
+            "أنت مسجل في هذا المقرر بالفعل.",
+            "You are already enrolled in this course."
+          )
         );
+
         await loadDashboard();
         return;
       }
@@ -476,7 +714,10 @@
       if (insertError) throw insertError;
 
       showMessage(
-        t("تم إرسال طلب التسجيل بنجاح.", "Your enrollment request was submitted successfully.")
+        t(
+          "تم إرسال طلب التسجيل بنجاح.",
+          "Your enrollment request was submitted successfully."
+        )
       );
 
       await loadDashboard();
@@ -492,17 +733,24 @@
     }
   }
 
-  async function loadDashboard() {
-    showMessage(t("جارٍ تحميل بياناتك...", "Loading your information..."));
+  // ======================================
+  // LOAD STUDENT DASHBOARD
+  // ======================================
 
-    // Check whether a login session exists first.
+  async function loadDashboard() {
+    showMessage(
+      t("جارٍ تحميل بياناتك...", "Loading your information...")
+    );
+
     const { data: sessionData, error: sessionError } =
       await client.auth.getSession();
 
     if (sessionError) {
       throw new Error(
-        t("تعذر التحقق من جلسة الدخول: ", "Could not check login session: ") +
-        sessionError.message
+        t(
+          "تعذر التحقق من جلسة الدخول: ",
+          "Could not check login session: "
+        ) + sessionError.message
       );
     }
 
@@ -518,22 +766,27 @@
       return;
     }
 
-    // Verify the logged-in user.
     const { data: authData, error: authError } =
       await client.auth.getUser(sessionData.session.access_token);
 
     if (authError) {
       throw new Error(
-        t("تعذر التحقق من حسابك: ", "Could not verify your account: ") +
-        authError.message
+        t(
+          "تعذر التحقق من حسابك: ",
+          "Could not verify your account: "
+        ) + authError.message
       );
     }
 
     if (!authData.user) {
       showMessage(
-        t("تعذر العثور على حساب المستخدم.", "Could not find the user account."),
+        t(
+          "تعذر العثور على حساب المستخدم.",
+          "Could not find the user account."
+        ),
         "error"
       );
+
       return;
     }
 
@@ -547,8 +800,10 @@
 
     if (profileError) {
       throw new Error(
-        t("تعذر تحميل الملف الشخصي: ", "Could not load student profile: ") +
-        profileError.message
+        t(
+          "تعذر تحميل الملف الشخصي: ",
+          "Could not load student profile: "
+        ) + profileError.message
       );
     }
 
@@ -562,6 +817,7 @@
         ) + profile.role,
         "error"
       );
+
       return;
     }
 
@@ -572,7 +828,9 @@
 
       client
         .from("courses")
-        .select("id, title_en, title_ar, description, department_id, created_at"),
+        .select(
+          "id, title_en, title_ar, description, department_id, created_at"
+        ),
 
       client
         .from("enrollments")
@@ -594,10 +852,49 @@
 
     renderAll();
 
+    // Load attendance separately so an attendance problem
+    // does not prevent the rest of the dashboard from working.
+
+    try {
+      await loadAttendance();
+    } catch (attendanceError) {
+      attendanceRecords = [];
+
+      attendanceSummary.replaceChildren();
+
+      attendanceList.replaceChildren();
+
+      attendanceList.appendChild(
+        emptyState(
+          "تعذر تحميل سجل الحضور. يرجى المحاولة لاحقاً.",
+          "Could not load attendance records. Please try again later."
+        )
+      );
+
+      console.error("Attendance loading error:", attendanceError);
+
+      showMessage(
+        t(
+          "تم تحميل لوحة الطالب، ولكن تعذر تحميل سجل الحضور: ",
+          "Dashboard loaded, but attendance could not be loaded: "
+        ) + attendanceError.message,
+        "error"
+      );
+
+      return;
+    }
+
     showMessage(
-      t("تم تحميل لوحة الطالب بنجاح.", "Student dashboard loaded successfully.")
+      t(
+        "تم تحميل لوحة الطالب بنجاح.",
+        "Student dashboard loaded successfully."
+      )
     );
   }
+
+  // ======================================
+  // REFRESH BUTTON
+  // ======================================
 
   document.getElementById("refreshButton")
     .addEventListener("click", async () => {
@@ -607,6 +904,10 @@
         showMessage(error.message, "error");
       }
     });
+
+  // ======================================
+  // LOGOUT BUTTON
+  // ======================================
 
   document.getElementById("logoutButton")
     .addEventListener("click", async () => {
@@ -620,13 +921,23 @@
       window.location.href = "/login.html";
     });
 
+  // ======================================
+  // FOOTER YEAR
+  // ======================================
+
   document.getElementById("year").textContent =
     new Date().getFullYear();
 
+  // ======================================
+  // START DASHBOARD
+  // ======================================
+
   loadDashboard().catch(error => {
     showMessage(
-      t("حدث خطأ أثناء تحميل البيانات: ", "Could not load dashboard: ") +
-      error.message,
+      t(
+        "حدث خطأ أثناء تحميل البيانات: ",
+        "Could not load dashboard: "
+      ) + error.message,
       "error"
     );
   });

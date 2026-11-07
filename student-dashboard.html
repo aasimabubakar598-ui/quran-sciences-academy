@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -205,8 +206,9 @@
   const SUPABASE_URL =
     "https://kxaovcknyddctnqvrudi.supabase.co";
 
+  // Correct Supabase publishable anon key
   const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
 
   const message = document.getElementById("dashboardMessage");
   const departmentsList = document.getElementById("departmentsList");
@@ -493,11 +495,45 @@
   async function loadDashboard() {
     showMessage(t("جارٍ تحميل بياناتك...", "Loading your information..."));
 
-    const { data: authData, error: authError } =
-      await client.auth.getUser();
+    // Check whether a login session exists first.
+    const { data: sessionData, error: sessionError } =
+      await client.auth.getSession();
 
-    if (authError || !authData.user) {
-      window.location.href = "/login.html";
+    if (sessionError) {
+      throw new Error(
+        t("تعذر التحقق من جلسة الدخول: ", "Could not check login session: ") +
+        sessionError.message
+      );
+    }
+
+    if (!sessionData.session) {
+      showMessage(
+        t(
+          "لا توجد جلسة دخول نشطة. يرجى تسجيل الدخول مرة أخرى.",
+          "No active login session was found. Please log in again."
+        ),
+        "error"
+      );
+
+      return;
+    }
+
+    // Verify the logged-in user.
+    const { data: authData, error: authError } =
+      await client.auth.getUser(sessionData.session.access_token);
+
+    if (authError) {
+      throw new Error(
+        t("تعذر التحقق من حسابك: ", "Could not verify your account: ") +
+        authError.message
+      );
+    }
+
+    if (!authData.user) {
+      showMessage(
+        t("تعذر العثور على حساب المستخدم.", "Could not find the user account."),
+        "error"
+      );
       return;
     }
 
@@ -509,7 +545,12 @@
       .eq("id", currentUser.id)
       .single();
 
-    if (profileError) throw profileError;
+    if (profileError) {
+      throw new Error(
+        t("تعذر تحميل الملف الشخصي: ", "Could not load student profile: ") +
+        profileError.message
+      );
+    }
 
     currentProfile = profile;
 

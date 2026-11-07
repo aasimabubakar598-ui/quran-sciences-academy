@@ -41,6 +41,21 @@ h3{margin-top:0}
 .search-box{max-width:450px}
 .empty{text-align:center;padding:20px;color:#65776d}
 footer{text-align:center;color:#65776d;padding:25px}
+
+.details-button{background:#0f2a24;color:white}
+.details-card{margin-top:18px;border:1px solid #dce7df}
+.details-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.detail-item{background:#f3f6f4;padding:13px;border-radius:8px;overflow-wrap:anywhere}
+.detail-item strong{display:block;margin-bottom:7px}
+.detail-history{margin-top:18px}
+.detail-history div{padding:10px;border-bottom:1px solid #e2e9e4}
+.close-button{background:#dfe8e3}
+@media(max-width:600px){
+  header{align-items:flex-start}
+  header h2{width:100%}
+  main{padding:8px}
+  .card{padding:13px}
+}
 </style>
 </head>
 
@@ -164,8 +179,6 @@ footer{text-align:center;color:#65776d;padding:25px}
       </div>
     </section>
 
-    <!-- STUDENT RECORDS -->
-
     <section id="students" class="card hidden">
       <h3>Student Records Management</h3>
 
@@ -176,7 +189,7 @@ footer{text-align:center;color:#65776d;padding:25px}
         <input
           id="studentSearch"
           type="search"
-          placeholder="Enter student name..."
+          placeholder="Enter student name, email or course..."
         >
       </div>
 
@@ -190,6 +203,7 @@ footer{text-align:center;color:#65776d;padding:25px}
               <th>Pending</th>
               <th>Rejected</th>
               <th>Course History</th>
+              <th>Details</th>
             </tr>
           </thead>
           <tbody id="studentRows"></tbody>
@@ -197,6 +211,15 @@ footer{text-align:center;color:#65776d;padding:25px}
       </div>
 
       <p id="studentResultCount"></p>
+
+      <section id="studentDetails" class="card details-card hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <h3>Student Profile Details</h3>
+          <button class="close-button" onclick="closeStudentDetails()">Close</button>
+        </div>
+
+        <div id="studentDetailsContent"></div>
+      </section>
     </section>
 
   </section>
@@ -221,6 +244,7 @@ let profiles = [];
 let courses = [];
 let departments = [];
 let enrolments = [];
+let studentContacts = [];
 
 const $ = id => document.getElementById(id);
 
@@ -237,6 +261,27 @@ function escapeHTML(value){
     '"':"&quot;",
     "'":"&#39;"
   }[c]));
+}
+
+function formatDate(value){
+  if(!value) return "Not available";
+
+  const date = new Date(value);
+
+  if(Number.isNaN(date.getTime())){
+    return "Not available";
+  }
+
+  return new Intl.DateTimeFormat(
+    language==="ar" ? "ar" : "en",
+    {
+      year:"numeric",
+      month:"long",
+      day:"numeric",
+      hour:"2-digit",
+      minute:"2-digit"
+    }
+  ).format(date);
 }
 
 async function start(){
@@ -270,9 +315,20 @@ async function loadDashboard(){
   try{
     const results = await Promise.all([
       db.from("profiles").select("id,full_name,role"),
-      db.from("courses").select("id,title_en,title_ar,status,teacher_id,department_id"),
+
+      db.from("courses").select(
+        "id,title_en,title_ar,status,teacher_id,department_id"
+      ),
+
       db.from("departments").select("id,name_ar"),
-      db.from("enrollments").select("id,student_id,course_id,status")
+
+      db.from("enrollments").select(
+        "id,student_id,course_id,status"
+      ),
+
+      db.from("student_contact_details").select(
+        "user_id,email,registered_at"
+      )
     ]);
 
     for(const result of results){
@@ -283,6 +339,7 @@ async function loadDashboard(){
     courses = results[1].data || [];
     departments = results[2].data || [];
     enrolments = results[3].data || [];
+    studentContacts = results[4].data || [];
 
     $("studentCount").textContent =
       profiles.filter(p=>p.role==="student").length;
@@ -367,7 +424,7 @@ function renderEnrolments(){
   }).join("") || "<tr><td colspan='4'>No enrolments found.</td></tr>";
 }
 
-// STUDENT RECORDS FUNCTIONS
+// STUDENT RECORDS
 
 function renderStudentRecords(){
   const search = $("studentSearch").value.trim().toLowerCase();
@@ -379,6 +436,12 @@ function renderStudentRecords(){
   const filteredStudents = students.filter(student=>{
     const name = String(student.full_name || "").toLowerCase();
 
+    const contact = studentContacts.find(
+      d=>d.user_id===student.id
+    );
+
+    const email = String(contact?.email || "").toLowerCase();
+
     const studentCourses = enrolments
       .filter(e=>e.student_id===student.id)
       .map(e=>{
@@ -388,7 +451,9 @@ function renderStudentRecords(){
       .join(" ")
       .toLowerCase();
 
-    return name.includes(search) || studentCourses.includes(search);
+    return name.includes(search) ||
+      email.includes(search) ||
+      studentCourses.includes(search);
   });
 
   $("studentRows").innerHTML = filteredStudents.map(student=>{
@@ -434,11 +499,17 @@ function renderStudentRecords(){
       <td>${pending}</td>
       <td>${rejected}</td>
       <td class="student-courses">${history}</td>
+      <td>
+        <button class="details-button"
+          onclick="viewStudentDetails('${student.id}')">
+          View Details
+        </button>
+      </td>
     </tr>`;
 
   }).join("") || `
     <tr>
-      <td colspan="6" class="empty">
+      <td colspan="7" class="empty">
         No students match your search.
       </td>
     </tr>
@@ -452,6 +523,128 @@ function renderStudentRecords(){
 $("studentSearch").addEventListener("input",()=>{
   renderStudentRecords();
 });
+
+// VIEW STUDENT DETAILS
+
+function viewStudentDetails(studentId){
+
+  const student = profiles.find(
+    p=>p.id===studentId && p.role==="student"
+  );
+
+  if(!student){
+    alert("Student record not found.");
+    return;
+  }
+
+  const contact = studentContacts.find(
+    d=>d.user_id===studentId
+  );
+
+  const records = enrolments.filter(
+    e=>e.student_id===studentId
+  );
+
+  const approved = records.filter(
+    e=>e.status==="approved"
+  ).length;
+
+  const pending = records.filter(
+    e=>e.status==="pending"
+  ).length;
+
+  const rejected = records.filter(
+    e=>e.status==="rejected"
+  ).length;
+
+  const history = records.length
+    ? records.map(record=>{
+
+        const course = courses.find(
+          c=>c.id===record.course_id
+        );
+
+        const courseName = course?.title_en || "Unknown course";
+        const courseArabic = course?.title_ar || "";
+        const status = String(record.status || "unknown").toLowerCase();
+
+        return `<div>
+          <strong>${escapeHTML(courseName)}</strong>
+          ${courseArabic ? `<br><span>${escapeHTML(courseArabic)}</span>` : ""}
+          <br>
+          <span class="status ${escapeHTML(status)}">
+            ${escapeHTML(record.status)}
+          </span>
+        </div>`;
+
+      }).join("")
+    : "<p>No course enrolments found for this student.</p>";
+
+  $("studentDetailsContent").innerHTML = `
+
+    <div class="details-grid">
+
+      <div class="detail-item">
+        <strong>Full Name</strong>
+        ${escapeHTML(student.full_name || "Not available")}
+      </div>
+
+      <div class="detail-item">
+        <strong>Email Address</strong>
+        ${escapeHTML(contact?.email || "Not available")}
+      </div>
+
+      <div class="detail-item">
+        <strong>Registration Date</strong>
+        ${escapeHTML(formatDate(contact?.registered_at))}
+      </div>
+
+      <div class="detail-item">
+        <strong>Account Role</strong>
+        ${escapeHTML(student.role)}
+      </div>
+
+      <div class="detail-item">
+        <strong>Total Enrolments</strong>
+        ${records.length}
+      </div>
+
+      <div class="detail-item">
+        <strong>Approved Enrolments</strong>
+        ${approved}
+      </div>
+
+      <div class="detail-item">
+        <strong>Pending Enrolments</strong>
+        ${pending}
+      </div>
+
+      <div class="detail-item">
+        <strong>Rejected Enrolments</strong>
+        ${rejected}
+      </div>
+
+    </div>
+
+    <div class="detail-history">
+      <h3>Complete Course History</h3>
+      ${history}
+    </div>
+
+  `;
+
+  $("studentDetails").classList.remove("hidden");
+
+  $("studentDetails").scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+}
+
+function closeStudentDetails(){
+  $("studentDetails").classList.add("hidden");
+  $("studentDetailsContent").innerHTML = "";
+}
 
 // COURSE OPTIONS
 
@@ -589,4 +782,4 @@ start();
 </script>
 
 </body>
-  </html>
+</html>

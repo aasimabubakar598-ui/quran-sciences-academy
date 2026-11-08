@@ -1255,17 +1255,6 @@ footer {
     );
   }
 
-  function safeFileName(filename) {
-    const cleaned = filename
-      .normalize("NFKC")
-      .replace(/[\/\\]/g, "_")
-      .replace(/[^\p{L}\p{N}._-]/gu, "_")
-      .replace(/^\.+/, "")
-      .slice(-120);
-
-    return cleaned || "learning-material.pdf";
-  }
-
   function createUniqueFileId() {
     if (window.crypto && typeof window.crypto.randomUUID === "function") {
       return window.crypto.randomUUID();
@@ -1274,6 +1263,10 @@ footer {
     return Date.now().toString(36) + "-" +
       Math.random().toString(36).slice(2);
   }
+
+  // ======================================
+  // PDF UPLOAD
+  // ======================================
 
   async function uploadMaterial() {
     const courseId = $("materialCourse").value;
@@ -1354,8 +1347,15 @@ footer {
     let uploadedPath = null;
 
     try {
-      const uniqueName =
-        createUniqueFileId() + "-" + safeFileName(file.name);
+      /*
+       * IMPORTANT:
+       * Use an ASCII-only storage object name.
+       * The original filename is saved separately in the database.
+       * This avoids invalid storage keys caused by Arabic characters
+       * or special characters in the original filename.
+       */
+
+      const uniqueName = createUniqueFileId() + ".pdf";
 
       uploadedPath = courseId + "/" + uniqueName;
 
@@ -1385,9 +1385,6 @@ footer {
         });
 
       if (insertError) {
-        // Attempt to remove the uploaded file if metadata
-        // could not be saved.
-
         const { error: cleanupError } = await supabase.storage
           .from(MATERIALS_BUCKET)
           .remove([uploadedPath]);
@@ -1433,11 +1430,12 @@ footer {
     }
   }
 
+  // ======================================
+  // OPEN AND DOWNLOAD PDF
+  // ======================================
+
   async function openMaterial(material, button, download) {
     const originalText = button.textContent;
-
-    // Open a blank tab immediately while the click is active.
-    // This avoids browser popup blocking during the signed URL request.
 
     const newTab = window.open("about:blank", "_blank");
 
@@ -1492,6 +1490,10 @@ footer {
     }
   }
 
+  // ======================================
+  // DELETE LEARNING MATERIAL
+  // ======================================
+
   async function deleteMaterial(material, button) {
     const confirmed = window.confirm(
       text(
@@ -1505,9 +1507,6 @@ footer {
     button.disabled = true;
 
     try {
-      // Remove the database record first.
-      // If this fails, keep the file and its existing record intact.
-
       const { error: databaseError } = await supabase
         .from("learning_materials")
         .delete()
@@ -1521,8 +1520,6 @@ footer {
       );
 
       renderLearningMaterials();
-
-      // Then remove the private storage object.
 
       const { error: storageError } = await supabase.storage
         .from(MATERIALS_BUCKET)

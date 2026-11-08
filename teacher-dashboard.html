@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -164,6 +165,8 @@ h2 {
   margin:12px 0;
   background:var(--panel2);
   color:var(--muted);
+  overflow-wrap:anywhere;
+  line-height:1.7;
 }
 
 .error { color:var(--red); }
@@ -187,7 +190,7 @@ h2 {
   font-weight:700;
 }
 
-.field input,.field select,
+.field input,.field select,.field textarea,
 .attendance-row select,
 .attendance-row textarea {
   width:100%;
@@ -197,6 +200,11 @@ h2 {
   background:#102f28;
   color:var(--text);
   font-size:15px;
+}
+
+.field textarea {
+  min-height:85px;
+  resize:vertical;
 }
 
 .attendance-row {
@@ -238,6 +246,114 @@ h2 {
   margin-top:18px;
 }
 
+/* LEARNING MATERIALS */
+
+.material-form {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+  margin-top:18px;
+}
+
+.material-form .full-width {
+  grid-column:1 / -1;
+}
+
+.material-form input,
+.material-form select,
+.material-form textarea {
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#102f28;
+  color:var(--text);
+  font-size:15px;
+}
+
+.material-form textarea {
+  min-height:85px;
+  resize:vertical;
+}
+
+.material-form label {
+  display:block;
+  color:var(--gold);
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+.material-help {
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.7;
+  margin-top:6px;
+}
+
+.material-card {
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:17px;
+  margin-top:13px;
+}
+
+.material-card h3 {
+  color:var(--gold);
+  margin:0 0 10px;
+}
+
+.material-card p {
+  color:var(--muted);
+  line-height:1.8;
+  overflow-wrap:anywhere;
+}
+
+.material-meta {
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.8;
+  overflow-wrap:anywhere;
+}
+
+.material-actions {
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+.material-actions button {
+  border:0;
+  border-radius:8px;
+  padding:10px 15px;
+  color:white;
+  font-weight:700;
+}
+
+.material-open { background:#286b4b; }
+.material-download { background:#8a7037; }
+.material-delete { background:#75413d; }
+
+.material-actions button:disabled {
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.material-empty {
+  background:var(--panel2);
+  padding:16px;
+  border-radius:10px;
+  color:var(--muted);
+  margin-top:12px;
+}
+
+.upload-progress {
+  color:var(--gold);
+  margin-top:12px;
+  font-size:14px;
+}
+
 footer {
   text-align:center;
   color:var(--muted);
@@ -252,6 +368,8 @@ footer {
   .actions button { flex:1; }
   .attendance-row { grid-template-columns:1fr; }
   .attendance-actions button { width:100%; }
+  .material-actions button { flex:1 1 100%; }
+  .material-form .full-width { grid-column:auto; }
 }
 </style>
 </head>
@@ -317,7 +435,113 @@ footer {
     <h2 data-ar="طلابي" data-en="My Students">طلابي</h2>
     <div id="studentsList"></div>
   </section>
-    <!-- Attendance Management -->
+
+  <!-- LEARNING MATERIALS MANAGEMENT -->
+
+  <section class="section">
+    <h2 data-ar="المواد التعليمية" data-en="Learning Materials">
+      المواد التعليمية
+    </h2>
+
+    <p class="muted"
+       data-ar="ارفع ملفات PDF ليستطيع الطلاب المقبولون في المقرر الوصول إليها."
+       data-en="Upload PDF files for students whose enrolment in the selected course has been approved.">
+      ارفع ملفات PDF ليستطيع الطلاب المقبولون في المقرر الوصول إليها.
+    </p>
+
+    <div id="materialsMessage" class="message">
+      جاري تحميل المواد التعليمية...
+    </div>
+
+    <div class="material-form">
+
+      <div class="field">
+        <label for="materialCourse"
+          data-ar="اختر المقرر" data-en="Select Course">
+          اختر المقرر
+        </label>
+        <select id="materialCourse">
+          <option value="">اختر المقرر</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="materialTitleAr"
+          data-ar="العنوان بالعربية" data-en="Arabic Title">
+          العنوان بالعربية
+        </label>
+        <input
+          type="text"
+          id="materialTitleAr"
+          maxlength="200"
+          placeholder="عنوان الملف باللغة العربية">
+      </div>
+
+      <div class="field">
+        <label for="materialTitleEn"
+          data-ar="العنوان بالإنجليزية" data-en="English Title">
+          العنوان بالإنجليزية
+        </label>
+        <input
+          type="text"
+          id="materialTitleEn"
+          maxlength="200"
+          placeholder="Material title in English">
+      </div>
+
+      <div class="field full-width">
+        <label for="materialDescription"
+          data-ar="وصف الملف (اختياري)" data-en="Description (Optional)">
+          وصف الملف (اختياري)
+        </label>
+        <textarea
+          id="materialDescription"
+          maxlength="2000"
+          placeholder="وصف مختصر للملف..."></textarea>
+      </div>
+
+      <div class="field full-width">
+        <label for="materialFile"
+          data-ar="اختر ملف PDF" data-en="Choose PDF File">
+          اختر ملف PDF
+        </label>
+        <input
+          type="file"
+          id="materialFile"
+          accept=".pdf,application/pdf">
+
+        <div class="material-help"
+          data-ar="الحد الأقصى لحجم الملف 10 ميجابايت. الملفات بصيغة PDF فقط."
+          data-en="Maximum file size: 10 MB. PDF files only.">
+          الحد الأقصى لحجم الملف 10 ميجابايت. الملفات بصيغة PDF فقط.
+        </div>
+      </div>
+
+      <div class="field full-width">
+        <button
+          type="button"
+          class="primary-btn"
+          id="uploadMaterialBtn">
+          رفع المادة التعليمية
+        </button>
+      </div>
+
+    </div>
+
+    <div id="uploadProgress" class="upload-progress"></div>
+
+    <h3
+      style="color:var(--gold);margin-top:30px"
+      data-ar="المواد التي قمت برفعها"
+      data-en="Materials You Uploaded">
+      المواد التي قمت برفعها
+    </h3>
+
+    <div id="materialsList"></div>
+  </section>
+
+  <!-- ATTENDANCE MANAGEMENT -->
+
   <section class="section">
     <h2 data-ar="إدارة الحضور" data-en="Attendance Management">
       إدارة الحضور
@@ -386,6 +610,9 @@ footer {
   const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
 
+  const MATERIALS_BUCKET = "academy-learning-materials";
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
   if (!window.supabase) {
     alert("Supabase library failed to load. Please refresh the page.");
     return;
@@ -401,12 +628,22 @@ footer {
   let courses = [];
   let enrollments = [];
   let attendanceStudents = [];
+  let learningMaterials = [];
 
   const $ = id => document.getElementById(id);
+
+  function text(ar, en) {
+    return language === "ar" ? ar : en;
+  }
 
   function setMessage(message, type = "") {
     $("message").textContent = message;
     $("message").className = "message " + type;
+  }
+
+  function setMaterialsMessage(message, type = "") {
+    $("materialsMessage").textContent = message;
+    $("materialsMessage").className = "message " + type;
   }
 
   function setAttendanceMessage(message, type = "") {
@@ -436,6 +673,23 @@ footer {
     return `${year}-${month}-${day}`;
   }
 
+  function formatDate(value) {
+    if (!value) return "";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) return value;
+
+    return new Intl.DateTimeFormat(
+      language === "ar" ? "ar" : "en",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      }
+    ).format(date);
+  }
+
   function translatePage() {
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
@@ -451,6 +705,7 @@ footer {
     renderRequests();
     renderStudents();
     renderAttendanceRows();
+    renderLearningMaterials();
   }
 
   $("languageBtn").addEventListener("click", () => {
@@ -471,7 +726,6 @@ footer {
   });
 
   $("loadAttendanceBtn").addEventListener("click", loadAttendance);
-
   $("saveAttendanceBtn").addEventListener("click", saveAttendance);
 
   $("attendanceCourse").addEventListener("change", () => {
@@ -490,6 +744,12 @@ footer {
     clearAttendanceMessage();
   });
 
+  $("materialCourse").addEventListener("change", () => {
+    $("uploadProgress").textContent = "";
+  });
+
+  $("uploadMaterialBtn").addEventListener("click", uploadMaterial);
+
   window.addEventListener("error", event => {
     setMessage("JavaScript error: " + event.message, "error");
   });
@@ -501,6 +761,10 @@ footer {
       "error"
     );
   });
+
+  // ======================================
+  // DASHBOARD INITIALIZATION
+  // ======================================
 
   async function loadDashboard() {
     try {
@@ -522,9 +786,10 @@ footer {
 
       if (profileError || !profile || profile.role !== "teacher") {
         setMessage(
-          language === "ar"
-            ? "ليس لديك صلاحية الدخول إلى لوحة المعلم."
-            : "You are not authorized to access the teacher dashboard.",
+          text(
+            "ليس لديك صلاحية الدخول إلى لوحة المعلم.",
+            "You are not authorized to access the teacher dashboard."
+          ),
           "error"
         );
         return;
@@ -537,11 +802,17 @@ footer {
       $("year").textContent = new Date().getFullYear();
 
       await loadCourses();
+
     } catch (error) {
       setMessage("Dashboard error: " + error.message, "error");
     }
   }
-    async function loadCourses() {
+
+  // ======================================
+  // COURSES
+  // ======================================
+
+  async function loadCourses() {
     const { data, error } = await supabase
       .from("courses")
       .select("id, title_ar, title_en, description, status")
@@ -554,25 +825,36 @@ footer {
     }
 
     courses = data || [];
+
     renderCourses();
+    renderMaterialCourseOptions();
 
     if (courses.length === 0) {
       enrollments = [];
       attendanceStudents = [];
+      learningMaterials = [];
+
       renderRequests();
       renderStudents();
       renderAttendanceRows();
+      renderLearningMaterials();
 
       setMessage(
-        language === "ar"
-          ? "لا توجد مقررات معينة لك حالياً."
-          : "No courses are assigned to you yet."
+        text(
+          "لا توجد مقررات معينة لك حالياً.",
+          "No courses are assigned to you yet."
+        )
       );
       return;
     }
 
     await loadEnrollments();
+    await loadLearningMaterials();
   }
+
+  // ======================================
+  // ENROLMENTS AND STUDENT PROFILES
+  // ======================================
 
   async function loadEnrollments() {
     const courseIds = courses.map(course => course.id);
@@ -631,14 +913,19 @@ footer {
       enrollments.filter(e => e.status === "pending").length;
 
     setMessage(
-      language === "ar"
-        ? "تم تحميل بيانات لوحة المعلم بنجاح."
-        : "Teacher dashboard loaded successfully.",
+      text(
+        "تم تحميل بيانات لوحة المعلم بنجاح.",
+        "Teacher dashboard loaded successfully."
+      ),
       "success"
     );
 
     await loadAttendance();
   }
+
+  // ======================================
+  // COURSE DISPLAY
+  // ======================================
 
   function renderCourses() {
     $("coursesList").innerHTML = "";
@@ -649,7 +936,7 @@ footer {
     const placeholder = document.createElement("option");
     placeholder.value = "";
     placeholder.textContent =
-      language === "ar" ? "اختر المقرر" : "Select a course";
+      text("اختر المقرر", "Select a course");
 
     $("attendanceCourse").appendChild(placeholder);
 
@@ -667,8 +954,10 @@ footer {
     }
 
     if (!courses.length) {
-      $("coursesList").textContent =
-        language === "ar" ? "لا توجد مقررات." : "No courses found.";
+      $("coursesList").textContent = text(
+        "لا توجد مقررات.",
+        "No courses found."
+      );
       return;
     }
 
@@ -685,13 +974,16 @@ footer {
       const status = document.createElement("div");
       status.className = "status";
       status.textContent =
-        (language === "ar" ? "الحالة: " : "Status: ") +
-        (course.status || "");
+        text("الحالة: ", "Status: ") + (course.status || "");
 
       div.append(heading, description, status);
       $("coursesList").appendChild(div);
     });
   }
+
+  // ======================================
+  // ENROLMENT REQUESTS
+  // ======================================
 
   function renderRequests() {
     $("requestsList").innerHTML = "";
@@ -700,10 +992,10 @@ footer {
     $("requestCount").textContent = pending.length;
 
     if (!pending.length) {
-      $("requestsList").textContent =
-        language === "ar"
-          ? "لا توجد طلبات تسجيل معلقة."
-          : "There are no pending enrolment requests.";
+      $("requestsList").textContent = text(
+        "لا توجد طلبات تسجيل معلقة.",
+        "There are no pending enrolment requests."
+      );
       return;
     }
 
@@ -729,14 +1021,14 @@ footer {
 
       const approve = document.createElement("button");
       approve.className = "approve";
-      approve.textContent = language === "ar" ? "قبول" : "Approve";
+      approve.textContent = text("قبول", "Approve");
       approve.addEventListener("click", () =>
         updateEnrollment(enrollment.id, "approved")
       );
 
       const reject = document.createElement("button");
       reject.className = "reject";
-      reject.textContent = language === "ar" ? "رفض" : "Reject";
+      reject.textContent = text("رفض", "Reject");
       reject.addEventListener("click", () =>
         updateEnrollment(enrollment.id, "rejected")
       );
@@ -746,6 +1038,10 @@ footer {
       $("requestsList").appendChild(div);
     });
   }
+
+  // ======================================
+  // APPROVED STUDENTS
+  // ======================================
 
   function renderStudents() {
     $("studentsList").innerHTML = "";
@@ -760,10 +1056,10 @@ footer {
     $("studentCount").textContent = unique.size;
 
     if (!unique.size) {
-      $("studentsList").textContent =
-        language === "ar"
-          ? "لا يوجد طلاب مسجلون حالياً."
-          : "No approved students yet.";
+      $("studentsList").textContent = text(
+        "لا يوجد طلاب مسجلون حالياً.",
+        "No approved students yet."
+      );
       return;
     }
 
@@ -787,12 +1083,485 @@ footer {
     }
 
     setMessage(
-      language === "ar" ? "تم تحديث طلب التسجيل." : "Enrolment updated.",
+      text("تم تحديث طلب التسجيل.", "Enrolment updated."),
       "success"
     );
 
     await loadEnrollments();
   }
+
+  // ======================================
+  // LEARNING MATERIALS
+  // ======================================
+
+  function renderMaterialCourseOptions() {
+    const select = $("materialCourse");
+    const selected = select.value;
+
+    select.innerHTML = "";
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = text("اختر المقرر", "Select a course");
+    select.appendChild(placeholder);
+
+    courses.forEach(course => {
+      const option = document.createElement("option");
+      option.value = course.id;
+      option.textContent = courseName(course);
+      select.appendChild(option);
+    });
+
+    if (courses.some(course => course.id === selected)) {
+      select.value = selected;
+    }
+  }
+
+  function materialTitle(material) {
+    return language === "ar"
+      ? (material.title_ar || material.title_en || "مادة تعليمية")
+      : (material.title_en || material.title_ar || "Learning material");
+  }
+
+  function renderLearningMaterials() {
+    const container = $("materialsList");
+    container.innerHTML = "";
+
+    if (!learningMaterials.length) {
+      const empty = document.createElement("div");
+      empty.className = "material-empty";
+      empty.textContent = text(
+        "لم تقم برفع أي مواد تعليمية حتى الآن.",
+        "You have not uploaded any learning materials yet."
+      );
+      container.appendChild(empty);
+      return;
+    }
+
+    learningMaterials.forEach(material => {
+      const course = courses.find(
+        c => String(c.id) === String(material.course_id)
+      );
+
+      const card = document.createElement("article");
+      card.className = "material-card";
+
+      const heading = document.createElement("h3");
+      heading.textContent = materialTitle(material);
+
+      const courseLabel = document.createElement("p");
+      courseLabel.textContent =
+        text("المقرر: ", "Course: ") +
+        (course ? courseName(course) : material.course_id);
+
+      const description = document.createElement("p");
+      description.textContent = material.description ||
+        text("لا يوجد وصف لهذا الملف.", "No description available.");
+
+      const filename = document.createElement("div");
+      filename.className = "material-meta";
+      filename.textContent =
+        text("اسم الملف: ", "File: ") + material.file_name;
+
+      const date = document.createElement("div");
+      date.className = "material-meta";
+      date.textContent =
+        text("تاريخ الرفع: ", "Uploaded: ") +
+        formatDate(material.created_at);
+
+      const actions = document.createElement("div");
+      actions.className = "material-actions";
+
+      const openButton = document.createElement("button");
+      openButton.type = "button";
+      openButton.className = "material-open";
+      openButton.textContent = text("فتح PDF", "Open PDF");
+      openButton.addEventListener("click", () =>
+        openMaterial(material, openButton, false)
+      );
+
+      const downloadButton = document.createElement("button");
+      downloadButton.type = "button";
+      downloadButton.className = "material-download";
+      downloadButton.textContent = text("تحميل", "Download");
+      downloadButton.addEventListener("click", () =>
+        openMaterial(material, downloadButton, true)
+      );
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "material-delete";
+      deleteButton.textContent = text("حذف", "Delete");
+      deleteButton.addEventListener("click", () =>
+        deleteMaterial(material, deleteButton)
+      );
+
+      actions.append(openButton, downloadButton, deleteButton);
+
+      card.append(
+        heading,
+        courseLabel,
+        description,
+        filename,
+        date,
+        actions
+      );
+
+      container.appendChild(card);
+    });
+  }
+
+  async function loadLearningMaterials() {
+    $("materialsList").innerHTML = "";
+
+    if (!teacherId) return;
+
+    const { data, error } = await supabase
+      .from("learning_materials")
+      .select(
+        "id, course_id, teacher_id, title_ar, title_en, description, file_path, file_name, created_at"
+      )
+      .eq("teacher_id", teacherId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      learningMaterials = [];
+      renderLearningMaterials();
+
+      setMaterialsMessage(
+        text(
+          "تعذر تحميل المواد التعليمية: ",
+          "Could not load learning materials: "
+        ) + error.message,
+        "error"
+      );
+      return;
+    }
+
+    learningMaterials = data || [];
+    renderLearningMaterials();
+
+    setMaterialsMessage(
+      learningMaterials.length
+        ? text(
+            "تم تحميل المواد التعليمية بنجاح.",
+            "Learning materials loaded successfully."
+          )
+        : text(
+            "لا توجد مواد تعليمية مرفوعة حتى الآن.",
+            "No learning materials have been uploaded yet."
+          ),
+      "success"
+    );
+  }
+
+  function safeFileName(filename) {
+    const cleaned = filename
+      .normalize("NFKC")
+      .replace(/[\/\\]/g, "_")
+      .replace(/[^\p{L}\p{N}._-]/gu, "_")
+      .replace(/^\.+/, "")
+      .slice(-120);
+
+    return cleaned || "learning-material.pdf";
+  }
+
+  function createUniqueFileId() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return window.crypto.randomUUID();
+    }
+
+    return Date.now().toString(36) + "-" +
+      Math.random().toString(36).slice(2);
+  }
+
+  async function uploadMaterial() {
+    const courseId = $("materialCourse").value;
+    const titleAr = $("materialTitleAr").value.trim();
+    const titleEn = $("materialTitleEn").value.trim();
+    const description = $("materialDescription").value.trim();
+    const fileInput = $("materialFile");
+    const file = fileInput.files && fileInput.files[0];
+
+    if (!courseId) {
+      setMaterialsMessage(
+        text("يرجى اختيار المقرر.", "Please select a course."),
+        "error"
+      );
+      return;
+    }
+
+    if (!courses.some(course => String(course.id) === String(courseId))) {
+      setMaterialsMessage(
+        text("المقرر المختار غير متاح لك.", "The selected course is not assigned to you."),
+        "error"
+      );
+      return;
+    }
+
+    if (!titleAr || !titleEn) {
+      setMaterialsMessage(
+        text(
+          "يرجى إدخال العنوان بالعربية والإنجليزية.",
+          "Please enter both Arabic and English titles."
+        ),
+        "error"
+      );
+      return;
+    }
+
+    if (!file) {
+      setMaterialsMessage(
+        text("يرجى اختيار ملف PDF.", "Please choose a PDF file."),
+        "error"
+      );
+      return;
+    }
+
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
+      setMaterialsMessage(
+        text("يُسمح بملفات PDF فقط.", "Only PDF files are allowed."),
+        "error"
+      );
+      return;
+    }
+
+    if (file.type && file.type !== "application/pdf") {
+      setMaterialsMessage(
+        text("نوع الملف غير صحيح. يرجى اختيار PDF.", "Invalid file type. Please choose a PDF."),
+        "error"
+      );
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setMaterialsMessage(
+        text(
+          "حجم الملف يتجاوز الحد الأقصى وهو 10 ميجابايت.",
+          "The file exceeds the 10 MB size limit."
+        ),
+        "error"
+      );
+      return;
+    }
+
+    const button = $("uploadMaterialBtn");
+    button.disabled = true;
+
+    $("uploadProgress").textContent =
+      text("جارٍ رفع الملف...", "Uploading file...");
+
+    let uploadedPath = null;
+
+    try {
+      const uniqueName =
+        createUniqueFileId() + "-" + safeFileName(file.name);
+
+      uploadedPath = courseId + "/" + uniqueName;
+
+      const { error: uploadError } = await supabase.storage
+        .from(MATERIALS_BUCKET)
+        .upload(uploadedPath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: "application/pdf"
+        });
+
+      if (uploadError) throw uploadError;
+
+      $("uploadProgress").textContent =
+        text("تم رفع الملف. جارٍ حفظ بياناته...", "File uploaded. Saving its details...");
+
+      const { error: insertError } = await supabase
+        .from("learning_materials")
+        .insert({
+          course_id: courseId,
+          teacher_id: teacherId,
+          title_ar: titleAr,
+          title_en: titleEn,
+          description: description || null,
+          file_path: uploadedPath,
+          file_name: file.name
+        });
+
+      if (insertError) {
+        // Attempt to remove the uploaded file if metadata
+        // could not be saved.
+
+        const { error: cleanupError } = await supabase.storage
+          .from(MATERIALS_BUCKET)
+          .remove([uploadedPath]);
+
+        if (cleanupError) {
+          console.error("Storage cleanup error:", cleanupError);
+        }
+
+        uploadedPath = null;
+        throw insertError;
+      }
+
+      $("materialTitleAr").value = "";
+      $("materialTitleEn").value = "";
+      $("materialDescription").value = "";
+      $("materialFile").value = "";
+
+      $("uploadProgress").textContent = "";
+
+      setMaterialsMessage(
+        text(
+          "تم رفع المادة التعليمية وحفظها بنجاح.",
+          "Learning material uploaded and saved successfully."
+        ),
+        "success"
+      );
+
+      await loadLearningMaterials();
+
+    } catch (error) {
+      console.error("Upload error:", error);
+
+      $("uploadProgress").textContent = "";
+
+      setMaterialsMessage(
+        text("فشل رفع المادة التعليمية: ", "Material upload failed: ") +
+        error.message,
+        "error"
+      );
+
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function openMaterial(material, button, download) {
+    const originalText = button.textContent;
+
+    // Open a blank tab immediately while the click is active.
+    // This avoids browser popup blocking during the signed URL request.
+
+    const newTab = window.open("about:blank", "_blank");
+
+    if (!newTab) {
+      setMaterialsMessage(
+        text(
+          "يرجى السماح بفتح النوافذ المنبثقة لهذا الموقع.",
+          "Please allow pop-ups for this website."
+        ),
+        "error"
+      );
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = text("جارٍ التجهيز...", "Preparing...");
+
+    try {
+      const options = download
+        ? { download: material.file_name || true }
+        : undefined;
+
+      const { data, error } = await supabase.storage
+        .from(MATERIALS_BUCKET)
+        .createSignedUrl(material.file_path, 300, options);
+
+      if (error) throw error;
+
+      if (!data || !data.signedUrl) {
+        throw new Error("Could not create a signed file link.");
+      }
+
+      newTab.location.href = data.signedUrl;
+
+      setMaterialsMessage(
+        text("تم تجهيز الملف.", "The file is ready."),
+        "success"
+      );
+
+    } catch (error) {
+      newTab.close();
+
+      setMaterialsMessage(
+        text("تعذر فتح الملف: ", "Could not open file: ") +
+        error.message,
+        "error"
+      );
+
+    } finally {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
+
+  async function deleteMaterial(material, button) {
+    const confirmed = window.confirm(
+      text(
+        "هل أنت متأكد من حذف هذه المادة التعليمية؟",
+        "Are you sure you want to delete this learning material?"
+      )
+    );
+
+    if (!confirmed) return;
+
+    button.disabled = true;
+
+    try {
+      // Remove the database record first.
+      // If this fails, keep the file and its existing record intact.
+
+      const { error: databaseError } = await supabase
+        .from("learning_materials")
+        .delete()
+        .eq("id", material.id)
+        .eq("teacher_id", teacherId);
+
+      if (databaseError) throw databaseError;
+
+      learningMaterials = learningMaterials.filter(
+        item => item.id !== material.id
+      );
+
+      renderLearningMaterials();
+
+      // Then remove the private storage object.
+
+      const { error: storageError } = await supabase.storage
+        .from(MATERIALS_BUCKET)
+        .remove([material.file_path]);
+
+      if (storageError) {
+        console.error("Storage deletion error:", storageError);
+
+        setMaterialsMessage(
+          text(
+            "تم حذف سجل المادة، ولكن تعذر حذف الملف من التخزين: ",
+            "The material record was deleted, but the storage file could not be removed: "
+          ) + storageError.message,
+          "error"
+        );
+        return;
+      }
+
+      setMaterialsMessage(
+        text("تم حذف المادة التعليمية بنجاح.", "Learning material deleted successfully."),
+        "success"
+      );
+
+    } catch (error) {
+      console.error("Delete error:", error);
+
+      setMaterialsMessage(
+        text("تعذر حذف المادة: ", "Could not delete material: ") +
+        error.message,
+        "error"
+      );
+
+      button.disabled = false;
+    }
+  }
+
+  // ======================================
+  // ATTENDANCE MANAGEMENT
+  // ======================================
 
   async function loadAttendance() {
     clearAttendanceMessage();
@@ -807,9 +1576,10 @@ footer {
     if (!courseId || !attendanceDate) {
       attendanceStudents = [];
       setAttendanceMessage(
-        language === "ar"
-          ? "يرجى اختيار المقرر وتاريخ الدرس."
-          : "Please select a course and lesson date."
+        text(
+          "يرجى اختيار المقرر وتاريخ الدرس.",
+          "Please select a course and lesson date."
+        )
       );
       return;
     }
@@ -836,9 +1606,10 @@ footer {
       renderAttendanceRows();
 
       setAttendanceMessage(
-        language === "ar"
-          ? "لا يوجد طلاب مقبولون في هذا المقرر."
-          : "There are no approved students in this course."
+        text(
+          "لا يوجد طلاب مقبولون في هذا المقرر.",
+          "There are no approved students in this course."
+        )
       );
       return;
     }
@@ -862,6 +1633,7 @@ footer {
 
     attendanceStudents = [...uniqueStudents.values()].map(student => {
       const record = existing.get(student.student_id);
+
       return record
         ? { ...student, status: record.status, remarks: record.remarks || "" }
         : student;
@@ -869,17 +1641,17 @@ footer {
 
     renderAttendanceRows();
     updateAttendanceSummary();
+
     $("attendanceSummary").style.display = "flex";
     $("saveAttendanceBtn").disabled = false;
 
     setAttendanceMessage(
-      language === "ar"
-        ? "تم تحميل الطلاب بنجاح."
-        : "Students loaded successfully.",
+      text("تم تحميل الطلاب بنجاح.", "Students loaded successfully."),
       "success"
     );
   }
-    function renderAttendanceRows() {
+
+  function renderAttendanceRows() {
     const container = $("attendanceList");
     container.innerHTML = "";
 
@@ -915,7 +1687,7 @@ footer {
 
       const remarks = document.createElement("textarea");
       remarks.placeholder =
-        language === "ar" ? "ملاحظات (اختياري)" : "Remarks (optional)";
+        text("ملاحظات (اختياري)", "Remarks (optional)");
       remarks.value = student.remarks || "";
 
       remarks.addEventListener("input", () => {
@@ -929,9 +1701,18 @@ footer {
 
   function updateAttendanceSummary() {
     const total = attendanceStudents.length;
-    const present = attendanceStudents.filter(s => s.status === "present").length;
-    const absent = attendanceStudents.filter(s => s.status === "absent").length;
-    const late = attendanceStudents.filter(s => s.status === "late").length;
+
+    const present = attendanceStudents.filter(
+      s => s.status === "present"
+    ).length;
+
+    const absent = attendanceStudents.filter(
+      s => s.status === "absent"
+    ).length;
+
+    const late = attendanceStudents.filter(
+      s => s.status === "late"
+    ).length;
 
     $("attendanceTotal").textContent = total;
     $("presentTotal").textContent = present;
@@ -945,17 +1726,19 @@ footer {
 
     if (!courseId || !attendanceDate || !attendanceStudents.length) {
       setAttendanceMessage(
-        language === "ar"
-          ? "لا توجد بيانات حضور للحفظ."
-          : "There is no attendance data to save.",
+        text(
+          "لا توجد بيانات حضور للحفظ.",
+          "There is no attendance data to save."
+        ),
         "error"
       );
       return;
     }
 
     $("saveAttendanceBtn").disabled = true;
+
     setAttendanceMessage(
-      language === "ar" ? "جاري حفظ الحضور..." : "Saving attendance..."
+      text("جاري حفظ الحضور...", "Saving attendance...")
     );
 
     const records = attendanceStudents.map(student => ({
@@ -984,17 +1767,20 @@ footer {
     }
 
     setAttendanceMessage(
-      language === "ar"
-        ? "تم حفظ الحضور بنجاح."
-        : "Attendance saved successfully.",
+      text("تم حفظ الحضور بنجاح.", "Attendance saved successfully."),
       "success"
     );
 
     updateAttendanceSummary();
   }
 
+  // ======================================
+  // START
+  // ======================================
+
   translatePage();
   loadDashboard();
+
 })();
 </script>
 

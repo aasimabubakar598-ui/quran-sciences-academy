@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -365,8 +366,9 @@ footer{text-align:center;padding:25px;color:#718078}
 </main>
 
 <footer>© Quran Sciences Academy</footer>
-
-<script>"use strict";
+ 
+<script>
+"use strict";
 
 const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
@@ -385,1068 +387,1242 @@ let attendanceRecords = [];
 let announcements = [];
 
 function tr(en, ar) {
-  return currentLanguage === "ar" ? ar : en;
+    return currentLanguage === "ar" ? ar : en;
 }
 
 function showMessage(message, type = "success") {
-  const box = $("message");
-  box.textContent = message;
-  box.className = "message " + (type === "error" ? "error" : "success");
-  box.classList.remove("hidden");
+    const box = $("message");
+    if (!box) return;
+
+    box.textContent = message;
+    box.className = "message " + type;
+    box.style.display = "block";
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function hideMessage() {
-  $("message").classList.add("hidden");
+    const box = $("message");
+    if (box) box.style.display = "none";
 }
 
 function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  })[char]);
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[char]);
 }
 
 function getProfile(id) {
-  return profiles.find(p => p.id === id);
+    return profiles.find(profile => profile.id === id);
 }
 
 function getCourse(id) {
-  return courses.find(c => c.id === id);
+    return courses.find(course => course.id === id);
 }
 
 function getContact(id) {
-  return studentContacts.find(p => p.id === id);
+    return studentContacts.find(contact => contact.student_id === id);
 }
 
 function getStudentEmail(id) {
-  return getContact(id)?.email || "";
+    const contact = getContact(id);
+    return contact?.email || "";
 }
 
 function statusBadge(status) {
-  const value = String(status || "").toLowerCase();
-  return `<span class="badge ${escapeHTML(value)}">${escapeHTML(value || "—")}</span>`;
+    const safeStatus = escapeHTML(status || "unknown");
+    return `<span class="badge">${safeStatus}</span>`;
 }
 
 function applyLanguage() {
-  document.documentElement.lang = currentLanguage;
-  document.documentElement.dir = currentLanguage === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = currentLanguage;
+    document.documentElement.dir = currentLanguage === "ar" ? "rtl" : "ltr";
 
-  document.querySelectorAll("[data-en][data-ar]").forEach(element => {
-    element.textContent = element.dataset[currentLanguage];
-  });
+    document.querySelectorAll("[data-en][data-ar]").forEach(element => {
+        element.textContent =
+            currentLanguage === "ar"
+                ? element.dataset.ar
+                : element.dataset.en;
+    });
 
-  $("studentSearch").placeholder = tr(
-    "Search by student name or course...",
-    "ابحث باسم الطالب أو المقرر..."
-  );
+    const languageButton = $("languageButton");
+    if (languageButton) {
+        languageButton.textContent =
+            currentLanguage === "ar" ? "English" : "العربية";
+    }
 
-  $("attendanceSearch").placeholder = tr(
-    "Student name or email",
-    "اسم الطالب أو البريد الإلكتروني"
-  );
+    renderOverview();
+    renderCourses();
+    renderUsers();
+    renderEnrolments();
+    renderStudentRecords();
+    renderAttendanceRecords();
+    renderAnnouncements();
 }
 
 function toggleLanguage() {
-  currentLanguage = currentLanguage === "en" ? "ar" : "en";
-  applyLanguage();
-  renderOverview();
-  renderCourses();
-  renderUsers();
-  renderEnrolments();
-  renderStudentRecords();
-  renderAttendanceRecords();
-  renderAnnouncements();
+    currentLanguage = currentLanguage === "en" ? "ar" : "en";
+    applyLanguage();
 }
 
-function showTab(tabId, button) {
-  document.querySelectorAll(".section").forEach(section => {
-    section.classList.remove("active");
-  });
+function showTab(tabId) {
+    document.querySelectorAll(".tab-content").forEach(section => {
+        section.style.display = "none";
+    });
 
-  document.querySelectorAll(".tabs button").forEach(tab => {
-    tab.classList.remove("active");
-  });
+    document.querySelectorAll(".nav-button").forEach(button => {
+        button.classList.remove("active");
+    });
 
-  $(tabId).classList.add("active");
-  button.classList.add("active");
+    const section = $(tabId);
+    if (section) section.style.display = "block";
 
-  if (tabId === "attendance") {
-    loadAttendanceRecords();
-  }
+    const button = document.querySelector(
+        `[data-tab="${tabId}"]`
+    );
+    if (button) button.classList.add("active");
 
-  if (tabId === "announcements") {
-    loadAnnouncements();
-  }
+    if (tabId === "attendance") {
+        loadAttendanceRecords();
+    }
+
+    if (tabId === "announcements") {
+        loadAnnouncements();
+    }
 }
 
 async function logout() {
-  const { error } = await db.auth.signOut();
+    const { error } = await db.auth.signOut();
 
-  if (error) {
-    showMessage(error.message, "error");
-    return;
-  }
+    if (error) {
+        showMessage(error.message, "error");
+        return;
+    }
 
-  location.replace("/login.html");
+    window.location.reload();
 }
 
 async function start() {
-  hideMessage();
+    hideMessage();
 
-  const { data, error } = await db.auth.getSession();
+    const {
+        data: { session },
+        error
+    } = await db.auth.getSession();
 
-  if (error || !data.session) {
-    location.replace("/login.html");
-    return;
-  }
+    if (error || !session) {
+        window.location.href = "login.html";
+        return;
+    }
 
-  currentUser = data.session.user;
+    currentUser = session.user;
 
-  const { data: adminProfile, error: profileError } = await db
-    .from("profiles")
-    .select("id,full_name,role")
-    .eq("id", currentUser.id)
-    .single();
+    const { data: profile, error: profileError } = await db
+        .from("profiles")
+        .select("id, full_name, role, created_at")
+        .eq("id", currentUser.id)
+        .single();
 
-  if (profileError || !adminProfile || adminProfile.role !== "admin") {
-    document.body.innerHTML = `
-      <main>
-        <div class="panel">
-          <h2>Access denied</h2>
-          <p>This page is for academy administrators only.</p>
-          <button onclick="location.href='/login.html'">Return to Login</button>
-        </div>
-      </main>`;
-    return;
-  }
+    if (profileError || !profile || profile.role !== "admin") {
+        document.body.innerHTML = `
+            <main class="container">
+                <h2>${tr("Access denied", "تم رفض الوصول")}</h2>
+                <p>${tr(
+                    "This page is only available to academy administrators.",
+                    "هذه الصفحة متاحة لمسؤولي الأكاديمية فقط."
+                )}</p>
+                <button onclick="logout()">
+                    ${tr("Sign out", "تسجيل الخروج")}
+                </button>
+            </main>
+        `;
+        return;
+    }
 
-  $("welcome").textContent = adminProfile.full_name || "Administrator";
-  $("dashboard").classList.remove("hidden");
+    const dashboard = $("dashboard");
+    if (dashboard) dashboard.style.display = "block";
 
-  await loadDashboard();
+    await loadDashboard();
+    showTab("overview");
 }
 
 async function loadDashboard() {
-  hideMessage();
+    hideMessage();
 
-  const results = await Promise.all([
-    db.from("profiles")
-      .select("id,full_name,role,created_at")
-      .order("created_at", { ascending: false }),
+    const results = await Promise.all([
+        db.from("profiles")
+            .select("id, full_name, role, created_at")
+            .order("created_at", { ascending: false }),
 
-    db.from("courses")
-      .select("id,department_id,title_en,title_ar,description,teacher_id,status,created_at")
-      .order("created_at", { ascending: false }),
+        db.from("courses")
+            .select("id, department_id, teacher_id, title_ar, title_en, description, status, created_at")
+            .order("created_at", { ascending: false }),
 
-    db.from("departments").select("*"),
+        db.from("departments")
+            .select("*"),
 
-    db.from("enrollments")
-      .select("id,student_id,course_id,status,created_at")
-      .order("created_at", { ascending: false }),
+        db.from("enrollments")
+            .select("id, course_id, student_id, status, created_at")
+            .order("created_at", { ascending: false }),
 
-    db.from("student_contact_details").select("*")
-  ]);
+        db.from("student_contact_details")
+            .select("*")
+    ]);
 
-  const labels = [
-    "profiles",
-    "courses",
-    "departments",
-    "enrollments",
-    "student contact details"
-  ];
+    const [
+        profileResult,
+        courseResult,
+        departmentResult,
+        enrolmentResult,
+        contactResult
+    ] = results;
 
-  let hasError = false;
+    const firstError = results.find(result => result.error)?.error;
 
-  results.forEach((result, index) => {
-    if (result.error) {
-      hasError = true;
-      console.error(labels[index] + " loading error:", result.error);
+    if (firstError) {
+        showMessage(firstError.message, "error");
+        return;
     }
-  });
 
-  profiles = results[0].data || [];
-  courses = results[1].data || [];
-  departments = results[2].data || [];
-  enrolments = results[3].data || [];
-  studentContacts = results[4].data || [];
+    profiles = profileResult.data || [];
+    courses = courseResult.data || [];
+    departments = departmentResult.data || [];
+    enrolments = enrolmentResult.data || [];
+    studentContacts = contactResult.data || [];
 
-  renderOverview();
-  fillCourseOptions();
-  renderCourses();
-  renderUsers();
-  renderEnrolments();
-  renderStudentRecords();
+    renderOverview();
+    fillCourseOptions();
+    renderCourses();
+    renderUsers();
+    renderEnrolments();
+    renderStudentRecords();
 
-  if (hasError) {
-    showMessage(
-      tr(
-        "Some information could not be loaded. Check Supabase permissions.",
-        "تعذر تحميل بعض البيانات. تحقق من أذونات Supabase."
-      ),
-      "error"
-    );
-  }
-
-  if ($("attendance").classList.contains("active")) {
     await loadAttendanceRecords();
-  }
-
-  if ($("announcements").classList.contains("active")) {
     await loadAnnouncements();
-  }
 }
 
 function renderOverview() {
-  $("studentCount").textContent =
-    profiles.filter(p => p.role === "student").length;
+    const students = profiles.filter(p => p.role === "student").length;
+    const teachers = profiles.filter(p => p.role === "teacher").length;
+    const pending = enrolments.filter(e => e.status === "pending").length;
 
-  $("teacherCount").textContent =
-    profiles.filter(p => p.role === "teacher").length;
-
-  $("courseCount").textContent = courses.length;
-
-  $("pendingCount").textContent =
-    enrolments.filter(e => e.status === "pending").length;
+    if ($("studentCount")) $("studentCount").textContent = students;
+    if ($("teacherCount")) $("teacherCount").textContent = teachers;
+    if ($("courseCount")) $("courseCount").textContent = courses.length;
+    if ($("pendingCount")) $("pendingCount").textContent = pending;
 }
 
 function fillCourseOptions() {
-  const departmentSelect = $("department");
-  const teacherSelect = $("teacher");
-  const attendanceSelect = $("attendanceCourse");
+    const teacherSelect = $("courseTeacher");
+    const departmentSelect = $("courseDepartment");
 
-  departmentSelect.innerHTML =
-    `<option value="">${tr("Select department", "اختر القسم")}</option>` +
-    departments.map(d =>
-      `<option value="${escapeHTML(d.id)}">${escapeHTML(d.name_ar || d.name || "Department")}</option>`
-    ).join("");
+    if (teacherSelect) {
+        const selected = teacherSelect.value;
 
-  teacherSelect.innerHTML =
-    `<option value="">${tr("No teacher assigned", "لا يوجد معلم معين")}</option>` +
-    profiles.filter(p => p.role === "teacher").map(p =>
-      `<option value="${escapeHTML(p.id)}">${escapeHTML(p.full_name)}</option>`
-    ).join("");
+        teacherSelect.innerHTML =
+            `<option value="">${tr("Select teacher", "اختر المعلم")}</option>` +
+            profiles
+                .filter(p => p.role === "teacher")
+                .map(p => `
+                    <option value="${escapeHTML(p.id)}">
+                        ${escapeHTML(p.full_name || "Unnamed teacher")}
+                    </option>
+                `)
+                .join("");
 
-  const previousCourse = attendanceSelect.value;
+        teacherSelect.value = selected;
+    }
 
-  attendanceSelect.innerHTML =
-    `<option value="">${tr("All Courses", "جميع المقررات")}</option>` +
-    courses.map(c =>
-      `<option value="${escapeHTML(c.id)}">${escapeHTML(c.title_en || c.title_ar)}</option>`
-    ).join("");
+    if (departmentSelect) {
+        const selected = departmentSelect.value;
 
-  if (courses.some(c => c.id === previousCourse)) {
-    attendanceSelect.value = previousCourse;
-  }
+        departmentSelect.innerHTML =
+            `<option value="">${tr("Select department", "اختر القسم")}</option>` +
+            departments.map(department => `
+                <option value="${escapeHTML(department.id)}">
+                    ${escapeHTML(
+                        department.name_en ||
+                        department.name_ar ||
+                        department.title ||
+                        department.id
+                    )}
+                </option>
+            `).join("");
+
+        departmentSelect.value = selected;
+    }
 }
 
 function renderCourses() {
-  $("courseRows").innerHTML = courses.length ? courses.map(course => {
-    const department = departments.find(d => d.id === course.department_id);
-    const teacher = getProfile(course.teacher_id);
+    const container = $("courseRows");
+    if (!container) return;
 
-    return `
-      <tr>
-        <td>
-          <strong>${escapeHTML(currentLanguage === "ar" ? course.title_ar || course.title_en : course.title_en || course.title_ar)}</strong>
-          <br><span class="muted">${escapeHTML(currentLanguage === "ar" ? course.title_en || "" : course.title_ar || "")}</span>
-        </td>
-        <td>${escapeHTML(department?.name_ar || department?.name || "—")}</td>
-        <td>${escapeHTML(teacher?.full_name || tr("Not assigned", "غير معين"))}</td>
-        <td>${statusBadge(course.status)}</td>
-      </tr>`;
-  }).join("") :
-    `<tr><td colspan="4" class="empty">${tr("No courses found.", "لا توجد مقررات.")}</td></tr>`;
+    if (!courses.length) {
+        container.innerHTML = `
+            <tr><td colspan="5">
+                ${tr("No courses found.", "لا توجد مقررات.")}
+            </td></tr>`;
+        return;
+    }
+
+    container.innerHTML = courses.map(course => {
+        const teacher = getProfile(course.teacher_id);
+        const department = departments.find(
+            d => d.id === course.department_id
+        );
+
+        const title = currentLanguage === "ar"
+            ? course.title_ar
+            : course.title_en;
+
+        return `
+            <tr>
+                <td>${escapeHTML(title || course.title_en || course.title_ar || "")}</td>
+                <td>${escapeHTML(
+                    department?.name_en ||
+                    department?.name_ar ||
+                    department?.title ||
+                    ""
+                )}</td>
+                <td>${escapeHTML(teacher?.full_name || "—")}</td>
+                <td>${statusBadge(course.status)}</td>
+                <td>${escapeHTML(
+                    course.created_at
+                        ? new Date(course.created_at).toLocaleDateString()
+                        : ""
+                )}</td>
+            </tr>
+        `;
+    }).join("");
 }
 
 function renderUsers() {
-  $("userRows").innerHTML = profiles.length ? profiles.map(profile => {
-    const isAdmin = profile.role === "admin";
-    const isCurrentUser = profile.id === currentUser.id;
+    const container = $("userRows");
+    if (!container) return;
 
-    return `
-      <tr>
-        <td>${escapeHTML(profile.full_name || "Unnamed user")}</td>
-        <td>${escapeHTML(getContact(profile.id)?.email || "—")}</td>
-        <td>${escapeHTML(profile.role)}</td>
-        <td>
-          ${isAdmin
-            ? `<span class="muted">${tr("Protected account", "حساب محمي")}</span>`
-            : `
-              <div class="actions">
-                <select id="role-${escapeHTML(profile.id)}">
-                  <option value="student" ${profile.role === "student" ? "selected" : ""}>Student</option>
-                  <option value="teacher" ${profile.role === "teacher" ? "selected" : ""}>Teacher</option>
-                </select>
-                <button class="primary" onclick="changeRole('${escapeHTML(profile.id)}')" ${isCurrentUser ? "disabled" : ""}>${tr("Save", "حفظ")}</button>
-              </div>`
-          }
-        </td>
-      </tr>`;
-  }).join("") :
-    `<tr><td colspan="4" class="empty">${tr("No users found.", "لا يوجد مستخدمون.")}</td></tr>`;
+    if (!profiles.length) {
+        container.innerHTML = `
+            <tr><td colspan="5">
+                ${tr("No users found.", "لا يوجد مستخدمون.")}
+            </td></tr>`;
+        return;
+    }
+
+    container.innerHTML = profiles.map(profile => {
+        const isAdmin = profile.role === "admin";
+        const isCurrentUser = profile.id === currentUser?.id;
+
+        return `
+            <tr>
+                <td>${escapeHTML(profile.full_name || "—")}</td>
+                <td>${escapeHTML(getStudentEmail(profile.id) || "—")}</td>
+                <td>${escapeHTML(profile.role)}</td>
+                <td>
+                    ${
+                        isAdmin
+                            ? `<span class="badge">${tr("Protected admin", "مسؤول محمي")}</span>`
+                            : `
+                                <select id="role-${escapeHTML(profile.id)}"
+                                    ${isCurrentUser ? "disabled" : ""}>
+                                    <option value="student"
+                                        ${profile.role === "student" ? "selected" : ""}>
+                                        ${tr("Student", "طالب")}
+                                    </option>
+                                    <option value="teacher"
+                                        ${profile.role === "teacher" ? "selected" : ""}>
+                                        ${tr("Teacher", "معلم")}
+                                    </option>
+                                </select>
+                            `
+                    }
+                </td>
+                <td>
+                    ${
+                        isAdmin || isCurrentUser
+                            ? "—"
+                            : `
+                                <button type="button"
+                                    onclick="changeRole('${escapeHTML(profile.id)}')">
+                                    ${tr("Save role", "حفظ الدور")}
+                                </button>
+                            `
+                    }
+                </td>
+            </tr>
+        `;
+    }).join("");
 }
 
 async function changeRole(userId) {
-  const select = $("role-" + userId);
-  if (!select) return;
+    const select = $("role-" + userId);
+    if (!select) return;
 
-  const newRole = select.value;
+    const newRole = select.value;
 
-  if (!["student", "teacher"].includes(newRole)) return;
+    if (!["student", "teacher"].includes(newRole)) return;
 
-  const { error } = await db
-    .from("profiles")
-    .update({ role: newRole })
-    .eq("id", userId);
+    const profile = getProfile(userId);
 
-  if (error) {
-    showMessage(error.message, "error");
-    return;
-  }
+    if (!profile || profile.role === "admin") return;
 
-  const profile = getProfile(userId);
-  if (profile) profile.role = newRole;
+    if (userId === currentUser.id) {
+        showMessage(
+            tr(
+                "You cannot change your own role.",
+                "لا يمكنك تغيير دورك بنفسك."
+            ),
+            "error"
+        );
+        return;
+    }
 
-  renderUsers();
-  renderOverview();
-  fillCourseOptions();
+    if (profile.role === newRole) {
+        showMessage(
+            tr(
+                "This user already has that role.",
+                "هذا المستخدم لديه هذا الدور بالفعل."
+            )
+        );
+        return;
+    }
 
-  showMessage(tr("User role updated.", "تم تحديث دور المستخدم."));
+    const confirmed = confirm(
+        tr(
+            `Are you sure you want to change ${profile.full_name || "this user's"} role to ${newRole}?`,
+            `هل أنت متأكد من تغيير دور هذا المستخدم إلى ${newRole === "teacher" ? "معلم" : "طالب"}؟`
+        )
+    );
+
+    if (!confirmed) {
+        select.value = profile.role;
+        return;
+    }
+
+    select.disabled = true;
+
+    const { error } = await db.rpc(
+        "academy_admin_change_user_role",
+        {
+            p_user_id: userId,
+            p_new_role: newRole
+        }
+    );
+
+    select.disabled = false;
+
+    if (error) {
+        select.value = profile.role;
+        showMessage(error.message, "error");
+        return;
+    }
+
+    profile.role = newRole;
+
+    renderUsers();
+    renderOverview();
+    fillCourseOptions();
+
+    showMessage(
+        tr(
+            "User role updated successfully.",
+            "تم تحديث دور المستخدم بنجاح."
+        )
+    );
 }
 
 function renderEnrolments() {
-  $("enrolmentRows").innerHTML = enrolments.length ? enrolments.map(enrolment => {
-    const student = getProfile(enrolment.student_id);
-    const course = getCourse(enrolment.course_id);
+    const container = $("enrolmentRows");
+    if (!container) return;
 
-    return `
-      <tr>
-        <td>${escapeHTML(student?.full_name || "Unknown student")}</td>
-        <td>${escapeHTML(course?.title_en || course?.title_ar || "Unknown course")}</td>
-        <td>${statusBadge(enrolment.status)}</td>
-        <td>
-          ${enrolment.status === "pending" ? `
-            <div class="actions">
-              <button class="primary" onclick="updateEnrolment('${escapeHTML(enrolment.id)}','approved')">${tr("Approve", "قبول")}</button>
-              <button class="danger" onclick="updateEnrolment('${escapeHTML(enrolment.id)}','rejected')">${tr("Reject", "رفض")}</button>
-            </div>
-          ` : "—"}
-        </td>
-      </tr>`;
-  }).join("") :
-    `<tr><td colspan="4" class="empty">${tr("No enrolments found.", "لا توجد تسجيلات.")}</td></tr>`;
+    if (!enrolments.length) {
+        container.innerHTML = `
+            <tr><td colspan="5">
+                ${tr("No enrolments found.", "لا توجد تسجيلات.")}
+            </td></tr>`;
+        return;
+    }
+
+    container.innerHTML = enrolments.map(enrolment => {
+        const student = getProfile(enrolment.student_id);
+        const course = getCourse(enrolment.course_id);
+
+        const courseTitle = currentLanguage === "ar"
+            ? course?.title_ar
+            : course?.title_en;
+
+        return `
+            <tr>
+                <td>${escapeHTML(student?.full_name || "—")}</td>
+                <td>${escapeHTML(courseTitle || course?.title_en || course?.title_ar || "—")}</td>
+                <td>${statusBadge(enrolment.status)}</td>
+                <td>
+                    <select id="enrolment-${escapeHTML(enrolment.id)}">
+                        <option value="pending" ${enrolment.status === "pending" ? "selected" : ""}>
+                            ${tr("Pending", "قيد الانتظار")}
+                        </option>
+                        <option value="approved" ${enrolment.status === "approved" ? "selected" : ""}>
+                            ${tr("Approved", "مقبول")}
+                        </option>
+                        <option value="rejected" ${enrolment.status === "rejected" ? "selected" : ""}>
+                            ${tr("Rejected", "مرفوض")}
+                        </option>
+                    </select>
+                </td>
+                <td>
+                    <button type="button"
+                        onclick="updateEnrolment('${escapeHTML(enrolment.id)}')">
+                        ${tr("Update", "تحديث")}
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join("");
 }
 
-async function updateEnrolment(id, status) {
-  if (!["approved", "rejected"].includes(status)) return;
+async function updateEnrolment(enrolmentId) {
+    const select = $("enrolment-" + enrolmentId);
+    if (!select) return;
 
-  const { error } = await db
-    .from("enrollments")
-    .update({ status })
-    .eq("id", id);
+    const newStatus = select.value;
 
-  if (error) {
-    showMessage(error.message, "error");
-    return;
-  }
+    if (!["pending", "approved", "rejected"].includes(newStatus)) {
+        return;
+    }
 
-  const record = enrolments.find(e => e.id === id);
-  if (record) record.status = status;
+    const confirmed = confirm(
+        tr(
+            "Are you sure you want to update this enrolment?",
+            "هل أنت متأكد من تحديث حالة التسجيل؟"
+        )
+    );
 
-  renderEnrolments();
-  renderStudentRecords();
-  renderOverview();
+    if (!confirmed) return;
 
-  showMessage(
-    status === "approved"
-      ? tr("Enrolment approved.", "تم قبول التسجيل.")
-      : tr("Enrolment rejected.", "تم رفض التسجيل.")
-  );
+    const { error } = await db
+        .from("enrollments")
+        .update({ status: newStatus })
+        .eq("id", enrolmentId);
+
+    if (error) {
+        showMessage(error.message, "error");
+        return;
+    }
+
+    const enrolment = enrolments.find(e => e.id === enrolmentId);
+    if (enrolment) enrolment.status = newStatus;
+
+    renderEnrolments();
+    renderOverview();
+
+    showMessage(
+        tr("Enrolment updated successfully.", "تم تحديث التسجيل بنجاح.")
+    );
 }
 
 function renderStudentRecords() {
-  const search = ($("studentSearch").value || "").trim().toLowerCase();
-  const students = profiles.filter(p => p.role === "student");
+    const container = $("studentRows");
+    if (!container) return;
 
-  const filtered = students.filter(student => {
-    const records = enrolments.filter(e => e.student_id === student.id);
-    const courseNames = records.map(e => {
-      const course = getCourse(e.course_id);
-      return `${course?.title_en || ""} ${course?.title_ar || ""}`;
-    }).join(" ");
+    const students = profiles.filter(p => p.role === "student");
 
-    const email = getStudentEmail(student.id);
+    if (!students.length) {
+        container.innerHTML = `
+            <tr><td colspan="4">
+                ${tr("No student records found.", "لا توجد سجلات للطلاب.")}
+            </td></tr>`;
+        return;
+    }
 
-    return (
-      (student.full_name || "").toLowerCase().includes(search) ||
-      courseNames.toLowerCase().includes(search) ||
-      email.toLowerCase().includes(search)
-    );
-  });
+    container.innerHTML = students.map(student => {
+        const studentEnrolments = enrolments.filter(
+            e => e.student_id === student.id
+        );
 
-  $("studentRecordSummary").textContent =
-    tr(`Showing ${filtered.length} of ${students.length} students`,
-       `عرض ${filtered.length} من ${students.length} طالباً`);
-
-  $("studentRows").innerHTML = filtered.length ? filtered.map(student => {
-    const records = enrolments.filter(e => e.student_id === student.id);
-    const approved = records.filter(e => e.status === "approved").length;
-    const pending = records.filter(e => e.status === "pending").length;
-    const rejected = records.filter(e => e.status === "rejected").length;
-
-    return `
-      <tr>
-        <td>${escapeHTML(student.full_name || "Unnamed student")}</td>
-        <td>${records.length}</td>
-        <td>${approved}</td>
-        <td>${pending}</td>
-        <td>${rejected}</td>
-        <td><button class="primary" onclick="viewStudentDetails('${escapeHTML(student.id)}')">${tr("View Details", "عرض التفاصيل")}</button></td>
-      </tr>`;
-  }).join("") :
-    `<tr><td colspan="6" class="empty">${tr("No students found.", "لم يتم العثور على طلاب.")}</td></tr>`;
+        return `
+            <tr>
+                <td>${escapeHTML(student.full_name || "—")}</td>
+                <td>${escapeHTML(getStudentEmail(student.id) || "—")}</td>
+                <td>${studentEnrolments.length}</td>
+                <td>
+                    <button type="button"
+                        onclick="viewStudentDetails('${escapeHTML(student.id)}')">
+                        ${tr("View details", "عرض التفاصيل")}
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join("");
 }
 
 function viewStudentDetails(studentId) {
-  const student = getProfile(studentId);
-  if (!student) return;
+    const student = getProfile(studentId);
+    if (!student) return;
 
-  const records = enrolments.filter(e => e.student_id === studentId);
-  const contact = getContact(studentId);
+    const studentEnrolments = enrolments.filter(
+        e => e.student_id === studentId
+    );
 
-  const history = records.length ? records.map(record => {
-    const course = getCourse(record.course_id);
+    const details = studentEnrolments.map(enrolment => {
+        const course = getCourse(enrolment.course_id);
+        const title = currentLanguage === "ar"
+            ? course?.title_ar
+            : course?.title_en;
 
-    return `
-      <tr>
-        <td>${escapeHTML(course?.title_en || "Unknown course")}</td>
-        <td>${escapeHTML(course?.title_ar || "")}</td>
-        <td>${statusBadge(record.status)}</td>
-        <td>${record.created_at ? new Date(record.created_at).toLocaleDateString() : "—"}</td>
-      </tr>`;
-  }).join("") :
-    `<tr><td colspan="4" class="empty">${tr("No course history.", "لا يوجد سجل للمقررات.")}</td></tr>`;
+        return `
+            <li>
+                ${escapeHTML(title || course?.title_en || course?.title_ar || "—")}
+                — ${escapeHTML(enrolment.status)}
+            </li>
+        `;
+    }).join("");
 
-  $("studentDetailsContent").innerHTML = `
-    <div class="detail-grid">
-      <div class="detail-card"><strong>${tr("Name", "الاسم")}</strong><p>${escapeHTML(student.full_name || "—")}</p></div>
-      <div class="detail-card"><strong>${tr("Email", "البريد الإلكتروني")}</strong><p>${escapeHTML(contact?.email || "—")}</p></div>
-      <div class="detail-card"><strong>${tr("Role", "الدور")}</strong><p>${escapeHTML(student.role)}</p></div>
-      <div class="detail-card"><strong>${tr("Registration Date", "تاريخ التسجيل")}</strong><p>${student.created_at ? new Date(student.created_at).toLocaleDateString() : "—"}</p></div>
-      <div class="detail-card"><strong>${tr("Total Enrolments", "إجمالي التسجيلات")}</strong><p>${records.length}</p></div>
-      <div class="detail-card"><strong>${tr("Approved", "مقبول")}</strong><p>${records.filter(r => r.status === "approved").length}</p></div>
-    </div>
-    <h3>${tr("Course History", "سجل المقررات")}</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr>
-          <th>${tr("Course", "المقرر")}</th>
-          <th>${tr("Arabic Title", "العنوان بالعربية")}</th>
-          <th>${tr("Status", "الحالة")}</th>
-          <th>${tr("Enrolled On", "تاريخ التسجيل")}</th>
-        </tr></thead>
-        <tbody>${history}</tbody>
-      </table>
-    </div>
-    <div class="actions" style="margin-top:15px">
-      <button class="primary" onclick="viewStudentAttendance('${escapeHTML(studentId)}')">${tr("View Attendance", "عرض الحضور")}</button>
-    </div>`;
+    const modal = $("studentDetails");
+    const content = $("studentDetailsContent");
 
-  $("studentDetails").classList.remove("hidden");
-  $("studentDetails").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (modal && content) {
+        content.innerHTML = `
+            <h3>${escapeHTML(student.full_name || "")}</h3>
+            <p>${escapeHTML(getStudentEmail(studentId) || "")}</p>
+            <h4>${tr("Enrolled courses", "المقررات المسجل بها")}</h4>
+            <ul>${details || `<li>${tr("No enrolments.", "لا توجد تسجيلات.")}</li>`}</ul>
+        `;
+        modal.style.display = "block";
+        return;
+    }
+
+    showMessage(
+        `${student.full_name || ""}: ${studentEnrolments.length} ` +
+        tr("enrolments", "تسجيلات")
+    );
 }
 
 function closeStudentDetails() {
-  $("studentDetails").classList.add("hidden");
+    const modal = $("studentDetails");
+    if (modal) modal.style.display = "none";
 }
 
 async function createCourse(event) {
-  event.preventDefault();
+    event.preventDefault();
+    hideMessage();
 
-  const payload = {
-    title_en: $("titleEn").value.trim(),
-    title_ar: $("titleAr").value.trim(),
-    department_id: $("department").value,
-    teacher_id: $("teacher").value || null,
-    status: $("courseStatus").value,
-    description: $("description").value.trim()
-  };
+    const titleEn = $("courseTitleEn")?.value.trim();
+    const titleAr = $("courseTitleAr")?.value.trim();
+    const departmentId = $("courseDepartment")?.value;
+    const teacherId = $("courseTeacher")?.value;
+    const description = $("courseDescription")?.value.trim();
 
-  if (!payload.title_en || !payload.title_ar || !payload.department_id) {
-    showMessage(tr("Complete all required course fields.", "أكمل جميع حقول المقرر المطلوبة."), "error");
-    return;
-  }
+    if (!titleEn || !titleAr || !departmentId || !teacherId) {
+        showMessage(
+            tr(
+                "Please complete all required course fields.",
+                "يرجى إكمال جميع حقول المقرر المطلوبة."
+            ),
+            "error"
+        );
+        return;
+    }
 
-  const { error } = await db.from("courses").insert(payload);
+    const { error } = await db.from("courses").insert({
+        title_en: titleEn,
+        title_ar: titleAr,
+        department_id: departmentId,
+        teacher_id: teacherId,
+        description: description || null,
+        status: "published"
+    });
 
-  if (error) {
-    showMessage(error.message, "error");
-    return;
-  }
+    if (error) {
+        showMessage(error.message, "error");
+        return;
+    }
 
-  $("courseForm").reset();
-  showMessage(tr("Course created successfully.", "تم إنشاء المقرر بنجاح."));
-  await loadDashboard();
+    $("courseForm").reset();
+
+    await loadDashboard();
+
+    showMessage(
+        tr("Course created successfully.", "تم إنشاء المقرر بنجاح.")
+    );
 }
 
 $("courseForm").addEventListener("submit", createCourse);
- // ======================================
-// ATTENDANCE MANAGEMENT
-// ======================================
+</script>
+ 
+<script>
+/* =========================
+   ATTENDANCE RECORDS
+========================= */
 
 async function loadAttendanceRecords() {
-  const message = $("attendanceMessage");
-  const rows = $("attendanceRows");
+    const { data, error } = await db
+        .from("attendance")
+        .select("id,student_id,course_id,attendance_date,status,remarks,marked_by,created_at")
+        .order("attendance_date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(1000);
 
-  message.textContent = tr("Loading attendance records...", "جارٍ تحميل سجلات الحضور...");
+    if (error) {
+        if ($("attendanceMessage")) {
+            $("attendanceMessage").textContent = error.message;
+        } else {
+            showMessage(error.message, "error");
+        }
+        return;
+    }
 
-  rows.innerHTML = `
-    <tr><td colspan="6" class="empty">
-      ${tr("Loading...", "جارٍ التحميل...")}
-    </td></tr>`;
+    attendanceRecords = data || [];
 
-  const { data, error } = await db
-    .from("attendance")
-    .select("*")
-    .order("attendance_date", { ascending: false });
+    const courseFilter = $("attendanceCourse");
 
-  if (error) {
-    console.error("Attendance loading error:", error);
+    if (courseFilter) {
+        const selected = courseFilter.value;
 
-    attendanceRecords = [];
+        courseFilter.innerHTML =
+            `<option value="">${tr("All courses", "جميع المقررات")}</option>` +
+            courses.map(course => {
+                const title = currentLanguage === "ar"
+                    ? course.title_ar
+                    : course.title_en;
 
-    rows.innerHTML = `
-      <tr><td colspan="6" class="empty">
-        ${tr("Unable to load attendance records.", "تعذر تحميل سجلات الحضور.")}
-      </td></tr>`;
+                return `
+                    <option value="${escapeHTML(course.id)}">
+                        ${escapeHTML(title || course.title_en || course.title_ar || "")}
+                    </option>
+                `;
+            }).join("");
 
-    message.textContent = error.message;
-    updateAttendanceStats([]);
-    return;
-  }
+        courseFilter.value = selected;
+    }
 
-  attendanceRecords = data || [];
-
-  renderAttendanceRecords();
-
-  message.textContent = tr(
-    "Attendance records loaded successfully.",
-    "تم تحميل سجلات الحضور بنجاح."
-  );
+    renderAttendanceRecords();
 }
 
 function renderAttendanceRecords() {
-  const search = ($("attendanceSearch").value || "").trim().toLowerCase();
-  const selectedCourse = $("attendanceCourse").value;
-  const selectedDate = $("attendanceDate").value;
-  const selectedStatus = $("attendanceStatus").value.toLowerCase();
+    const container = $("attendanceRows");
+    if (!container) return;
 
-  const filtered = attendanceRecords.filter(record => {
-    const student = getProfile(record.student_id);
-    const course = getCourse(record.course_id);
-    const teacher = getProfile(record.marked_by);
+    const search = ($("attendanceSearch")?.value || "")
+        .trim()
+        .toLowerCase();
 
-    const studentName = student?.full_name || "";
-    const email = getStudentEmail(record.student_id);
-    const courseName = `${course?.title_en || ""} ${course?.title_ar || ""}`;
-    const teacherName = teacher?.full_name || "";
+    const selectedCourse = $("attendanceCourse")?.value || "";
+    const selectedDate = $("attendanceDate")?.value || "";
+    const selectedStatus = $("attendanceStatus")?.value || "";
 
-    const matchesSearch =
-      studentName.toLowerCase().includes(search) ||
-      email.toLowerCase().includes(search) ||
-      courseName.toLowerCase().includes(search) ||
-      teacherName.toLowerCase().includes(search);
-
-    const matchesCourse =
-      !selectedCourse || record.course_id === selectedCourse;
-
-    const matchesDate =
-      !selectedDate || record.attendance_date === selectedDate;
-
-    const matchesStatus =
-      !selectedStatus ||
-      String(record.status || "").toLowerCase() === selectedStatus;
-
-    return matchesSearch && matchesCourse && matchesDate && matchesStatus;
-  });
-
-  updateAttendanceStats(filtered);
-
-  $("attendanceResultCount").textContent = tr(
-    `Showing ${filtered.length} of ${attendanceRecords.length} attendance records`,
-    `عرض ${filtered.length} من ${attendanceRecords.length} سجل حضور`
-  );
-
-  $("attendanceRows").innerHTML = filtered.length
-    ? filtered.map(record => {
+    const filtered = attendanceRecords.filter(record => {
         const student = getProfile(record.student_id);
         const course = getCourse(record.course_id);
-        const teacher = getProfile(record.marked_by);
 
-        return `
-          <tr>
-            <td>
-              <strong>${escapeHTML(student?.full_name || "Unknown student")}</strong>
-              <br>
-              <span class="muted">${escapeHTML(getStudentEmail(record.student_id))}</span>
-            </td>
-            <td>${escapeHTML(
-              currentLanguage === "ar"
-                ? course?.title_ar || course?.title_en || "—"
-                : course?.title_en || course?.title_ar || "—"
-            )}</td>
-            <td>${escapeHTML(record.attendance_date || "—")}</td>
-            <td>${statusBadge(record.status)}</td>
-            <td>${escapeHTML(teacher?.full_name || "—")}</td>
-            <td>${escapeHTML(record.remarks || "—")}</td>
-          </tr>`;
-      }).join("")
-    : `
-      <tr><td colspan="6" class="empty">
-        ${tr("No attendance records found.", "لم يتم العثور على سجلات حضور.")}
-      </td></tr>`;
+        const studentName = (student?.full_name || "").toLowerCase();
+        const courseTitle = (
+            course?.title_en ||
+            course?.title_ar ||
+            ""
+        ).toLowerCase();
+
+        const matchesSearch =
+            !search ||
+            studentName.includes(search) ||
+            courseTitle.includes(search);
+
+        const matchesCourse =
+            !selectedCourse || record.course_id === selectedCourse;
+
+        const matchesDate =
+            !selectedDate || record.attendance_date === selectedDate;
+
+        const matchesStatus =
+            !selectedStatus || record.status === selectedStatus;
+
+        return (
+            matchesSearch &&
+            matchesCourse &&
+            matchesDate &&
+            matchesStatus
+        );
+    });
+
+    if (!filtered.length) {
+        container.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    ${tr("No attendance records found.", "لا توجد سجلات حضور.")}
+                </td>
+            </tr>
+        `;
+    } else {
+        container.innerHTML = filtered.map(record => {
+            const student = getProfile(record.student_id);
+            const course = getCourse(record.course_id);
+            const teacher = getProfile(record.marked_by);
+
+            const courseTitle = currentLanguage === "ar"
+                ? course?.title_ar
+                : course?.title_en;
+
+            return `
+                <tr>
+                    <td>${escapeHTML(student?.full_name || "—")}</td>
+                    <td>${escapeHTML(courseTitle || course?.title_en || course?.title_ar || "—")}</td>
+                    <td>${escapeHTML(record.attendance_date || "—")}</td>
+                    <td>${statusBadge(record.status)}</td>
+                    <td>${escapeHTML(teacher?.full_name || "—")}</td>
+                    <td>${escapeHTML(record.remarks || "—")}</td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    updateAttendanceStats(filtered);
 }
 
 function updateAttendanceStats(records) {
-  const count = status =>
-    records.filter(record =>
-      String(record.status || "").toLowerCase() === status
-    ).length;
+    const present = records.filter(r => r.status === "present").length;
+    const absent = records.filter(r => r.status === "absent").length;
+    const late = records.filter(r => r.status === "late").length;
 
-  $("attendancePresentCount").textContent = count("present");
-  $("attendanceAbsentCount").textContent = count("absent");
-  $("attendanceLateCount").textContent = count("late");
-  $("attendanceTotalCount").textContent = records.length;
+    if ($("attendancePresentCount")) {
+        $("attendancePresentCount").textContent = present;
+    }
+
+    if ($("attendanceAbsentCount")) {
+        $("attendanceAbsentCount").textContent = absent;
+    }
+
+    if ($("attendanceLateCount")) {
+        $("attendanceLateCount").textContent = late;
+    }
+
+    if ($("attendanceTotalCount")) {
+        $("attendanceTotalCount").textContent = records.length;
+    }
+
+    if ($("attendanceResultCount")) {
+        $("attendanceResultCount").textContent =
+            `${records.length} ${tr("records", "سجلات")}`;
+    }
 }
 
 function clearAttendanceFilters() {
-  $("attendanceSearch").value = "";
-  $("attendanceCourse").value = "";
-  $("attendanceDate").value = "";
-  $("attendanceStatus").value = "";
+    if ($("attendanceSearch")) $("attendanceSearch").value = "";
+    if ($("attendanceCourse")) $("attendanceCourse").value = "";
+    if ($("attendanceDate")) $("attendanceDate").value = "";
+    if ($("attendanceStatus")) $("attendanceStatus").value = "";
 
-  renderAttendanceRecords();
+    renderAttendanceRecords();
 }
 
 function viewStudentAttendance(studentId) {
-  const student = getProfile(studentId);
+    const student = getProfile(studentId);
+    if (!student) return;
 
-  if (!student) return;
-
-  const records = attendanceRecords
-    .filter(record => record.student_id === studentId)
-    .sort((a, b) =>
-      String(b.attendance_date || "").localeCompare(
-        String(a.attendance_date || "")
-      )
+    const records = attendanceRecords.filter(
+        record => record.student_id === studentId
     );
 
-  const history = records.length
-    ? records.map(record => {
+    const modal = $("individualAttendance");
+
+    if (!modal) {
+        showMessage(
+            `${student.full_name || ""}: ${records.length} ` +
+            tr("attendance records", "سجلات حضور")
+        );
+        return;
+    }
+
+    const rows = records.map(record => {
         const course = getCourse(record.course_id);
-        const teacher = getProfile(record.marked_by);
+        const courseTitle = currentLanguage === "ar"
+            ? course?.title_ar
+            : course?.title_en;
 
         return `
-          <tr>
-            <td>${escapeHTML(record.attendance_date || "—")}</td>
-            <td>${escapeHTML(
-              currentLanguage === "ar"
-                ? course?.title_ar || course?.title_en || "—"
-                : course?.title_en || course?.title_ar || "—"
-            )}</td>
-            <td>${statusBadge(record.status)}</td>
-            <td>${escapeHTML(teacher?.full_name || "—")}</td>
-            <td>${escapeHTML(record.remarks || "—")}</td>
-          </tr>`;
-      }).join("")
-    : `
-      <tr><td colspan="5" class="empty">
-        ${tr("No attendance records found for this student.",
-             "لا توجد سجلات حضور لهذا الطالب.")}
-      </td></tr>`;
+            <tr>
+                <td>${escapeHTML(courseTitle || course?.title_en || course?.title_ar || "—")}</td>
+                <td>${escapeHTML(record.attendance_date || "—")}</td>
+                <td>${statusBadge(record.status)}</td>
+                <td>${escapeHTML(record.remarks || "—")}</td>
+            </tr>
+        `;
+    }).join("");
 
-  const existing = $("individualAttendance");
+    modal.innerHTML = `
+        <div class="modal-content">
+            <button type="button" onclick="closeIndividualAttendance()">
+                ${tr("Close", "إغلاق")}
+            </button>
+            <h3>${escapeHTML(student.full_name || "")}</h3>
+            <p>${tr("Individual attendance record", "سجل حضور الطالب")}</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>${tr("Course", "المقرر")}</th>
+                            <th>${tr("Date", "التاريخ")}</th>
+                            <th>${tr("Status", "الحالة")}</th>
+                            <th>${tr("Remarks", "ملاحظات")}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows || `
+                            <tr>
+                                <td colspan="4">
+                                    ${tr("No records found.", "لا توجد سجلات.")}
+                                </td>
+                            </tr>
+                        `}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
 
-  if (existing) existing.remove();
-
-  const section = document.createElement("div");
-  section.id = "individualAttendance";
-  section.className = "panel";
-
-  section.innerHTML = `
-    <div class="actions" style="justify-content:space-between">
-      <h3>${tr("Attendance History", "سجل الحضور")}: ${escapeHTML(student.full_name)}</h3>
-      <button class="secondary" onclick="closeIndividualAttendance()">
-        ${tr("Close", "إغلاق")}
-      </button>
-    </div>
-
-    <div class="stats">
-      <div class="stat">
-        ${tr("Present", "حاضر")}
-        <strong>${records.filter(r => String(r.status).toLowerCase() === "present").length}</strong>
-      </div>
-      <div class="stat">
-        ${tr("Absent", "غائب")}
-        <strong>${records.filter(r => String(r.status).toLowerCase() === "absent").length}</strong>
-      </div>
-      <div class="stat">
-        ${tr("Late", "متأخر")}
-        <strong>${records.filter(r => String(r.status).toLowerCase() === "late").length}</strong>
-      </div>
-      <div class="stat">
-        ${tr("Total", "الإجمالي")}
-        <strong>${records.length}</strong>
-      </div>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>${tr("Date", "التاريخ")}</th>
-            <th>${tr("Course", "المقرر")}</th>
-            <th>${tr("Status", "الحالة")}</th>
-            <th>${tr("Marked By", "سجل بواسطة")}</th>
-            <th>${tr("Remarks", "ملاحظات")}</th>
-          </tr>
-        </thead>
-        <tbody>${history}</tbody>
-      </table>
-    </div>`;
-
-  $("studentDetailsContent").appendChild(section);
-
-  section.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
+    modal.style.display = "block";
 }
 
 function closeIndividualAttendance() {
-  const section = $("individualAttendance");
-
-  if (section) section.remove();
+    const modal = $("individualAttendance");
+    if (modal) modal.style.display = "none";
 }
 
-// ======================================
-// ATTENDANCE FILTER EVENTS
-// ======================================
+["attendanceSearch", "attendanceCourse", "attendanceDate", "attendanceStatus"]
+    .forEach(id => {
+        const element = $(id);
+        if (!element) return;
 
-$("attendanceSearch").addEventListener("input", renderAttendanceRecords);
-$("attendanceCourse").addEventListener("change", renderAttendanceRecords);
-$("attendanceDate").addEventListener("change", renderAttendanceRecords);
-$("attendanceStatus").addEventListener("change", renderAttendanceRecords);
+        element.addEventListener(
+            id === "attendanceSearch" ? "input" : "change",
+            renderAttendanceRecords
+        );
+    });
 
-// ======================================
-// ANNOUNCEMENTS MANAGEMENT
-// ======================================
+/* =========================
+   ANNOUNCEMENTS
+========================= */
 
 async function loadAnnouncements() {
-  const message = $("announcementMessage");
-  const list = $("announcementList");
+    const { data, error } = await db
+        .from("announcements")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-  message.textContent = tr(
-    "Loading announcements...",
-    "جارٍ تحميل الإعلانات..."
-  );
+    if (error) {
+        if ($("announcementMessage")) {
+            $("announcementMessage").textContent = error.message;
+        } else {
+            showMessage(error.message, "error");
+        }
+        return;
+    }
 
-  list.innerHTML = `<p class="empty">${tr("Loading...", "جارٍ التحميل...")}</p>`;
-
-  const { data, error } = await db
-    .from("announcements")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Announcements loading error:", error);
-
-    announcements = [];
-
-    message.textContent = tr(
-      "Unable to load announcements: ",
-      "تعذر تحميل الإعلانات: "
-    ) + error.message;
-
-    list.innerHTML = `<p class="empty">${tr(
-      "Please check the announcements table permissions.",
-      "يرجى التحقق من أذونات جدول الإعلانات."
-    )}</p>`;
-
-    return;
-  }
-
-  announcements = data || [];
-
-  renderAnnouncements();
-
-  message.textContent = tr(
-    `${announcements.length} announcement(s) loaded.`,
-    `تم تحميل ${announcements.length} إعلان.`
-  );
+    announcements = data || [];
+    renderAnnouncements();
 }
 
 function renderAnnouncements() {
-  const list = $("announcementList");
+    const container = $("announcementList");
+    if (!container) return;
 
-  if (!announcements.length) {
-    list.innerHTML = `
-      <p class="empty">
-        ${tr("No announcements have been created yet.",
-             "لم يتم إنشاء أي إعلانات حتى الآن.")}
-      </p>`;
-    return;
-  }
+    if (!announcements.length) {
+        container.innerHTML = `
+            <p>
+                ${tr("No announcements found.", "لا توجد إعلانات.")}
+            </p>
+        `;
+        return;
+    }
 
-  list.innerHTML = announcements.map(item => {
-    const title = currentLanguage === "ar"
-      ? item.title_ar
-      : item.title_en;
+    container.innerHTML = announcements.map(announcement => {
+        const title = currentLanguage === "ar"
+            ? announcement.title_ar
+            : announcement.title_en;
 
-    const body = currentLanguage === "ar"
-      ? item.body_ar
-      : item.body_en;
+        const body = currentLanguage === "ar"
+            ? announcement.body_ar
+            : announcement.body_en;
 
-    const createdDate = item.created_at
-      ? new Date(item.created_at).toLocaleString(
-          currentLanguage === "ar" ? "ar" : "en"
-        )
-      : "—";
+        const isPublished = announcement.status === "published";
 
-    return `
-      <div class="announcement-card">
-        <div class="actions" style="justify-content:space-between;align-items:center">
-          <h3>${escapeHTML(title)}</h3>
-          ${statusBadge(item.status)}
-        </div>
+        return `
+            <article class="announcement-card">
+                <h3>${escapeHTML(title || announcement.title_en || "")}</h3>
 
-        <p class="announcement-body">${escapeHTML(body)}</p>
+                <p>${escapeHTML(body || announcement.body_en || "")}</p>
 
-        <p class="muted">
-          ${tr("Created:", "تاريخ الإنشاء:")} ${escapeHTML(createdDate)}
-        </p>
+                <p>
+                    ${tr("Status", "الحالة")}:
+                    ${statusBadge(announcement.status)}
+                </p>
 
-        <div class="actions">
-          <button class="primary" onclick="editAnnouncement('${escapeHTML(item.id)}')">
-            ${tr("Edit", "تعديل")}
-          </button>
+                <p>
+                    ${tr("Created", "تاريخ الإنشاء")}:
+                    ${escapeHTML(
+                        announcement.created_at
+                            ? new Date(announcement.created_at).toLocaleString()
+                            : "—"
+                    )}
+                </p>
 
-          ${item.status === "draft" ? `
-            <button class="gold" onclick="publishAnnouncement('${escapeHTML(item.id)}')">
-              ${tr("Publish", "نشر")}
-            </button>
-          ` : `
-            <button class="secondary" onclick="unpublishAnnouncement('${escapeHTML(item.id)}')">
-              ${tr("Move to Draft", "إلغاء النشر")}
-            </button>
-          `}
+                <div class="button-group">
+                    <button type="button"
+                        onclick="editAnnouncement('${escapeHTML(announcement.id)}')">
+                        ${tr("Edit", "تعديل")}
+                    </button>
 
-          <button class="danger" onclick="deleteAnnouncement('${escapeHTML(item.id)}')">
-            ${tr("Delete", "حذف")}
-          </button>
-        </div>
-      </div>`;
-  }).join("");
+                    ${
+                        isPublished
+                            ? `
+                                <button type="button"
+                                    onclick="unpublishAnnouncement('${escapeHTML(announcement.id)}')">
+                                    ${tr("Unpublish", "إلغاء النشر")}
+                                </button>
+                            `
+                            : `
+                                <button type="button"
+                                    onclick="publishAnnouncement('${escapeHTML(announcement.id)}')">
+                                    ${tr("Publish", "نشر")}
+                                </button>
+                            `
+                    }
+
+                    <button type="button"
+                        onclick="deleteAnnouncement('${escapeHTML(announcement.id)}')">
+                        ${tr("Delete", "حذف")}
+                    </button>
+                </div>
+            </article>
+        `;
+    }).join("");
 }
 
 async function saveAnnouncement(event) {
-  event.preventDefault();
+    event.preventDefault();
 
-  const id = $("announcementId").value;
+    const id = $("announcementId")?.value || "";
+    const titleEn = $("announcementTitleEn")?.value.trim();
+    const titleAr = $("announcementTitleAr")?.value.trim();
+    const bodyEn = $("announcementBodyEn")?.value.trim();
+    const bodyAr = $("announcementBodyAr")?.value.trim();
+    const status = $("announcementStatus")?.value || "draft";
 
-  const payload = {
-    title_en: $("announcementTitleEn").value.trim(),
-    title_ar: $("announcementTitleAr").value.trim(),
-    body_en: $("announcementBodyEn").value.trim(),
-    body_ar: $("announcementBodyAr").value.trim(),
-    status: $("announcementStatus").value,
-    published_at: $("announcementStatus").value === "published"
-      ? new Date().toISOString()
-      : null,
-    updated_at: new Date().toISOString()
-  };
+    if (!titleEn || !titleAr || !bodyEn || !bodyAr) {
+        showMessage(
+            tr(
+                "Please complete all announcement fields.",
+                "يرجى إكمال جميع حقول الإعلان."
+            ),
+            "error"
+        );
+        return;
+    }
 
-  if (
-    !payload.title_en ||
-    !payload.title_ar ||
-    !payload.body_en ||
-    !payload.body_ar
-  ) {
-    $("announcementMessage").textContent = tr(
-      "Please complete all announcement fields.",
-      "يرجى إكمال جميع حقول الإعلان."
+    if (!["draft", "published"].includes(status)) {
+        showMessage(
+            tr("Invalid announcement status.", "حالة الإعلان غير صحيحة."),
+            "error"
+        );
+        return;
+    }
+
+    const announcementData = {
+        title_en: titleEn,
+        title_ar: titleAr,
+        body_en: bodyEn,
+        body_ar: bodyAr,
+        status: status,
+        updated_at: new Date().toISOString()
+    };
+
+    if (status === "published") {
+        announcementData.published_at = new Date().toISOString();
+    }
+
+    let result;
+
+    if (id) {
+        result = await db
+            .from("announcements")
+            .update(announcementData)
+            .eq("id", id);
+    } else {
+        announcementData.created_by = currentUser.id;
+
+        result = await db
+            .from("announcements")
+            .insert(announcementData);
+    }
+
+    if (result.error) {
+        showMessage(result.error.message, "error");
+        return;
+    }
+
+    resetAnnouncementForm();
+    await loadAnnouncements();
+
+    showMessage(
+        tr(
+            id ? "Announcement updated successfully." : "Announcement saved successfully.",
+            id ? "تم تحديث الإعلان بنجاح." : "تم حفظ الإعلان بنجاح."
+        )
     );
-    return;
-  }
-
-  let result;
-
-  if (id) {
-    result = await db
-      .from("announcements")
-      .update(payload)
-      .eq("id", id);
-  } else {
-    payload.created_by = currentUser.id;
-
-    result = await db
-      .from("announcements")
-      .insert(payload);
-  }
-
-  if (result.error) {
-    console.error("Announcement save error:", result.error);
-
-    $("announcementMessage").textContent =
-      tr("Unable to save announcement: ", "تعذر حفظ الإعلان: ") +
-      result.error.message;
-
-    return;
-  }
-
-  resetAnnouncementForm();
-  await loadAnnouncements();
-
-  $("announcementMessage").textContent = tr(
-    "Announcement saved successfully.",
-    "تم حفظ الإعلان بنجاح."
-  );
 }
 
 function editAnnouncement(id) {
-  const item = announcements.find(a => a.id === id);
+    const announcement = announcements.find(item => item.id === id);
+    if (!announcement) return;
 
-  if (!item) return;
+    $("announcementId").value = announcement.id;
+    $("announcementTitleEn").value = announcement.title_en || "";
+    $("announcementTitleAr").value = announcement.title_ar || "";
+    $("announcementBodyEn").value = announcement.body_en || "";
+    $("announcementBodyAr").value = announcement.body_ar || "";
+    $("announcementStatus").value = announcement.status || "draft";
 
-  $("announcementId").value = item.id;
-  $("announcementTitleEn").value = item.title_en || "";
-  $("announcementTitleAr").value = item.title_ar || "";
-  $("announcementBodyEn").value = item.body_en || "";
-  $("announcementBodyAr").value = item.body_ar || "";
-  $("announcementStatus").value = item.status || "draft";
+    const saveButton = $("saveAnnouncementButton");
+    if (saveButton) {
+        saveButton.textContent = tr("Update announcement", "تحديث الإعلان");
+    }
 
-  $("saveAnnouncementButton").textContent = tr(
-    "Update Announcement",
-    "تحديث الإعلان"
-  );
+    const cancelButton = $("cancelAnnouncementEdit");
+    if (cancelButton) cancelButton.style.display = "inline-block";
 
-  $("cancelAnnouncementEdit").classList.remove("hidden");
-
-  $("announcementForm").scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
+    $("announcementTitleEn")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
 }
 
 function resetAnnouncementForm() {
-  $("announcementForm").reset();
-  $("announcementId").value = "";
-  $("announcementStatus").value = "draft";
+    const form = $("announcementForm");
+    if (form) form.reset();
 
-  $("saveAnnouncementButton").textContent = tr(
-    "Save Announcement",
-    "حفظ الإعلان"
-  );
+    if ($("announcementId")) $("announcementId").value = "";
 
-  $("cancelAnnouncementEdit").classList.add("hidden");
+    const saveButton = $("saveAnnouncementButton");
+    if (saveButton) {
+        saveButton.textContent = tr("Save announcement", "حفظ الإعلان");
+    }
+
+    const cancelButton = $("cancelAnnouncementEdit");
+    if (cancelButton) cancelButton.style.display = "none";
 }
 
 async function publishAnnouncement(id) {
-  const { error } = await db
-    .from("announcements")
-    .update({
-      status: "published",
-      published_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    })
-    .eq("id", id);
+    const confirmed = confirm(
+        tr(
+            "Publish this announcement? Students and teachers will be able to see it.",
+            "هل تريد نشر هذا الإعلان؟ سيتمكن الطلاب والمعلمون من رؤيته."
+        )
+    );
 
-  if (error) {
-    $("announcementMessage").textContent =
-      tr("Unable to publish announcement: ", "تعذر نشر الإعلان: ") +
-      error.message;
-    return;
-  }
+    if (!confirmed) return;
 
-  await loadAnnouncements();
+    const { error } = await db
+        .from("announcements")
+        .update({
+            status: "published",
+            published_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", id);
 
-  $("announcementMessage").textContent = tr(
-    "Announcement published. Students and teachers can now see it.",
-    "تم نشر الإعلان. يمكن للطلاب والمعلمين رؤيته الآن."
-  );
+    if (error) {
+        showMessage(error.message, "error");
+        return;
+    }
+
+    await loadAnnouncements();
+
+    showMessage(
+        tr("Announcement published successfully.", "تم نشر الإعلان بنجاح.")
+    );
 }
 
 async function unpublishAnnouncement(id) {
-  const { error } = await db
-    .from("announcements")
-    .update({
-      status: "draft",
-      published_at: null,
-      updated_at: new Date().toISOString()
-    })
-    .eq("id", id);
+    const confirmed = confirm(
+        tr(
+            "Unpublish this announcement? It will no longer be visible to students and teachers.",
+            "هل تريد إلغاء نشر هذا الإعلان؟ لن يكون مرئياً للطلاب والمعلمين."
+        )
+    );
 
-  if (error) {
-    $("announcementMessage").textContent =
-      tr("Unable to change announcement status: ", "تعذر تغيير حالة الإعلان: ") +
-      error.message;
-    return;
-  }
+    if (!confirmed) return;
 
-  await loadAnnouncements();
+    const { error } = await db
+        .from("announcements")
+        .update({
+            status: "draft",
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", id);
 
-  $("announcementMessage").textContent = tr(
-    "Announcement moved to draft. It is no longer visible to students and teachers.",
-    "تم تحويل الإعلان إلى مسودة. لن يكون ظاهراً للطلاب والمعلمين."
-  );
+    if (error) {
+        showMessage(error.message, "error");
+        return;
+    }
+
+    await loadAnnouncements();
+
+    showMessage(
+        tr("Announcement unpublished.", "تم إلغاء نشر الإعلان.")
+    );
 }
 
 async function deleteAnnouncement(id) {
-  const confirmed = confirm(
-    tr(
-      "Are you sure you want to delete this announcement?",
-      "هل أنت متأكد من حذف هذا الإعلان؟"
-    )
-  );
+    const confirmed = confirm(
+        tr(
+            "Are you sure you want to permanently delete this announcement?",
+            "هل أنت متأكد من حذف هذا الإعلان نهائياً؟"
+        )
+    );
 
-  if (!confirmed) return;
+    if (!confirmed) return;
 
-  const { error } = await db
-    .from("announcements")
-    .delete()
-    .eq("id", id);
+    const { error } = await db
+        .from("announcements")
+        .delete()
+        .eq("id", id);
 
-  if (error) {
-    $("announcementMessage").textContent =
-      tr("Unable to delete announcement: ", "تعذر حذف الإعلان: ") +
-      error.message;
-    return;
-  }
+    if (error) {
+        showMessage(error.message, "error");
+        return;
+    }
 
-  if ($("announcementId").value === id) {
-    resetAnnouncementForm();
-  }
+    await loadAnnouncements();
 
-  await loadAnnouncements();
-
-  $("announcementMessage").textContent = tr(
-    "Announcement deleted successfully.",
-    "تم حذف الإعلان بنجاح."
-  );
+    showMessage(
+        tr("Announcement deleted successfully.", "تم حذف الإعلان بنجاح.")
+    );
 }
 
-$("announcementForm").addEventListener("submit", saveAnnouncement);
+const announcementForm = $("announcementForm");
 
-// ======================================
-// INITIALIZE ADMIN DASHBOARD
-// ======================================
+if (announcementForm) {
+    announcementForm.addEventListener("submit", saveAnnouncement);
+}
 
-// Start only once. The script is already placed at the end of the page.
+const cancelAnnouncementButton = $("cancelAnnouncementEdit");
+
+if (cancelAnnouncementButton) {
+    cancelAnnouncementButton.addEventListener(
+        "click",
+        resetAnnouncementForm
+    );
+}
+
+/* =========================
+   START ADMIN DASHBOARD
+========================= */
+
 start();
-
 </script>
 </body>
 </html>
+
+ 
+           

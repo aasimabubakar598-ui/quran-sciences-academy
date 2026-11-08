@@ -49,14 +49,10 @@ th,td{padding:12px;text-align:left;border-bottom:1px solid #e5ebe7;vertical-alig
 th{background:#f0f5f1;color:#244638}
 .actions{display:flex;gap:7px;flex-wrap:wrap}
 .badge{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;background:#e8eee9}
-.pending{background:#fff1cf;color:#805900}
-.approved{background:#e0f3e5;color:#176b36}
-.rejected{background:#fbe5e5;color:#9b2525}
-.present{background:#e0f3e5;color:#176b36}
-.absent{background:#fbe5e5;color:#9b2525}
+.pending,.draft{background:#fff1cf;color:#805900}
+.approved,.present,.published{background:#e0f3e5;color:#176b36}
+.rejected,.absent{background:#fbe5e5;color:#9b2525}
 .late{background:#fff1cf;color:#805900}
-.draft{background:#fff1cf;color:#805900}
-.published{background:#e0f3e5;color:#176b36}
 .muted{color:#6c7b73}
 .empty{text-align:center;padding:25px;color:#718078}
 .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:15px 0}
@@ -67,7 +63,6 @@ th{background:#f0f5f1;color:#244638}
 .announcement-body{white-space:pre-wrap;line-height:1.7}
 footer{text-align:center;padding:25px;color:#718078}
 [dir="rtl"] th,[dir="rtl"] td{text-align:right}
-[dir="rtl"] .actions{flex-direction:row}
 @media(max-width:600px){
  header h1{font-size:19px}
  main{margin:15px auto}
@@ -111,13 +106,13 @@ footer{text-align:center;padding:25px;color:#718078}
     </div>
 
     <nav class="tabs">
-      <button class="active" onclick="showTab('overview',this)" data-en="Overview" data-ar="الرئيسية">Overview</button>
-      <button onclick="showTab('courses',this)" data-en="Courses" data-ar="المقررات">Courses</button>
-      <button onclick="showTab('users',this)" data-en="Users" data-ar="المستخدمون">Users</button>
-      <button onclick="showTab('enrolments',this)" data-en="Enrolments" data-ar="التسجيلات">Enrolments</button>
-      <button onclick="showTab('students',this)" data-en="Student Records" data-ar="سجلات الطلاب">Student Records</button>
-      <button onclick="showTab('attendance',this)" data-en="Attendance Records" data-ar="سجلات الحضور">Attendance Records</button>
-      <button onclick="showTab('announcements',this)" data-en="Announcements" data-ar="الإعلانات">Announcements</button>
+      <button class="active" data-tab="overview" onclick="showTab('overview',this)" data-en="Overview" data-ar="الرئيسية">Overview</button>
+      <button data-tab="courses" onclick="showTab('courses',this)" data-en="Courses" data-ar="المقررات">Courses</button>
+      <button data-tab="users" onclick="showTab('users',this)" data-en="Users" data-ar="المستخدمون">Users</button>
+      <button data-tab="enrolments" onclick="showTab('enrolments',this)" data-en="Enrolments" data-ar="التسجيلات">Enrolments</button>
+      <button data-tab="students" onclick="showTab('students',this)" data-en="Student Records" data-ar="سجلات الطلاب">Student Records</button>
+      <button data-tab="attendance" onclick="showTab('attendance',this)" data-en="Attendance Records" data-ar="سجلات الحضور">Attendance Records</button>
+      <button data-tab="announcements" onclick="showTab('announcements',this)" data-en="Announcements" data-ar="الإعلانات">Announcements</button>
     </nav>
 
     <section id="overview" class="section active">
@@ -136,20 +131,20 @@ footer{text-align:center;padding:25px;color:#718078}
         <form id="courseForm">
           <div class="form-grid">
             <div>
-              <label for="titleEn" data-en="Course Title (English)" data-ar="عنوان المقرر بالإنجليزية">Course Title (English)</label>
-              <input id="titleEn" required>
+              <label for="courseTitleEn" data-en="Course Title (English)" data-ar="عنوان المقرر بالإنجليزية">Course Title (English)</label>
+              <input id="courseTitleEn" required>
             </div>
             <div>
-              <label for="titleAr" data-en="Course Title (Arabic)" data-ar="عنوان المقرر بالعربية">Course Title (Arabic)</label>
-              <input id="titleAr" required>
+              <label for="courseTitleAr" data-en="Course Title (Arabic)" data-ar="عنوان المقرر بالعربية">Course Title (Arabic)</label>
+              <input id="courseTitleAr" required>
             </div>
             <div>
-              <label for="department" data-en="Department" data-ar="القسم">Department</label>
-              <select id="department" required></select>
+              <label for="courseDepartment" data-en="Department" data-ar="القسم">Department</label>
+              <select id="courseDepartment" required></select>
             </div>
             <div>
-              <label for="teacher" data-en="Assign Teacher" data-ar="تعيين معلم">Assign Teacher</label>
-              <select id="teacher"><option value="">No teacher assigned</option></select>
+              <label for="courseTeacher" data-en="Assign Teacher" data-ar="تعيين معلم">Assign Teacher</label>
+              <select id="courseTeacher" required></select>
             </div>
             <div>
               <label for="courseStatus" data-en="Course Status" data-ar="حالة المقرر">Course Status</label>
@@ -159,8 +154,8 @@ footer{text-align:center;padding:25px;color:#718078}
               </select>
             </div>
           </div>
-          <label for="description" data-en="Course Description" data-ar="وصف المقرر">Course Description</label>
-          <textarea id="description"></textarea>
+          <label for="courseDescription" data-en="Course Description" data-ar="وصف المقرر">Course Description</label>
+          <textarea id="courseDescription"></textarea>
           <div class="form-actions">
             <button class="primary" type="submit" data-en="Create Course" data-ar="إنشاء المقرر">Create Course</button>
           </div>
@@ -176,6 +171,7 @@ footer{text-align:center;padding:25px;color:#718078}
               <th data-en="Department" data-ar="القسم">القسم</th>
               <th data-en="Teacher" data-ar="المعلم">المعلم</th>
               <th data-en="Status" data-ar="الحالة">الحالة</th>
+              <th data-en="Created" data-ar="تاريخ الإنشاء">Created</th>
             </tr></thead>
             <tbody id="courseRows"></tbody>
           </table>
@@ -191,7 +187,8 @@ footer{text-align:center;padding:25px;color:#718078}
             <thead><tr>
               <th data-en="Name" data-ar="الاسم">Name</th>
               <th data-en="Email" data-ar="البريد الإلكتروني">Email</th>
-              <th data-en="Role" data-ar="الدور">Role</th>
+              <th data-en="Current Role" data-ar="الدور الحالي">Current Role</th>
+              <th data-en="New Role" data-ar="الدور الجديد">New Role</th>
               <th data-en="Action" data-ar="الإجراء">Action</th>
             </tr></thead>
             <tbody id="userRows"></tbody>
@@ -208,8 +205,9 @@ footer{text-align:center;padding:25px;color:#718078}
             <thead><tr>
               <th data-en="Student" data-ar="الطالب">Student</th>
               <th data-en="Course" data-ar="المقرر">Course</th>
-              <th data-en="Status" data-ar="الحالة">Status</th>
-              <th data-en="Actions" data-ar="الإجراءات">Actions</th>
+              <th data-en="Current Status" data-ar="الحالة الحالية">Current Status</th>
+              <th data-en="New Status" data-ar="الحالة الجديدة">New Status</th>
+              <th data-en="Action" data-ar="الإجراء">Action</th>
             </tr></thead>
             <tbody id="enrolmentRows"></tbody>
           </table>
@@ -220,7 +218,7 @@ footer{text-align:center;padding:25px;color:#718078}
     <section id="students" class="section">
       <div class="panel">
         <h2 data-en="Student Records" data-ar="سجلات الطلاب">Student Records</h2>
-        <input id="studentSearch" placeholder="Search by student name or course..." oninput="renderStudentRecords()">
+        <input id="studentSearch" placeholder="Search by student name..." oninput="renderStudentRecords()">
         <p id="studentRecordSummary" class="muted"></p>
         <div class="table-wrap">
           <table>
@@ -249,15 +247,15 @@ footer{text-align:center;padding:25px;color:#718078}
     <section id="attendance" class="section">
       <div class="panel">
         <h2 data-en="Attendance Records" data-ar="سجلات الحضور">Attendance Records</h2>
-        <p class="muted" data-en="View attendance recorded by teachers for enrolled students."
-           data-ar="عرض سجلات حضور الطلاب التي سجلها المعلمون.">
-           View attendance recorded by teachers for enrolled students.
+        <p class="muted" data-en="View attendance recorded by teachers."
+           data-ar="عرض سجلات الحضور التي سجلها المعلمون.">
+           View attendance recorded by teachers.
         </p>
 
         <div class="filter-grid">
           <div>
             <label for="attendanceSearch" data-en="Search Student" data-ar="البحث عن طالب">Search Student</label>
-            <input id="attendanceSearch" placeholder="Student name or email">
+            <input id="attendanceSearch" placeholder="Student name">
           </div>
           <div>
             <label for="attendanceCourse" data-en="Course" data-ar="المقرر">Course</label>
@@ -320,7 +318,6 @@ footer{text-align:center;padding:25px;color:#718078}
 
         <form id="announcementForm">
           <input type="hidden" id="announcementId">
-
           <div class="form-grid">
             <div>
               <label for="announcementTitleEn" data-en="Title (English)" data-ar="العنوان بالإنجليزية">Title (English)</label>
@@ -371,7 +368,7 @@ footer{text-align:center;padding:25px;color:#718078}
 "use strict";
 
 const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
-const SUPABASE_KEY = "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
+const SUPABASE_KEY = "sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGU";
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = id => document.getElementById(id);
@@ -396,14 +393,13 @@ function showMessage(message, type = "success") {
 
     box.textContent = message;
     box.className = "message " + type;
-    box.style.display = "block";
+    box.classList.remove("hidden");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function hideMessage() {
-    const box = $("message");
-    if (box) box.style.display = "none";
+    $("message")?.classList.add("hidden");
 }
 
 function escapeHTML(value) {
@@ -434,8 +430,8 @@ function getStudentEmail(id) {
 }
 
 function statusBadge(status) {
-    const safeStatus = escapeHTML(status || "unknown");
-    return `<span class="badge">${safeStatus}</span>`;
+    const safe = escapeHTML(status || "unknown");
+    return `<span class="badge ${safe}">${safe}</span>`;
 }
 
 function applyLanguage() {
@@ -443,17 +439,10 @@ function applyLanguage() {
     document.documentElement.dir = currentLanguage === "ar" ? "rtl" : "ltr";
 
     document.querySelectorAll("[data-en][data-ar]").forEach(element => {
-        element.textContent =
-            currentLanguage === "ar"
-                ? element.dataset.ar
-                : element.dataset.en;
+        element.textContent = currentLanguage === "ar"
+            ? element.dataset.ar
+            : element.dataset.en;
     });
-
-    const languageButton = $("languageButton");
-    if (languageButton) {
-        languageButton.textContent =
-            currentLanguage === "ar" ? "English" : "العربية";
-    }
 
     renderOverview();
     renderCourses();
@@ -469,30 +458,20 @@ function toggleLanguage() {
     applyLanguage();
 }
 
-function showTab(tabId) {
-    document.querySelectorAll(".tab-content").forEach(section => {
-        section.style.display = "none";
+function showTab(tabId, button) {
+    document.querySelectorAll(".section").forEach(section => {
+        section.classList.remove("active");
     });
 
-    document.querySelectorAll(".nav-button").forEach(button => {
-        button.classList.remove("active");
+    document.querySelectorAll(".tabs button").forEach(item => {
+        item.classList.remove("active");
     });
 
-    const section = $(tabId);
-    if (section) section.style.display = "block";
+    $(tabId)?.classList.add("active");
+    button?.classList.add("active");
 
-    const button = document.querySelector(
-        `[data-tab="${tabId}"]`
-    );
-    if (button) button.classList.add("active");
-
-    if (tabId === "attendance") {
-        loadAttendanceRecords();
-    }
-
-    if (tabId === "announcements") {
-        loadAnnouncements();
-    }
+    if (tabId === "attendance") loadAttendanceRecords();
+    if (tabId === "announcements") loadAnnouncements();
 }
 
 async function logout() {
@@ -503,106 +482,119 @@ async function logout() {
         return;
     }
 
-    window.location.reload();
+    window.location.href = "login.html";
 }
 
 async function start() {
     hideMessage();
 
-    const {
-        data: { session },
-        error
-    } = await db.auth.getSession();
+    try {
+        const {
+            data: { session },
+            error
+        } = await db.auth.getSession();
 
-    if (error || !session) {
-        window.location.href = "login.html";
-        return;
+        if (error) throw error;
+
+        if (!session) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        currentUser = session.user;
+
+        const { data: profile, error: profileError } = await db
+            .from("profiles")
+            .select("id, full_name, role, created_at")
+            .eq("id", currentUser.id)
+            .single();
+
+        if (profileError) throw profileError;
+
+        if (!profile || profile.role !== "admin") {
+            document.body.innerHTML = `
+                <main>
+                    <div class="panel">
+                        <h2>${tr("Access denied", "تم رفض الوصول")}</h2>
+                        <p>${tr(
+                            "This page is only available to academy administrators.",
+                            "هذه الصفحة متاحة لمسؤولي الأكاديمية فقط."
+                        )}</p>
+                        <button class="danger" onclick="logout()">
+                            ${tr("Sign out", "تسجيل الخروج")}
+                        </button>
+                    </div>
+                </main>`;
+            return;
+        }
+
+        $("welcome").textContent = profile.full_name || "Administrator";
+
+        // Important: remove hidden instead of changing display.
+        $("dashboard")?.classList.remove("hidden");
+
+        await loadDashboard();
+
+        showTab("overview", document.querySelector('[data-tab="overview"]'));
+
+    } catch (error) {
+        showMessage(
+            tr("Dashboard error: ", "خطأ في لوحة التحكم: ") +
+            (error.message || String(error)),
+            "error"
+        );
     }
-
-    currentUser = session.user;
-
-    const { data: profile, error: profileError } = await db
-        .from("profiles")
-        .select("id, full_name, role, created_at")
-        .eq("id", currentUser.id)
-        .single();
-
-    if (profileError || !profile || profile.role !== "admin") {
-        document.body.innerHTML = `
-            <main class="container">
-                <h2>${tr("Access denied", "تم رفض الوصول")}</h2>
-                <p>${tr(
-                    "This page is only available to academy administrators.",
-                    "هذه الصفحة متاحة لمسؤولي الأكاديمية فقط."
-                )}</p>
-                <button onclick="logout()">
-                    ${tr("Sign out", "تسجيل الخروج")}
-                </button>
-            </main>
-        `;
-        return;
-    }
-
-    const dashboard = $("dashboard");
-    if (dashboard) dashboard.style.display = "block";
-
-    await loadDashboard();
-    showTab("overview");
 }
 
 async function loadDashboard() {
     hideMessage();
 
-    const results = await Promise.all([
-        db.from("profiles")
-            .select("id, full_name, role, created_at")
-            .order("created_at", { ascending: false }),
+    try {
+        const results = await Promise.all([
+            db.from("profiles")
+                .select("id, full_name, role, created_at")
+                .order("created_at", { ascending: false }),
 
-        db.from("courses")
-            .select("id, department_id, teacher_id, title_ar, title_en, description, status, created_at")
-            .order("created_at", { ascending: false }),
+            db.from("courses")
+                .select("id, department_id, teacher_id, title_ar, title_en, description, status, created_at")
+                .order("created_at", { ascending: false }),
 
-        db.from("departments")
-            .select("*"),
+            db.from("departments").select("*"),
 
-        db.from("enrollments")
-            .select("id, course_id, student_id, status, created_at")
-            .order("created_at", { ascending: false }),
+            db.from("enrollments")
+                .select("id, course_id, student_id, status, created_at")
+                .order("created_at", { ascending: false }),
 
-        db.from("student_contact_details")
-            .select("*")
-    ]);
+            db.from("student_contact_details").select("*")
+        ]);
 
-    const [
-        profileResult,
-        courseResult,
-        departmentResult,
-        enrolmentResult,
-        contactResult
-    ] = results;
+        const errorResult = results.find(result => result.error);
 
-    const firstError = results.find(result => result.error)?.error;
+        if (errorResult) throw errorResult.error;
 
-    if (firstError) {
-        showMessage(firstError.message, "error");
-        return;
+        profiles = results[0].data || [];
+        courses = results[1].data || [];
+        departments = results[2].data || [];
+        enrolments = results[3].data || [];
+        studentContacts = results[4].data || [];
+
+        renderOverview();
+        fillCourseOptions();
+        renderCourses();
+        renderUsers();
+        renderEnrolments();
+        renderStudentRecords();
+
+        await loadAttendanceRecords();
+        await loadAnnouncements();
+
+    } catch (error) {
+        showMessage(
+            tr("Unable to load dashboard data: ", "تعذر تحميل بيانات لوحة التحكم: ") +
+            (error.message || String(error)),
+            "error"
+        );
     }
-
-    profiles = profileResult.data || [];
-    courses = courseResult.data || [];
-    departments = departmentResult.data || [];
-    enrolments = enrolmentResult.data || [];
-    studentContacts = contactResult.data || [];
-
-    renderOverview();
-    fillCourseOptions();
-    renderCourses();
-    renderUsers();
-    renderEnrolments();
-    renderStudentRecords();
-
-    await loadAttendanceRecords();
-    await loadAnnouncements();
 }
 
 function renderOverview() {
@@ -610,10 +602,10 @@ function renderOverview() {
     const teachers = profiles.filter(p => p.role === "teacher").length;
     const pending = enrolments.filter(e => e.status === "pending").length;
 
-    if ($("studentCount")) $("studentCount").textContent = students;
-    if ($("teacherCount")) $("teacherCount").textContent = teachers;
-    if ($("courseCount")) $("courseCount").textContent = courses.length;
-    if ($("pendingCount")) $("pendingCount").textContent = pending;
+    $("studentCount").textContent = students;
+    $("teacherCount").textContent = teachers;
+    $("courseCount").textContent = courses.length;
+    $("pendingCount").textContent = pending;
 }
 
 function fillCourseOptions() {
@@ -631,8 +623,7 @@ function fillCourseOptions() {
                     <option value="${escapeHTML(p.id)}">
                         ${escapeHTML(p.full_name || "Unnamed teacher")}
                     </option>
-                `)
-                .join("");
+                `).join("");
 
         teacherSelect.value = selected;
     }
@@ -642,16 +633,20 @@ function fillCourseOptions() {
 
         departmentSelect.innerHTML =
             `<option value="">${tr("Select department", "اختر القسم")}</option>` +
-            departments.map(department => `
-                <option value="${escapeHTML(department.id)}">
-                    ${escapeHTML(
-                        department.name_en ||
-                        department.name_ar ||
-                        department.title ||
-                        department.id
-                    )}
-                </option>
-            `).join("");
+            departments.map(department => {
+                const name =
+                    department.name_en ||
+                    department.name_ar ||
+                    department.title_en ||
+                    department.title_ar ||
+                    department.title ||
+                    department.id;
+
+                return `
+                    <option value="${escapeHTML(department.id)}">
+                        ${escapeHTML(name)}
+                    </option>`;
+            }).join("");
 
         departmentSelect.value = selected;
     }
@@ -663,7 +658,7 @@ function renderCourses() {
 
     if (!courses.length) {
         container.innerHTML = `
-            <tr><td colspan="5">
+            <tr><td colspan="5" class="empty">
                 ${tr("No courses found.", "لا توجد مقررات.")}
             </td></tr>`;
         return;
@@ -671,32 +666,32 @@ function renderCourses() {
 
     container.innerHTML = courses.map(course => {
         const teacher = getProfile(course.teacher_id);
-        const department = departments.find(
-            d => d.id === course.department_id
-        );
+        const department = departments.find(d => d.id === course.department_id);
 
         const title = currentLanguage === "ar"
             ? course.title_ar
             : course.title_en;
 
+        const departmentName =
+            department?.name_en ||
+            department?.name_ar ||
+            department?.title_en ||
+            department?.title_ar ||
+            department?.title ||
+            "—";
+
         return `
             <tr>
-                <td>${escapeHTML(title || course.title_en || course.title_ar || "")}</td>
-                <td>${escapeHTML(
-                    department?.name_en ||
-                    department?.name_ar ||
-                    department?.title ||
-                    ""
-                )}</td>
+                <td>${escapeHTML(title || course.title_en || course.title_ar || "—")}</td>
+                <td>${escapeHTML(departmentName)}</td>
                 <td>${escapeHTML(teacher?.full_name || "—")}</td>
                 <td>${statusBadge(course.status)}</td>
                 <td>${escapeHTML(
                     course.created_at
                         ? new Date(course.created_at).toLocaleDateString()
-                        : ""
+                        : "—"
                 )}</td>
-            </tr>
-        `;
+            </tr>`;
     }).join("");
 }
 
@@ -706,7 +701,7 @@ function renderUsers() {
 
     if (!profiles.length) {
         container.innerHTML = `
-            <tr><td colspan="5">
+            <tr><td colspan="5" class="empty">
                 ${tr("No users found.", "لا يوجد مستخدمون.")}
             </td></tr>`;
         return;
@@ -724,7 +719,7 @@ function renderUsers() {
                 <td>
                     ${
                         isAdmin
-                            ? `<span class="badge">${tr("Protected admin", "مسؤول محمي")}</span>`
+                            ? `<span class="badge">${tr("Protected", "محمي")}</span>`
                             : `
                                 <select id="role-${escapeHTML(profile.id)}"
                                     ${isCurrentUser ? "disabled" : ""}>
@@ -736,45 +731,36 @@ function renderUsers() {
                                         ${profile.role === "teacher" ? "selected" : ""}>
                                         ${tr("Teacher", "معلم")}
                                     </option>
-                                </select>
-                            `
+                                </select>`
                     }
                 </td>
                 <td>
                     ${
                         isAdmin || isCurrentUser
                             ? "—"
-                            : `
-                                <button type="button"
-                                    onclick="changeRole('${escapeHTML(profile.id)}')">
-                                    ${tr("Save role", "حفظ الدور")}
-                                </button>
-                            `
+                            : `<button type="button"
+                                onclick="changeRole('${escapeHTML(profile.id)}')">
+                                ${tr("Save", "حفظ")}
+                               </button>`
                     }
                 </td>
-            </tr>
-        `;
+            </tr>`;
     }).join("");
 }
 
 async function changeRole(userId) {
     const select = $("role-" + userId);
-    if (!select) return;
+    const profile = getProfile(userId);
+
+    if (!select || !profile || profile.role === "admin") return;
 
     const newRole = select.value;
 
     if (!["student", "teacher"].includes(newRole)) return;
 
-    const profile = getProfile(userId);
-
-    if (!profile || profile.role === "admin") return;
-
     if (userId === currentUser.id) {
         showMessage(
-            tr(
-                "You cannot change your own role.",
-                "لا يمكنك تغيير دورك بنفسك."
-            ),
+            tr("You cannot change your own role.", "لا يمكنك تغيير دورك بنفسك."),
             "error"
         );
         return;
@@ -782,18 +768,15 @@ async function changeRole(userId) {
 
     if (profile.role === newRole) {
         showMessage(
-            tr(
-                "This user already has that role.",
-                "هذا المستخدم لديه هذا الدور بالفعل."
-            )
+            tr("This user already has that role.", "هذا المستخدم لديه هذا الدور بالفعل.")
         );
         return;
     }
 
     const confirmed = confirm(
         tr(
-            `Are you sure you want to change ${profile.full_name || "this user's"} role to ${newRole}?`,
-            `هل أنت متأكد من تغيير دور هذا المستخدم إلى ${newRole === "teacher" ? "معلم" : "طالب"}؟`
+            `Change ${profile.full_name || "this user's"} role to ${newRole}?`,
+            `هل تريد تغيير دور هذا المستخدم إلى ${newRole === "teacher" ? "معلم" : "طالب"}؟`
         )
     );
 
@@ -804,34 +787,33 @@ async function changeRole(userId) {
 
     select.disabled = true;
 
-    const { error } = await db.rpc(
-        "academy_admin_change_user_role",
-        {
-            p_user_id: userId,
-            p_new_role: newRole
-        }
-    );
+    try {
+        const { error } = await db.rpc(
+            "academy_admin_change_user_role",
+            {
+                p_user_id: userId,
+                p_new_role: newRole
+            }
+        );
 
-    select.disabled = false;
+        if (error) throw error;
 
-    if (error) {
+        profile.role = newRole;
+
+        renderUsers();
+        renderOverview();
+        fillCourseOptions();
+
+        showMessage(
+            tr("User role updated successfully.", "تم تحديث دور المستخدم بنجاح.")
+        );
+
+    } catch (error) {
         select.value = profile.role;
-        showMessage(error.message, "error");
-        return;
+        showMessage(error.message || String(error), "error");
+    } finally {
+        select.disabled = false;
     }
-
-    profile.role = newRole;
-
-    renderUsers();
-    renderOverview();
-    fillCourseOptions();
-
-    showMessage(
-        tr(
-            "User role updated successfully.",
-            "تم تحديث دور المستخدم بنجاح."
-        )
-    );
 }
 
 function renderEnrolments() {
@@ -840,7 +822,7 @@ function renderEnrolments() {
 
     if (!enrolments.length) {
         container.innerHTML = `
-            <tr><td colspan="5">
+            <tr><td colspan="5" class="empty">
                 ${tr("No enrolments found.", "لا توجد تسجيلات.")}
             </td></tr>`;
         return;
@@ -850,26 +832,20 @@ function renderEnrolments() {
         const student = getProfile(enrolment.student_id);
         const course = getCourse(enrolment.course_id);
 
-        const courseTitle = currentLanguage === "ar"
+        const title = currentLanguage === "ar"
             ? course?.title_ar
             : course?.title_en;
 
         return `
             <tr>
                 <td>${escapeHTML(student?.full_name || "—")}</td>
-                <td>${escapeHTML(courseTitle || course?.title_en || course?.title_ar || "—")}</td>
+                <td>${escapeHTML(title || course?.title_en || course?.title_ar || "—")}</td>
                 <td>${statusBadge(enrolment.status)}</td>
                 <td>
                     <select id="enrolment-${escapeHTML(enrolment.id)}">
-                        <option value="pending" ${enrolment.status === "pending" ? "selected" : ""}>
-                            ${tr("Pending", "قيد الانتظار")}
-                        </option>
-                        <option value="approved" ${enrolment.status === "approved" ? "selected" : ""}>
-                            ${tr("Approved", "مقبول")}
-                        </option>
-                        <option value="rejected" ${enrolment.status === "rejected" ? "selected" : ""}>
-                            ${tr("Rejected", "مرفوض")}
-                        </option>
+                        <option value="pending" ${enrolment.status === "pending" ? "selected" : ""}>Pending</option>
+                        <option value="approved" ${enrolment.status === "approved" ? "selected" : ""}>Approved</option>
+                        <option value="rejected" ${enrolment.status === "rejected" ? "selected" : ""}>Rejected</option>
                     </select>
                 </td>
                 <td>
@@ -878,8 +854,7 @@ function renderEnrolments() {
                         ${tr("Update", "تحديث")}
                     </button>
                 </td>
-            </tr>
-        `;
+            </tr>`;
     }).join("");
 }
 
@@ -889,18 +864,12 @@ async function updateEnrolment(enrolmentId) {
 
     const newStatus = select.value;
 
-    if (!["pending", "approved", "rejected"].includes(newStatus)) {
-        return;
-    }
+    if (!["pending", "approved", "rejected"].includes(newStatus)) return;
 
-    const confirmed = confirm(
-        tr(
-            "Are you sure you want to update this enrolment?",
-            "هل أنت متأكد من تحديث حالة التسجيل؟"
-        )
-    );
-
-    if (!confirmed) return;
+    if (!confirm(tr(
+        "Are you sure you want to update this enrolment?",
+        "هل أنت متأكد من تحديث حالة التسجيل؟"
+    ))) return;
 
     const { error } = await db
         .from("enrollments")
@@ -923,104 +892,20 @@ async function updateEnrolment(enrolmentId) {
     );
 }
 
-function renderStudentRecords() {
-    const container = $("studentRows");
-    if (!container) return;
-
-    const students = profiles.filter(p => p.role === "student");
-
-    if (!students.length) {
-        container.innerHTML = `
-            <tr><td colspan="4">
-                ${tr("No student records found.", "لا توجد سجلات للطلاب.")}
-            </td></tr>`;
-        return;
-    }
-
-    container.innerHTML = students.map(student => {
-        const studentEnrolments = enrolments.filter(
-            e => e.student_id === student.id
-        );
-
-        return `
-            <tr>
-                <td>${escapeHTML(student.full_name || "—")}</td>
-                <td>${escapeHTML(getStudentEmail(student.id) || "—")}</td>
-                <td>${studentEnrolments.length}</td>
-                <td>
-                    <button type="button"
-                        onclick="viewStudentDetails('${escapeHTML(student.id)}')">
-                        ${tr("View details", "عرض التفاصيل")}
-                    </button>
-                </td>
-            </tr>
-        `;
-    }).join("");
-}
-
-function viewStudentDetails(studentId) {
-    const student = getProfile(studentId);
-    if (!student) return;
-
-    const studentEnrolments = enrolments.filter(
-        e => e.student_id === studentId
-    );
-
-    const details = studentEnrolments.map(enrolment => {
-        const course = getCourse(enrolment.course_id);
-        const title = currentLanguage === "ar"
-            ? course?.title_ar
-            : course?.title_en;
-
-        return `
-            <li>
-                ${escapeHTML(title || course?.title_en || course?.title_ar || "—")}
-                — ${escapeHTML(enrolment.status)}
-            </li>
-        `;
-    }).join("");
-
-    const modal = $("studentDetails");
-    const content = $("studentDetailsContent");
-
-    if (modal && content) {
-        content.innerHTML = `
-            <h3>${escapeHTML(student.full_name || "")}</h3>
-            <p>${escapeHTML(getStudentEmail(studentId) || "")}</p>
-            <h4>${tr("Enrolled courses", "المقررات المسجل بها")}</h4>
-            <ul>${details || `<li>${tr("No enrolments.", "لا توجد تسجيلات.")}</li>`}</ul>
-        `;
-        modal.style.display = "block";
-        return;
-    }
-
-    showMessage(
-        `${student.full_name || ""}: ${studentEnrolments.length} ` +
-        tr("enrolments", "تسجيلات")
-    );
-}
-
-function closeStudentDetails() {
-    const modal = $("studentDetails");
-    if (modal) modal.style.display = "none";
-}
-
 async function createCourse(event) {
     event.preventDefault();
     hideMessage();
 
-    const titleEn = $("courseTitleEn")?.value.trim();
-    const titleAr = $("courseTitleAr")?.value.trim();
-    const departmentId = $("courseDepartment")?.value;
-    const teacherId = $("courseTeacher")?.value;
-    const description = $("courseDescription")?.value.trim();
+    const titleEn = $("courseTitleEn").value.trim();
+    const titleAr = $("courseTitleAr").value.trim();
+    const departmentId = $("courseDepartment").value;
+    const teacherId = $("courseTeacher").value;
+    const description = $("courseDescription").value.trim();
+    const status = $("courseStatus").value;
 
     if (!titleEn || !titleAr || !departmentId || !teacherId) {
         showMessage(
-            tr(
-                "Please complete all required course fields.",
-                "يرجى إكمال جميع حقول المقرر المطلوبة."
-            ),
+            tr("Please complete all required fields.", "يرجى إكمال جميع الحقول المطلوبة."),
             "error"
         );
         return;
@@ -1032,7 +917,7 @@ async function createCourse(event) {
         department_id: departmentId,
         teacher_id: teacherId,
         description: description || null,
-        status: "published"
+        status: status
     });
 
     if (error) {
@@ -1041,7 +926,6 @@ async function createCourse(event) {
     }
 
     $("courseForm").reset();
-
     await loadDashboard();
 
     showMessage(
@@ -1054,6 +938,98 @@ $("courseForm").addEventListener("submit", createCourse);
  
 <script>
 /* =========================
+   STUDENT RECORDS
+========================= */
+
+function renderStudentRecords() {
+    const container = $("studentRows");
+    if (!container) return;
+
+    const search = ($("studentSearch")?.value || "").trim().toLowerCase();
+
+    const students = profiles.filter(profile =>
+        profile.role === "student" &&
+        (profile.full_name || "").toLowerCase().includes(search)
+    );
+
+    $("studentRecordSummary").textContent =
+        `${students.length} ${tr("students found", "طالباً")}`;
+
+    if (!students.length) {
+        container.innerHTML = `
+            <tr><td colspan="6" class="empty">
+                ${tr("No students found.", "لم يتم العثور على طلاب.")}
+            </td></tr>`;
+        return;
+    }
+
+    container.innerHTML = students.map(student => {
+        const records = enrolments.filter(e => e.student_id === student.id);
+        const approved = records.filter(e => e.status === "approved").length;
+        const pending = records.filter(e => e.status === "pending").length;
+        const rejected = records.filter(e => e.status === "rejected").length;
+
+        return `
+            <tr>
+                <td>${escapeHTML(student.full_name || "—")}</td>
+                <td>${records.length}</td>
+                <td>${approved}</td>
+                <td>${pending}</td>
+                <td>${rejected}</td>
+                <td>
+                    <button type="button"
+                        onclick="viewStudentDetails('${escapeHTML(student.id)}')">
+                        ${tr("View", "عرض")}
+                    </button>
+                </td>
+            </tr>`;
+    }).join("");
+}
+
+function viewStudentDetails(studentId) {
+    const student = getProfile(studentId);
+    if (!student) return;
+
+    const records = enrolments.filter(e => e.student_id === studentId);
+
+    const rows = records.map(record => {
+        const course = getCourse(record.course_id);
+        const title = currentLanguage === "ar"
+            ? course?.title_ar
+            : course?.title_en;
+
+        return `
+            <tr>
+                <td>${escapeHTML(title || course?.title_en || course?.title_ar || "—")}</td>
+                <td>${statusBadge(record.status)}</td>
+            </tr>`;
+    }).join("");
+
+    $("studentDetailsContent").innerHTML = `
+        <h3>${escapeHTML(student.full_name || "")}</h3>
+        <p>${escapeHTML(getStudentEmail(studentId) || "")}</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>${tr("Course", "المقرر")}</th>
+                        <th>${tr("Status", "الحالة")}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows || `<tr><td colspan="2">${tr("No enrolments.", "لا توجد تسجيلات.")}</td></tr>`}
+                </tbody>
+            </table>
+        </div>`;
+
+    $("studentDetails").classList.remove("hidden");
+}
+
+function closeStudentDetails() {
+    $("studentDetails")?.classList.add("hidden");
+}
+
+/* =========================
    ATTENDANCE RECORDS
 ========================= */
 
@@ -1062,41 +1038,32 @@ async function loadAttendanceRecords() {
         .from("attendance")
         .select("id,student_id,course_id,attendance_date,status,remarks,marked_by,created_at")
         .order("attendance_date", { ascending: false })
-        .order("created_at", { ascending: false })
         .limit(1000);
 
     if (error) {
-        if ($("attendanceMessage")) {
-            $("attendanceMessage").textContent = error.message;
-        } else {
-            showMessage(error.message, "error");
-        }
+        $("attendanceMessage").textContent = error.message;
         return;
     }
 
     attendanceRecords = data || [];
 
     const courseFilter = $("attendanceCourse");
+    const selected = courseFilter.value;
 
-    if (courseFilter) {
-        const selected = courseFilter.value;
+    courseFilter.innerHTML =
+        `<option value="">${tr("All courses", "جميع المقررات")}</option>` +
+        courses.map(course => {
+            const title = currentLanguage === "ar"
+                ? course.title_ar
+                : course.title_en;
 
-        courseFilter.innerHTML =
-            `<option value="">${tr("All courses", "جميع المقررات")}</option>` +
-            courses.map(course => {
-                const title = currentLanguage === "ar"
-                    ? course.title_ar
-                    : course.title_en;
+            return `
+                <option value="${escapeHTML(course.id)}">
+                    ${escapeHTML(title || course.title_en || course.title_ar || "")}
+                </option>`;
+        }).join("");
 
-                return `
-                    <option value="${escapeHTML(course.id)}">
-                        ${escapeHTML(title || course.title_en || course.title_ar || "")}
-                    </option>
-                `;
-            }).join("");
-
-        courseFilter.value = selected;
-    }
+    courseFilter.value = selected;
 
     renderAttendanceRecords();
 }
@@ -1105,75 +1072,52 @@ function renderAttendanceRecords() {
     const container = $("attendanceRows");
     if (!container) return;
 
-    const search = ($("attendanceSearch")?.value || "")
-        .trim()
-        .toLowerCase();
-
-    const selectedCourse = $("attendanceCourse")?.value || "";
-    const selectedDate = $("attendanceDate")?.value || "";
-    const selectedStatus = $("attendanceStatus")?.value || "";
+    const search = ($("attendanceSearch").value || "").toLowerCase().trim();
+    const courseId = $("attendanceCourse").value;
+    const date = $("attendanceDate").value;
+    const status = $("attendanceStatus").value;
 
     const filtered = attendanceRecords.filter(record => {
         const student = getProfile(record.student_id);
         const course = getCourse(record.course_id);
 
         const studentName = (student?.full_name || "").toLowerCase();
-        const courseTitle = (
-            course?.title_en ||
-            course?.title_ar ||
-            ""
+        const courseName = (
+            course?.title_en || course?.title_ar || ""
         ).toLowerCase();
 
-        const matchesSearch =
-            !search ||
-            studentName.includes(search) ||
-            courseTitle.includes(search);
-
-        const matchesCourse =
-            !selectedCourse || record.course_id === selectedCourse;
-
-        const matchesDate =
-            !selectedDate || record.attendance_date === selectedDate;
-
-        const matchesStatus =
-            !selectedStatus || record.status === selectedStatus;
-
         return (
-            matchesSearch &&
-            matchesCourse &&
-            matchesDate &&
-            matchesStatus
+            (!search || studentName.includes(search) || courseName.includes(search)) &&
+            (!courseId || record.course_id === courseId) &&
+            (!date || record.attendance_date === date) &&
+            (!status || record.status === status)
         );
     });
 
     if (!filtered.length) {
         container.innerHTML = `
-            <tr>
-                <td colspan="6">
-                    ${tr("No attendance records found.", "لا توجد سجلات حضور.")}
-                </td>
-            </tr>
-        `;
+            <tr><td colspan="6" class="empty">
+                ${tr("No attendance records found.", "لا توجد سجلات حضور.")}
+            </td></tr>`;
     } else {
         container.innerHTML = filtered.map(record => {
             const student = getProfile(record.student_id);
             const course = getCourse(record.course_id);
             const teacher = getProfile(record.marked_by);
 
-            const courseTitle = currentLanguage === "ar"
+            const title = currentLanguage === "ar"
                 ? course?.title_ar
                 : course?.title_en;
 
             return `
                 <tr>
                     <td>${escapeHTML(student?.full_name || "—")}</td>
-                    <td>${escapeHTML(courseTitle || course?.title_en || course?.title_ar || "—")}</td>
+                    <td>${escapeHTML(title || course?.title_en || course?.title_ar || "—")}</td>
                     <td>${escapeHTML(record.attendance_date || "—")}</td>
                     <td>${statusBadge(record.status)}</td>
                     <td>${escapeHTML(teacher?.full_name || "—")}</td>
                     <td>${escapeHTML(record.remarks || "—")}</td>
-                </tr>
-            `;
+                </tr>`;
         }).join("");
     }
 
@@ -1181,112 +1125,28 @@ function renderAttendanceRecords() {
 }
 
 function updateAttendanceStats(records) {
-    const present = records.filter(r => r.status === "present").length;
-    const absent = records.filter(r => r.status === "absent").length;
-    const late = records.filter(r => r.status === "late").length;
+    $("attendancePresentCount").textContent =
+        records.filter(r => r.status === "present").length;
 
-    if ($("attendancePresentCount")) {
-        $("attendancePresentCount").textContent = present;
-    }
+    $("attendanceAbsentCount").textContent =
+        records.filter(r => r.status === "absent").length;
 
-    if ($("attendanceAbsentCount")) {
-        $("attendanceAbsentCount").textContent = absent;
-    }
+    $("attendanceLateCount").textContent =
+        records.filter(r => r.status === "late").length;
 
-    if ($("attendanceLateCount")) {
-        $("attendanceLateCount").textContent = late;
-    }
+    $("attendanceTotalCount").textContent = records.length;
 
-    if ($("attendanceTotalCount")) {
-        $("attendanceTotalCount").textContent = records.length;
-    }
-
-    if ($("attendanceResultCount")) {
-        $("attendanceResultCount").textContent =
-            `${records.length} ${tr("records", "سجلات")}`;
-    }
+    $("attendanceResultCount").textContent =
+        `${records.length} ${tr("records", "سجلات")}`;
 }
 
 function clearAttendanceFilters() {
-    if ($("attendanceSearch")) $("attendanceSearch").value = "";
-    if ($("attendanceCourse")) $("attendanceCourse").value = "";
-    if ($("attendanceDate")) $("attendanceDate").value = "";
-    if ($("attendanceStatus")) $("attendanceStatus").value = "";
+    $("attendanceSearch").value = "";
+    $("attendanceCourse").value = "";
+    $("attendanceDate").value = "";
+    $("attendanceStatus").value = "";
 
     renderAttendanceRecords();
-}
-
-function viewStudentAttendance(studentId) {
-    const student = getProfile(studentId);
-    if (!student) return;
-
-    const records = attendanceRecords.filter(
-        record => record.student_id === studentId
-    );
-
-    const modal = $("individualAttendance");
-
-    if (!modal) {
-        showMessage(
-            `${student.full_name || ""}: ${records.length} ` +
-            tr("attendance records", "سجلات حضور")
-        );
-        return;
-    }
-
-    const rows = records.map(record => {
-        const course = getCourse(record.course_id);
-        const courseTitle = currentLanguage === "ar"
-            ? course?.title_ar
-            : course?.title_en;
-
-        return `
-            <tr>
-                <td>${escapeHTML(courseTitle || course?.title_en || course?.title_ar || "—")}</td>
-                <td>${escapeHTML(record.attendance_date || "—")}</td>
-                <td>${statusBadge(record.status)}</td>
-                <td>${escapeHTML(record.remarks || "—")}</td>
-            </tr>
-        `;
-    }).join("");
-
-    modal.innerHTML = `
-        <div class="modal-content">
-            <button type="button" onclick="closeIndividualAttendance()">
-                ${tr("Close", "إغلاق")}
-            </button>
-            <h3>${escapeHTML(student.full_name || "")}</h3>
-            <p>${tr("Individual attendance record", "سجل حضور الطالب")}</p>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>${tr("Course", "المقرر")}</th>
-                            <th>${tr("Date", "التاريخ")}</th>
-                            <th>${tr("Status", "الحالة")}</th>
-                            <th>${tr("Remarks", "ملاحظات")}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows || `
-                            <tr>
-                                <td colspan="4">
-                                    ${tr("No records found.", "لا توجد سجلات.")}
-                                </td>
-                            </tr>
-                        `}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
-
-    modal.style.display = "block";
-}
-
-function closeIndividualAttendance() {
-    const modal = $("individualAttendance");
-    if (modal) modal.style.display = "none";
 }
 
 ["attendanceSearch", "attendanceCourse", "attendanceDate", "attendanceStatus"]
@@ -1311,11 +1171,7 @@ async function loadAnnouncements() {
         .order("created_at", { ascending: false });
 
     if (error) {
-        if ($("announcementMessage")) {
-            $("announcementMessage").textContent = error.message;
-        } else {
-            showMessage(error.message, "error");
-        }
+        $("announcementMessage").textContent = error.message;
         return;
     }
 
@@ -1329,100 +1185,72 @@ function renderAnnouncements() {
 
     if (!announcements.length) {
         container.innerHTML = `
-            <p>
+            <p class="empty">
                 ${tr("No announcements found.", "لا توجد إعلانات.")}
-            </p>
-        `;
+            </p>`;
         return;
     }
 
-    container.innerHTML = announcements.map(announcement => {
+    container.innerHTML = announcements.map(item => {
         const title = currentLanguage === "ar"
-            ? announcement.title_ar
-            : announcement.title_en;
+            ? item.title_ar
+            : item.title_en;
 
         const body = currentLanguage === "ar"
-            ? announcement.body_ar
-            : announcement.body_en;
+            ? item.body_ar
+            : item.body_en;
 
-        const isPublished = announcement.status === "published";
+        const published = item.status === "published";
 
         return `
             <article class="announcement-card">
-                <h3>${escapeHTML(title || announcement.title_en || "")}</h3>
-
-                <p>${escapeHTML(body || announcement.body_en || "")}</p>
-
+                <h3>${escapeHTML(title || "")}</h3>
+                <p class="announcement-body">${escapeHTML(body || "")}</p>
                 <p>
                     ${tr("Status", "الحالة")}:
-                    ${statusBadge(announcement.status)}
+                    ${statusBadge(item.status)}
                 </p>
-
-                <p>
-                    ${tr("Created", "تاريخ الإنشاء")}:
-                    ${escapeHTML(
-                        announcement.created_at
-                            ? new Date(announcement.created_at).toLocaleString()
-                            : "—"
-                    )}
-                </p>
-
-                <div class="button-group">
+                <div class="actions">
                     <button type="button"
-                        onclick="editAnnouncement('${escapeHTML(announcement.id)}')">
+                        onclick="editAnnouncement('${escapeHTML(item.id)}')">
                         ${tr("Edit", "تعديل")}
                     </button>
 
                     ${
-                        isPublished
-                            ? `
-                                <button type="button"
-                                    onclick="unpublishAnnouncement('${escapeHTML(announcement.id)}')">
-                                    ${tr("Unpublish", "إلغاء النشر")}
-                                </button>
-                            `
-                            : `
-                                <button type="button"
-                                    onclick="publishAnnouncement('${escapeHTML(announcement.id)}')">
-                                    ${tr("Publish", "نشر")}
-                                </button>
-                            `
+                        published
+                            ? `<button type="button"
+                                onclick="unpublishAnnouncement('${escapeHTML(item.id)}')">
+                                ${tr("Unpublish", "إلغاء النشر")}
+                               </button>`
+                            : `<button type="button"
+                                onclick="publishAnnouncement('${escapeHTML(item.id)}')">
+                                ${tr("Publish", "نشر")}
+                               </button>`
                     }
 
-                    <button type="button"
-                        onclick="deleteAnnouncement('${escapeHTML(announcement.id)}')">
+                    <button class="danger" type="button"
+                        onclick="deleteAnnouncement('${escapeHTML(item.id)}')">
                         ${tr("Delete", "حذف")}
                     </button>
                 </div>
-            </article>
-        `;
+            </article>`;
     }).join("");
 }
 
 async function saveAnnouncement(event) {
     event.preventDefault();
 
-    const id = $("announcementId")?.value || "";
-    const titleEn = $("announcementTitleEn")?.value.trim();
-    const titleAr = $("announcementTitleAr")?.value.trim();
-    const bodyEn = $("announcementBodyEn")?.value.trim();
-    const bodyAr = $("announcementBodyAr")?.value.trim();
-    const status = $("announcementStatus")?.value || "draft";
+    const id = $("announcementId").value;
+
+    const titleEn = $("announcementTitleEn").value.trim();
+    const titleAr = $("announcementTitleAr").value.trim();
+    const bodyEn = $("announcementBodyEn").value.trim();
+    const bodyAr = $("announcementBodyAr").value.trim();
+    const status = $("announcementStatus").value;
 
     if (!titleEn || !titleAr || !bodyEn || !bodyAr) {
         showMessage(
-            tr(
-                "Please complete all announcement fields.",
-                "يرجى إكمال جميع حقول الإعلان."
-            ),
-            "error"
-        );
-        return;
-    }
-
-    if (!["draft", "published"].includes(status)) {
-        showMessage(
-            tr("Invalid announcement status.", "حالة الإعلان غير صحيحة."),
+            tr("Complete all announcement fields.", "يرجى إكمال جميع حقول الإعلان."),
             "error"
         );
         return;
@@ -1433,102 +1261,81 @@ async function saveAnnouncement(event) {
         title_ar: titleAr,
         body_en: bodyEn,
         body_ar: bodyAr,
-        status: status,
-        updated_at: new Date().toISOString()
+        status: status
     };
 
-    if (status === "published") {
-        announcementData.published_at = new Date().toISOString();
-    }
-
-    let result;
-
     if (id) {
-        result = await db
+        const { error } = await db
             .from("announcements")
             .update(announcementData)
             .eq("id", id);
+
+        if (error) {
+            showMessage(error.message, "error");
+            return;
+        }
     } else {
         announcementData.created_by = currentUser.id;
 
-        result = await db
+        const { error } = await db
             .from("announcements")
             .insert(announcementData);
-    }
 
-    if (result.error) {
-        showMessage(result.error.message, "error");
-        return;
+        if (error) {
+            showMessage(error.message, "error");
+            return;
+        }
     }
 
     resetAnnouncementForm();
     await loadAnnouncements();
 
     showMessage(
-        tr(
-            id ? "Announcement updated successfully." : "Announcement saved successfully.",
-            id ? "تم تحديث الإعلان بنجاح." : "تم حفظ الإعلان بنجاح."
-        )
+        tr("Announcement saved successfully.", "تم حفظ الإعلان بنجاح.")
     );
 }
 
 function editAnnouncement(id) {
-    const announcement = announcements.find(item => item.id === id);
-    if (!announcement) return;
+    const item = announcements.find(a => a.id === id);
+    if (!item) return;
 
-    $("announcementId").value = announcement.id;
-    $("announcementTitleEn").value = announcement.title_en || "";
-    $("announcementTitleAr").value = announcement.title_ar || "";
-    $("announcementBodyEn").value = announcement.body_en || "";
-    $("announcementBodyAr").value = announcement.body_ar || "";
-    $("announcementStatus").value = announcement.status || "draft";
+    $("announcementId").value = item.id;
+    $("announcementTitleEn").value = item.title_en || "";
+    $("announcementTitleAr").value = item.title_ar || "";
+    $("announcementBodyEn").value = item.body_en || "";
+    $("announcementBodyAr").value = item.body_ar || "";
+    $("announcementStatus").value = item.status || "draft";
 
-    const saveButton = $("saveAnnouncementButton");
-    if (saveButton) {
-        saveButton.textContent = tr("Update announcement", "تحديث الإعلان");
-    }
+    $("saveAnnouncementButton").textContent =
+        tr("Update Announcement", "تحديث الإعلان");
 
-    const cancelButton = $("cancelAnnouncementEdit");
-    if (cancelButton) cancelButton.style.display = "inline-block";
+    $("cancelAnnouncementEdit").classList.remove("hidden");
 
-    $("announcementTitleEn")?.scrollIntoView({
+    $("announcementForm").scrollIntoView({
         behavior: "smooth",
-        block: "center"
+        block: "start"
     });
 }
 
 function resetAnnouncementForm() {
-    const form = $("announcementForm");
-    if (form) form.reset();
+    $("announcementForm").reset();
+    $("announcementId").value = "";
 
-    if ($("announcementId")) $("announcementId").value = "";
+    $("saveAnnouncementButton").textContent =
+        tr("Save Announcement", "حفظ الإعلان");
 
-    const saveButton = $("saveAnnouncementButton");
-    if (saveButton) {
-        saveButton.textContent = tr("Save announcement", "حفظ الإعلان");
-    }
-
-    const cancelButton = $("cancelAnnouncementEdit");
-    if (cancelButton) cancelButton.style.display = "none";
+    $("cancelAnnouncementEdit").classList.add("hidden");
 }
 
 async function publishAnnouncement(id) {
-    const confirmed = confirm(
-        tr(
-            "Publish this announcement? Students and teachers will be able to see it.",
-            "هل تريد نشر هذا الإعلان؟ سيتمكن الطلاب والمعلمون من رؤيته."
-        )
-    );
-
-    if (!confirmed) return;
+    if (!confirm(tr(
+        "Publish this announcement?",
+        "هل تريد نشر هذا الإعلان؟"
+    ))) return;
 
     const { error } = await db
         .from("announcements")
-        .update({
-            status: "published",
-            published_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        })
+        .update({ status: "published" })
         .eq("id", id);
 
     if (error) {
@@ -1539,26 +1346,19 @@ async function publishAnnouncement(id) {
     await loadAnnouncements();
 
     showMessage(
-        tr("Announcement published successfully.", "تم نشر الإعلان بنجاح.")
+        tr("Announcement published.", "تم نشر الإعلان.")
     );
 }
 
 async function unpublishAnnouncement(id) {
-    const confirmed = confirm(
-        tr(
-            "Unpublish this announcement? It will no longer be visible to students and teachers.",
-            "هل تريد إلغاء نشر هذا الإعلان؟ لن يكون مرئياً للطلاب والمعلمين."
-        )
-    );
-
-    if (!confirmed) return;
+    if (!confirm(tr(
+        "Unpublish this announcement?",
+        "هل تريد إلغاء نشر هذا الإعلان؟"
+    ))) return;
 
     const { error } = await db
         .from("announcements")
-        .update({
-            status: "draft",
-            updated_at: new Date().toISOString()
-        })
+        .update({ status: "draft" })
         .eq("id", id);
 
     if (error) {
@@ -1574,14 +1374,10 @@ async function unpublishAnnouncement(id) {
 }
 
 async function deleteAnnouncement(id) {
-    const confirmed = confirm(
-        tr(
-            "Are you sure you want to permanently delete this announcement?",
-            "هل أنت متأكد من حذف هذا الإعلان نهائياً؟"
-        )
-    );
-
-    if (!confirmed) return;
+    if (!confirm(tr(
+        "Permanently delete this announcement?",
+        "هل تريد حذف هذا الإعلان نهائياً؟"
+    ))) return;
 
     const { error } = await db
         .from("announcements")
@@ -1596,27 +1392,14 @@ async function deleteAnnouncement(id) {
     await loadAnnouncements();
 
     showMessage(
-        tr("Announcement deleted successfully.", "تم حذف الإعلان بنجاح.")
+        tr("Announcement deleted.", "تم حذف الإعلان.")
     );
 }
 
-const announcementForm = $("announcementForm");
-
-if (announcementForm) {
-    announcementForm.addEventListener("submit", saveAnnouncement);
-}
-
-const cancelAnnouncementButton = $("cancelAnnouncementEdit");
-
-if (cancelAnnouncementButton) {
-    cancelAnnouncementButton.addEventListener(
-        "click",
-        resetAnnouncementForm
-    );
-}
+$("announcementForm").addEventListener("submit", saveAnnouncement);
 
 /* =========================
-   START ADMIN DASHBOARD
+   START
 ========================= */
 
 start();
@@ -1625,4 +1408,3 @@ start();
 </html>
 
  
-           

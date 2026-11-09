@@ -26,6 +26,18 @@ main{max-width:1150px;margin:30px auto;padding:0 18px 50px}h1,h2,h3{color:var(--
 .empty{background:var(--panel2);padding:16px;border-radius:10px;color:var(--muted);margin-top:12px}.progress{color:var(--gold);margin-top:12px;font-size:14px}
 .item-card p{color:var(--muted);line-height:1.7;overflow-wrap:anywhere}.inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.inline-actions button{border:0;border-radius:8px;padding:9px 13px;color:white;font-weight:700}
 hr{border:0;border-top:1px solid var(--border);margin:20px 0}footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid var(--border)}
+
+.dashboard-shell{display:grid;grid-template-columns:245px minmax(0,1fr);max-width:1500px;margin:0 auto;min-height:calc(100vh - 75px)}
+.sidebar{background:#102f28;border-left:1px solid var(--border);padding:24px 14px;position:sticky;top:0;height:calc(100vh - 0px);overflow-y:auto}
+.sidebar-heading{color:var(--gold);font-weight:800;font-size:17px;padding:0 12px 15px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.side-nav{display:grid;gap:7px}.nav-link{width:100%;text-align:right;border:1px solid transparent;background:transparent;color:var(--muted);padding:12px 13px;border-radius:9px;font-weight:700;transition:.18s}
+.nav-link:hover,.nav-link.active{background:var(--panel2);border-color:var(--border);color:var(--gold)}
+.dashboard-shell main{width:100%;max-width:none;margin:0;padding:28px 25px 50px;min-width:0}
+.dashboard-page{display:none}.dashboard-page.active{display:block}.mobile-nav-row{display:none;align-items:center;gap:12px;color:var(--gold);font-weight:800;margin-bottom:18px}
+.menu-toggle{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px}
+@media(max-width:850px){.dashboard-shell{grid-template-columns:1fr}.sidebar{position:fixed;z-index:20;top:0;bottom:0;right:0;width:min(290px,82vw);height:100vh;transform:translateX(105%);transition:transform .2s ease;box-shadow:-10px 0 30px #0005}.sidebar.open{transform:translateX(0)}.dashboard-shell main{padding:18px 14px 40px}.mobile-nav-row{display:flex}}
+@media(min-width:851px){.sidebar{transform:none!important}}
+
 @media(max-width:650px){h1{font-size:24px}.request{align-items:flex-start}.actions{width:100%}.actions button{flex:1}.attendance-row{grid-template-columns:1fr}.attendance-actions button,.material-actions button{width:100%}.full{grid-column:auto}}
 </style>
 </head>
@@ -34,7 +46,25 @@ hr{border:0;border-top:1px solid var(--border);margin:20px 0}footer{text-align:c
  <div class="brand" data-ar="أكاديمية القرآن الكريم وعلومه" data-en="Quran Sciences Academy">أكاديمية القرآن الكريم وعلومه</div>
  <div class="header-actions"><button id="languageBtn" type="button">English</button><button id="logoutBtn" type="button" data-ar="تسجيل الخروج" data-en="Logout">تسجيل الخروج</button></div>
 </header>
-<main>
+<div class="dashboard-shell">
+ <aside class="sidebar" id="sidebar">
+  <div class="sidebar-heading" data-ar="القائمة الرئيسية" data-en="Main Menu">القائمة الرئيسية</div>
+  <nav class="side-nav" aria-label="Teacher dashboard navigation">
+   <button type="button" class="nav-link active" data-page="home" data-ar="الرئيسية" data-en="Home">الرئيسية</button>
+   <button type="button" class="nav-link" data-page="courses" data-ar="مقرراتي" data-en="My Courses">مقرراتي</button>
+   <button type="button" class="nav-link" data-page="requests" data-ar="طلبات التسجيل" data-en="Enrolment Requests">طلبات التسجيل</button>
+   <button type="button" class="nav-link" data-page="students" data-ar="طلابي" data-en="My Students">طلابي</button>
+   <button type="button" class="nav-link" data-page="materials" data-ar="المواد التعليمية" data-en="Learning Materials">المواد التعليمية</button>
+   <button type="button" class="nav-link" data-page="attendance" data-ar="الحضور" data-en="Attendance">الحضور</button>
+   <button type="button" class="nav-link" data-page="assignments" data-ar="الواجبات" data-en="Assignments">الواجبات</button>
+   <button type="button" class="nav-link" data-page="exams" data-ar="الاختبارات" data-en="Examinations">الاختبارات</button>
+   <button type="button" class="nav-link" data-page="questions" data-ar="أسئلة الاختبارات" data-en="Exam Questions">أسئلة الاختبارات</button>
+   <button type="button" class="nav-link" data-page="results" data-ar="النتائج والمحاولات" data-en="Results & Attempts">النتائج والمحاولات</button>
+  </nav>
+ </aside>
+ <main>
+ <div class="mobile-nav-row"><button type="button" id="menuToggle" class="menu-toggle" aria-expanded="false" data-ar="☰ القائمة" data-en="☰ Menu">☰ القائمة</button><span data-ar="لوحة المعلم" data-en="Teacher Dashboard">لوحة المعلم</span></div>
+ <div class="dashboard-page active" id="page-home">
  <div class="welcome"><h1 data-ar="لوحة تحكم المعلم" data-en="Teacher Dashboard">لوحة تحكم المعلم</h1><div class="muted"><span data-ar="مرحباً، " data-en="Welcome, ">مرحباً، </span><strong id="teacherName">...</strong></div></div>
  <div id="message" class="message">جاري تحميل البيانات...</div>
  <div class="stats">
@@ -42,10 +72,18 @@ hr{border:0;border-top:1px solid var(--border);margin:20px 0}footer{text-align:c
   <div class="stat"><span data-ar="الطلاب" data-en="Students">الطلاب</span><strong id="studentCount">0</strong></div>
   <div class="stat"><span data-ar="طلبات التسجيل" data-en="Pending Requests">طلبات التسجيل</span><strong id="requestCount">0</strong></div>
  </div>
+ </div>
+ <div class="dashboard-page" id="page-courses">
  <section class="section"><h2 data-ar="مقرراتي" data-en="My Courses">مقرراتي</h2><div id="coursesList"></div></section>
+ </div>
+ <div class="dashboard-page" id="page-requests">
  <section class="section"><h2 data-ar="طلبات تسجيل الطلاب" data-en="Student Enrolment Requests">طلبات تسجيل الطلاب</h2><div id="requestsList"></div></section>
+ </div>
+ <div class="dashboard-page" id="page-students">
  <section class="section"><h2 data-ar="طلابي" data-en="My Students">طلابي</h2><div id="studentsList"></div></section>
 
+ </div>
+ <div class="dashboard-page" id="page-materials">
  <section class="section">
   <h2 data-ar="المواد التعليمية" data-en="Learning Materials">المواد التعليمية</h2>
   <p class="muted" data-ar="ارفع ملفات PDF ليستطيع الطلاب المقبولون في المقرر الوصول إليها." data-en="Upload PDF files for approved students in the selected course.">ارفع ملفات PDF ليستطيع الطلاب المقبولون في المقرر الوصول إليها.</p>
@@ -61,6 +99,8 @@ hr{border:0;border-top:1px solid var(--border);margin:20px 0}footer{text-align:c
   <div id="uploadProgress" class="progress"></div><h3 data-ar="المواد التي قمت برفعها" data-en="Materials You Uploaded">المواد التي قمت برفعها</h3><div id="materialsList"></div>
  </section>
 
+ </div>
+ <div class="dashboard-page" id="page-attendance">
  <section class="section">
   <h2 data-ar="إدارة الحضور" data-en="Attendance Management">إدارة الحضور</h2>
   <p class="muted" data-ar="اختر المقرر وتاريخ الدرس لتسجيل حضور الطلاب." data-en="Select a course and lesson date to record attendance.">اختر المقرر وتاريخ الدرس لتسجيل حضور الطلاب.</p>
@@ -79,6 +119,8 @@ hr{border:0;border-top:1px solid var(--border);margin:20px 0}footer{text-align:c
   <div id="attendanceList"></div><div class="attendance-actions"><button type="button" class="primary-btn" id="saveAttendanceBtn" disabled data-ar="حفظ الحضور" data-en="Save Attendance">حفظ الحضور</button></div>
  </section>
 
+ </div>
+ <div class="dashboard-page" id="page-assignments">
  <!-- ASSIGNMENTS -->
  <section class="section">
   <h2 data-ar="الواجبات" data-en="Assignments">الواجبات</h2>
@@ -100,6 +142,8 @@ hr{border:0;border-top:1px solid var(--border);margin:20px 0}footer{text-align:c
   <div id="assignmentSubmissionsList"></div>
  </section>
 
+ </div>
+ <div class="dashboard-page" id="page-exams">
  <!-- EXAMS -->
  <section class="section">
   <h2 data-ar="الاختبارات" data-en="Examinations">الاختبارات</h2>
@@ -119,7 +163,17 @@ hr{border:0;border-top:1px solid var(--border);margin:20px 0}footer{text-align:c
    <div class="field full"><button type="button" class="primary-btn" id="createExamBtn" data-ar="إنشاء الاختبار كمسودة" data-en="Create Exam as Draft">إنشاء الاختبار كمسودة</button></div>
   </div>
   <hr><h3 data-ar="اختباراتي" data-en="My Exams">اختباراتي</h3><div id="examsList"></div>
-  <hr><h3 data-ar="إدارة أسئلة الاختبار" data-en="Manage Exam Questions">إدارة أسئلة الاختبار</h3>
+  <hr><h3 data-ar="رفع ورقة الاختبار PDF" data-en="Upload Exam Paper PDF">رفع ورقة الاختبار PDF</h3>
+  <div class="grid">
+   <div class="field"><label for="paperExamSelect" data-ar="اختر الاختبار" data-en="Select Exam">اختر الاختبار</label><select id="paperExamSelect"></select></div>
+   <div class="field"><label for="examPaperFile" data-ar="ملف ورقة الاختبار" data-en="Exam Paper File">ملف ورقة الاختبار</label><input id="examPaperFile" type="file" accept=".pdf,application/pdf"></div>
+   <div class="field full"><button type="button" class="primary-btn" id="uploadExamPaperBtn" data-ar="رفع ورقة الاختبار" data-en="Upload Exam Paper">رفع ورقة الاختبار</button></div>
+  </div>
+ </section>
+ </div>
+ <div class="dashboard-page" id="page-questions">
+ <section class="section">
+  <h2 data-ar="إدارة أسئلة الاختبار" data-en="Manage Exam Questions">إدارة أسئلة الاختبار</h2>
   <div class="field"><label for="questionExamSelect" data-ar="اختر اختباراً" data-en="Select an exam">اختر اختباراً</label><select id="questionExamSelect"></select></div>
   <div class="grid">
    <div class="field"><label for="questionType" data-ar="نوع السؤال" data-en="Question Type">نوع السؤال</label><select id="questionType"><option value="multiple_choice">Multiple Choice / اختيار من متعدد</option><option value="written">Written / مقالي</option></select></div>
@@ -130,17 +184,17 @@ hr{border:0;border-top:1px solid var(--border);margin:20px 0}footer{text-align:c
    <div class="field full"><button type="button" class="primary-btn" id="addQuestionBtn" data-ar="إضافة السؤال" data-en="Add Question">إضافة السؤال</button></div>
   </div>
   <div id="questionsList"></div>
-  <hr><h3 data-ar="رفع ورقة الاختبار PDF" data-en="Upload Exam Paper PDF">رفع ورقة الاختبار PDF</h3>
-  <div class="grid">
-   <div class="field"><label for="paperExamSelect" data-ar="اختر الاختبار" data-en="Select Exam">اختر الاختبار</label><select id="paperExamSelect"></select></div>
-   <div class="field"><label for="examPaperFile" data-ar="ملف ورقة الاختبار" data-en="Exam Paper File">ملف ورقة الاختبار</label><input id="examPaperFile" type="file" accept=".pdf,application/pdf"></div>
-   <div class="field full"><button type="button" class="primary-btn" id="uploadExamPaperBtn" data-ar="رفع ورقة الاختبار" data-en="Upload Exam Paper">رفع ورقة الاختبار</button></div>
-  </div>
-  <hr><h3 data-ar="مراجعة محاولات الطلاب" data-en="Review Student Attempts">مراجعة محاولات الطلاب</h3>
+ </section>
+ </div>
+ <div class="dashboard-page" id="page-results">
+ <section class="section">
+  <h2 data-ar="مراجعة محاولات الطلاب" data-en="Review Student Attempts">مراجعة محاولات الطلاب</h2>
   <div class="field"><label for="attemptExamSelect" data-ar="اختر الاختبار" data-en="Select Exam">اختر الاختبار</label><select id="attemptExamSelect"></select></div>
   <div id="attemptsList"></div>
  </section>
+ </div>
 </main>
+</div>
 <footer>© <span id="year"></span> <span data-ar="أكاديمية القرآن الكريم وعلومه" data-en="Quran Sciences Academy">أكاديمية القرآن الكريم وعلومه</span></footer>
 
 <script>
@@ -157,6 +211,14 @@ const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let language=localStorage.getItem("academy-language")||"ar";
 let teacherId=null,courses=[],enrollments=[],attendanceStudents=[],learningMaterials=[],assignments=[],exams=[];
 const $=id=>document.getElementById(id);
+function showDashboardPage(page){
+ document.querySelectorAll(".dashboard-page").forEach(el=>el.classList.toggle("active",el.id==="page-"+page));
+ document.querySelectorAll(".nav-link").forEach(el=>el.classList.toggle("active",el.dataset.page===page));
+ const side=$("sidebar"),toggle=$("menuToggle");if(side)side.classList.remove("open");if(toggle)toggle.setAttribute("aria-expanded","false");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".nav-link").forEach(btn=>btn.addEventListener("click",()=>showDashboardPage(btn.dataset.page)));
+$("menuToggle").addEventListener("click",()=>{const side=$("sidebar"),open=!side.classList.contains("open");side.classList.toggle("open",open);$("menuToggle").setAttribute("aria-expanded",String(open));});
 const t=(ar,en)=>language==="ar"?ar:en;
 const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function message(id,msg,type=""){const el=$(id);el.textContent=msg;el.className="message "+type;}

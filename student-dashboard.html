@@ -17,6 +17,8 @@
 --green:#0f2a24;
 --green2:#183b32;
 --green3:#285c40;
+--menu-green:#24583C;
+--menu-bg:#DCEBE0;
 --gold:#d8bd78;
 --bg:#f3f6f4;
 --white:#fff;
@@ -35,6 +37,8 @@ background:var(--bg);
 color:var(--text);
 font-family:Arial,sans-serif
 }
+
+body.menu-open{overflow:hidden}
 
 button{font:inherit;cursor:pointer}
 
@@ -81,61 +85,100 @@ background:#ead49b;
 transform:translateY(-1px)
 }
 
+/* Main layout */
 .portal-layout{
 max-width:1550px;
 margin:28px auto;
 padding:0 22px;
 display:grid;
-grid-template-columns:260px minmax(0,1fr);
+grid-template-columns:245px minmax(0,1fr);
 gap:25px;
 align-items:start
 }
 
+/* Teacher-style sidebar */
 .sidebar{
-background:var(--green);
+background:var(--menu-bg);
+border:1px solid #cbded0;
 border-radius:17px;
-padding:20px 14px;
-color:#fff;
+padding:20px 13px;
+color:var(--menu-green);
 position:sticky;
 top:20px;
-box-shadow:var(--shadow)
+box-shadow:var(--shadow);
+min-width:0;
+z-index:20
+}
+
+.sidebar-heading{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:8px;
+padding:5px 9px 17px;
+border-bottom:1px solid #24583c25;
+margin-bottom:16px
 }
 
 .sidebar-title{
-color:var(--gold);
+color:var(--menu-green);
 font-weight:bold;
-font-size:17px;
-padding:9px 11px 20px;
-border-bottom:1px solid #ffffff25;
-margin-bottom:17px;
-line-height:1.7
+font-size:16px;
+line-height:1.8;
+margin:0
 }
 
-.sidebar-nav{display:grid;gap:8px}
+.sidebar-close{
+display:none;
+width:34px;
+height:34px;
+border:0;
+border-radius:8px;
+background:#24583c12;
+color:var(--menu-green);
+font-size:22px;
+line-height:1;
+align-items:center;
+justify-content:center
+}
+
+.sidebar-close:hover{
+background:#24583c22
+}
+
+.sidebar-nav{
+display:grid;
+gap:8px
+}
 
 .nav-item{
 border:0;
 border-radius:10px;
 background:transparent;
-color:#f4f7f4;
+color:var(--menu-green);
 text-align:right;
-padding:14px 15px;
+padding:13px 14px;
 width:100%;
 font-weight:bold;
 font-size:14px;
-transition:background .2s,color .2s,transform .2s;
-position:relative
+transition:background .2s,color .2s,transform .2s,box-shadow .2s;
+position:relative;
+display:flex;
+align-items:center;
+gap:10px;
+min-height:46px
 }
 
 .nav-item:hover{
-background:#ffffff16;
-color:var(--gold)
+background:#ffffffa8;
+color:var(--menu-green);
+transform:translateX(-2px)
 }
 
 .nav-item.active{
-background:var(--gold);
-color:var(--green);
-box-shadow:0 4px 12px #00000018
+background:#fff;
+color:var(--menu-green);
+box-shadow:0 4px 12px #24583c16
 }
 
 .nav-item.active:before{
@@ -145,8 +188,18 @@ right:0;
 top:25%;
 height:50%;
 width:4px;
-background:var(--green);
+background:var(--menu-green);
 border-radius:5px 0 0 5px
+}
+
+[dir=ltr] .nav-item{
+text-align:left
+}
+
+[dir=ltr] .nav-item.active:before{
+right:auto;
+left:0;
+border-radius:0 5px 5px 0
 }
 
 .portal-content{min-width:0}
@@ -157,17 +210,44 @@ margin:0;
 padding:0 0 35px
 }
 
+/* Mobile menu toggle */
 .mobile-menu{
 display:none;
-background:var(--green);
+background:var(--menu-green);
 color:#fff;
 border:0;
 border-radius:10px;
 padding:12px 17px;
 margin-bottom:15px;
-font-weight:bold
+font-weight:bold;
+align-items:center;
+gap:9px;
+box-shadow:0 4px 12px #00000012
 }
 
+.mobile-menu:hover{
+background:#1c4930
+}
+
+/* Mobile backdrop */
+.sidebar-overlay{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(8,25,18,.48);
+border:0;
+padding:0;
+z-index:998;
+opacity:0;
+transition:opacity .25s ease
+}
+
+.sidebar-overlay.visible{
+display:block;
+opacity:1
+}
+
+/* Welcome section */
 .welcome-card{
 background:linear-gradient(125deg,var(--green),var(--green2));
 color:#fff;
@@ -477,16 +557,10 @@ border-top:1px solid var(--border);
 background:#fff
 }
 
-[dir=rtl] .nav-item{text-align:right}
-[dir=ltr] .nav-item{text-align:left}
-[dir=ltr] .nav-item.active:before{
-right:auto;
-left:0
-}
-
+/* Responsive layout */
 @media(max-width:900px){
 .portal-layout{
-grid-template-columns:220px minmax(0,1fr);
+grid-template-columns:225px minmax(0,1fr);
 gap:17px
 }
 .welcome-card{padding:25px}
@@ -498,22 +572,59 @@ display:block;
 margin:17px auto;
 padding:0 13px
 }
-.mobile-menu{display:inline-block}
+
+.mobile-menu{display:inline-flex}
+
+/* Off-canvas mobile sidebar */
 .sidebar{
-display:none;
-position:relative;
-top:auto;
-margin-bottom:16px
+display:block;
+position:fixed;
+top:0;
+right:0;
+bottom:0;
+width:min(290px,85vw);
+max-width:290px;
+height:100dvh;
+min-height:100vh;
+margin:0;
+padding:22px 14px;
+border-radius:0;
+border:0;
+border-left:1px solid #c5d9ca;
+box-shadow:-8px 0 28px #00000020;
+overflow-y:auto;
+overscroll-behavior:contain;
+z-index:1000;
+transform:translateX(110%);
+visibility:hidden;
+transition:transform .28s ease,visibility .28s ease
 }
-.sidebar.open{display:block}
-.sidebar-title{padding-bottom:12px}
+
+.sidebar.open{
+transform:translateX(0);
+visibility:visible
+}
+
+.sidebar-heading{
+padding-top:8px;
+padding-bottom:15px
+}
+
+.sidebar-close{
+display:flex
+}
+
 .sidebar-nav{
-grid-template-columns:repeat(2,minmax(0,1fr))
+grid-template-columns:1fr;
+gap:9px
 }
+
 .nav-item{
-font-size:13px;
-padding:12px 10px
+font-size:14px;
+padding:13px 14px;
+min-height:48px
 }
+
 .welcome-card{padding:23px}
 .welcome-card h1{font-size:23px}
 .material-actions button{flex:1}
@@ -524,35 +635,56 @@ padding:12px 10px
 padding:12px 14px;
 min-height:65px
 }
+
 .site-header .logo{font-size:16px}
 .site-header .logo:before{font-size:22px}
+
 .portal-layout{
 padding:0 11px;
 margin:13px auto
 }
-.sidebar-nav{grid-template-columns:1fr 1fr}
+
 .dashboard-grid{grid-template-columns:1fr}
+
 .welcome-card{
 padding:20px;
 border-radius:15px
 }
+
 .welcome-card h1{font-size:21px}
 .welcome-card p{font-size:14px}
+
 .dashboard-actions{gap:8px}
+
 .dashboard-actions button{
 flex:1;
 padding:11px 12px;
 font-size:13px
 }
+
 .dashboard-actions a{font-size:13px}
 .dashboard-section>h2{font-size:19px}
+
 .attendance-summary{
 grid-template-columns:repeat(2,minmax(0,1fr))
 }
+
 .attendance-stat{padding:16px 10px}
 .attendance-stat strong{font-size:25px}
+
 .material-actions{flex-direction:column}
 .material-actions button{width:100%}
+}
+
+/* Reduced motion accessibility */
+@media(prefers-reduced-motion:reduce){
+.sidebar,
+.sidebar-overlay,
+.nav-item,
+.dashboard-section{
+transition:none;
+animation:none
+}
 }
 </style>
 </head>
@@ -568,10 +700,22 @@ grid-template-columns:repeat(2,minmax(0,1fr))
 
 <div class="portal-layout">
 
-<aside class="sidebar" id="studentSidebar">
+<aside class="sidebar" id="studentSidebar" aria-label="Student navigation">
 
+<div class="sidebar-heading">
 <div class="sidebar-title" data-i18n="academy">
 أكاديمية القرآن الكريم
+</div>
+
+<button
+class="sidebar-close"
+id="sidebarCloseButton"
+type="button"
+aria-label="Close menu"
+title="Close menu"
+>
+×
+</button>
 </div>
 
 <nav class="sidebar-nav" aria-label="Student navigation">
@@ -599,9 +743,24 @@ grid-template-columns:repeat(2,minmax(0,1fr))
 </nav>
 </aside>
 
+<button
+class="sidebar-overlay"
+id="studentSidebarOverlay"
+type="button"
+aria-label="Close navigation menu"
+tabindex="-1"
+></button>
+
 <div class="portal-content">
 
-<button class="mobile-menu" id="mobileMenuButton" type="button" aria-expanded="false" data-i18n="menu">
+<button
+class="mobile-menu"
+id="mobileMenuButton"
+type="button"
+aria-expanded="false"
+aria-controls="studentSidebar"
+data-i18n="menu"
+>
 ☰ القائمة
 </button>
 
@@ -836,7 +995,52 @@ function t(key) {
 return translations[lang][key] || translations.ar[key] || key;
 }
 
-function setLanguage(nextLanguage) {
+/* Sidebar controls */
+function openStudentMenu() {
+const sidebar = $("studentSidebar");
+const menu = $("mobileMenuButton");
+const overlay = $("studentSidebarOverlay");
+
+if (!sidebar || window.innerWidth > 800) return;
+
+sidebar.classList.add("open");
+overlay.classList.add("visible");
+menu.setAttribute("aria-expanded", "true");
+document.body.classList.add("menu-open");
+
+$("sidebarCloseButton")?.focus();
+}
+
+function closeStudentMenu(returnFocus = false) {
+const sidebar = $("studentSidebar");
+const menu = $("mobileMenuButton");
+const overlay = $("studentSidebarOverlay");
+
+if (!sidebar) return;
+
+sidebar.classList.remove("open");
+overlay?.classList.remove("visible");
+menu?.setAttribute("aria-expanded", "false");
+document.body.classList.remove("menu-open");
+
+if (returnFocus && window.innerWidth <= 800) {
+menu?.focus();
+}
+}
+
+function toggleStudentMenu() {
+const sidebar = $("studentSidebar");
+
+if (!sidebar) return;
+
+if (sidebar.classList.contains("open")) {
+closeStudentMenu();
+} else {
+openStudentMenu();
+}
+}
+
+function tLanguage(nextLanguage) {
 lang = nextLanguage === "en" ? "en" : "ar";
 
 document.documentElement.lang = lang;
@@ -947,17 +1151,13 @@ section.classList.toggle("active", section.id === `view-${view}`);
 });
 
 document.querySelectorAll(".nav-item").forEach(button => {
-button.classList.toggle("active", button.dataset.view === view);
+const isActive = button.dataset.view === view;
+button.classList.toggle("active", isActive);
+button.setAttribute("aria-current", isActive ? "page" : "false");
 });
 
-const sidebar = $("studentSidebar");
-const menu = $("mobileMenuButton");
-
-if (sidebar) sidebar.classList.remove("open");
-
-if (menu) {
-menu.setAttribute("aria-expanded", "false");
-}
+/* Close the mobile menu after navigation */
+closeStudentMenu();
 };
 
 function renderDepartments() {
@@ -1247,11 +1447,6 @@ button.textContent = t("fileOpening");
 
 let popup = null;
 
-/*
- * Open a new tab immediately during the click event.
- * This avoids most browser popup-blocking problems
- * while the signed URL is being prepared.
- */
 if (!download) {
 popup = window.open("about:blank", "_blank");
 
@@ -1452,7 +1647,7 @@ message(t("loadError"), "error");
 }
 }
 
-/* Load the saved language preference */
+/* Load saved language preference */
 try {
 const savedLanguage = localStorage.getItem("academy-language");
 
@@ -1463,11 +1658,12 @@ lang = savedLanguage;
 lang = "ar";
 }
 
-/* Student Portal owns its language toggle */
-setLanguage(lang);
+/* Set initial language */
+tLanguage(lang);
 
+/* Language toggle */
 $("languageToggle")?.addEventListener("click", () => {
-setLanguage(lang === "ar" ? "en" : "ar");
+tLanguage(lang === "ar" ? "en" : "ar");
 
 renderDepartments();
 renderCourses();
@@ -1476,15 +1672,32 @@ renderMaterials();
 renderAttendance();
 });
 
-$("mobileMenuButton")?.addEventListener("click", () => {
-const sidebar = $("studentSidebar");
-const menu = $("mobileMenuButton");
+/* Mobile sidebar controls */
+$("mobileMenuButton")?.addEventListener("click", toggleStudentMenu);
 
-const isOpen = sidebar.classList.toggle("open");
-
-menu.setAttribute("aria-expanded", String(isOpen));
+$("sidebarCloseButton")?.addEventListener("click", () => {
+closeStudentMenu(true);
 });
 
+$("studentSidebarOverlay")?.addEventListener("click", () => {
+closeStudentMenu(true);
+});
+
+/* Close menu with Escape */
+document.addEventListener("keydown", event => {
+if (event.key === "Escape") {
+closeStudentMenu(true);
+}
+});
+
+/* Return to desktop sidebar layout when screen becomes wider */
+window.addEventListener("resize", () => {
+if (window.innerWidth > 800) {
+closeStudentMenu();
+}
+});
+
+/* Refresh data */
 $("refreshButton")?.addEventListener("click", async () => {
 if (!client || !user) return;
 
@@ -1507,6 +1720,7 @@ button.textContent = originalText;
 }
 });
 
+/* Logout */
 $("logoutButton")?.addEventListener("click", async () => {
 const button = $("logoutButton");
 
@@ -1532,6 +1746,10 @@ message(t("loadError"), "error");
 }
 });
 
+/* Current year */
+$("year").textContent = new Date().getFullYear();
+
+/* Start the portal */
 init();
 
 })();

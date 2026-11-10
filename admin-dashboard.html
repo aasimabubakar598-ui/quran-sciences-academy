@@ -1,78 +1,35 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0f2a24">
 <title>Admin Dashboard | Quran Sciences Academy</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 *{box-sizing:border-box}
 :root{--green:#0f2a24;--green2:#183b32;--gold:#d8bd78;--bg:#f3f6f4;--border:#dfe7e2;--text:#20312b}
 body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer;border:0;border-radius:7px;padding:10px 14px;background:var(--green2);color:white}
-button:hover{opacity:.88}
-button.gold{background:var(--gold);color:var(--green)}
-button.danger{background:#b83227}
-button.secondary{background:#64746c}
-button.small{padding:6px 9px;font-size:12px}
-header{background:var(--green);color:white;padding:17px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{font-weight:bold;font-size:20px}
-.brand small{display:block;color:var(--gold);font-size:12px;margin-top:5px}
-.header-actions{display:flex;gap:8px;flex-wrap:wrap}
-main{max-width:1400px;margin:22px auto;padding:0 15px}
-.message{display:none;padding:12px;border-radius:8px;margin-bottom:15px;background:#e8f2eb;color:#174c2d;overflow-wrap:anywhere}
-.message.show{display:block}
-.message.error{background:#fbe9e7;color:#922b21}
-#dashboard{display:none}
-.welcome,.panel{background:white;border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 2px 9px #00000008}
-.welcome h2{margin:0 0 6px}
-.muted{font-size:13px;color:#718078}
-.tabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
-.tab-button{background:white;color:var(--green);border:1px solid var(--border)}
-.tab-button.active{background:var(--green);color:white}
-.section{display:none}
-.section.active{display:block}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
-.stat{background:white;border-radius:12px;padding:17px;border-left:4px solid var(--gold)}
-.stat strong{display:block;font-size:27px;color:var(--green);margin-top:8px}
-.panel h3{margin:0 0 15px;color:var(--green)}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
-.field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:13px;font-weight:bold}
-input,select,textarea{width:100%;border:1px solid var(--border);border-radius:7px;padding:10px;background:white;color:var(--text)}
-textarea{min-height:90px;resize:vertical}
-.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.table-wrap{overflow-x:auto;width:100%}
-table{width:100%;border-collapse:collapse;min-width:650px}
-th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
-th{background:#f3f6f4;color:var(--green)}
-.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
-.filters>*{flex:1;min-width:150px}
-.empty{text-align:center;color:#718078;padding:25px}
-.badge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:11px;background:#e8eee9;color:var(--green)}
-.badge.published,.badge.approved,.badge.present,.badge.active{background:#dff2e5;color:#176334}
-.badge.draft,.badge.pending,.badge.late{background:#fff1d5;color:#805600}
-.badge.absent,.badge.rejected{background:#fbe4e1;color:#922b21}
-.announcement{border:1px solid var(--border);padding:13px;border-radius:8px;margin:10px 0}
-.announcement h4{margin:0 0 7px}
-.detail-line{padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
-footer{text-align:center;padding:25px;color:#718078;font-size:12px}
-[dir="rtl"]{text-align:right}
-[dir="rtl"] th,[dir="rtl"] td{text-align:right}
-@media(max-width:600px){header{padding:14px}.brand{font-size:17px}main{padding:0 10px}.panel{padding:13px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:12px}.stat strong{font-size:23px}}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:7px;padding:10px 14px;background:var(--green2);color:white}button:hover{opacity:.88}button.gold{background:var(--gold);color:var(--green)}button.danger{background:#b83227}button.secondary{background:#64746c}button.small{padding:6px 9px;font-size:12px}
+header{background:var(--green);color:white;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:30;min-height:76px}
+.brand{font-weight:bold;font-size:20px}.brand small{display:block;color:var(--gold);font-size:12px;margin-top:5px}.header-left{display:flex;align-items:center;gap:12px}.header-actions{display:flex;gap:8px;flex-wrap:wrap}.menu-toggle{display:none;background:transparent;border:1px solid #ffffff55;font-size:21px;padding:7px 11px;line-height:1}
+.app-layout{display:flex;min-height:calc(100vh - 76px)}
+.sidebar{width:250px;flex:0 0 250px;background:var(--green2);padding:22px 14px;color:white;align-self:stretch}
+.sidebar-heading{color:var(--gold);font-size:11px;font-weight:bold;letter-spacing:1px;padding:4px 12px 14px;text-transform:uppercase}
+.tabs{display:flex;flex-direction:column;gap:7px}.tab-button{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:transparent;color:#e8efeb;border:1px solid transparent;padding:12px 13px;border-radius:8px;font-size:14px}.tab-button:hover{background:#ffffff12;opacity:1}.tab-button.active{background:var(--gold);color:var(--green);font-weight:bold}.nav-icon{width:20px;text-align:center;font-size:16px;flex:0 0 20px}
+.main-area{flex:1;min-width:0;padding:22px 24px}.content-wrap{max-width:1400px;margin:0 auto}.message{display:none;padding:12px;border-radius:8px;margin-bottom:15px;background:#e8f2eb;color:#174c2d;overflow-wrap:anywhere}.message.show{display:block}.message.error{background:#fbe9e7;color:#922b21}#dashboard{display:none}.welcome,.panel{background:white;border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 2px 9px #00000008}.welcome{display:flex;align-items:center;justify-content:space-between;gap:12px}.welcome h2{margin:0 0 6px}.muted{font-size:13px;color:#718078}.section{display:none;animation:pageIn .18s ease}.section.active{display:block}@keyframes pageIn{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.page-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px;color:var(--green);font-size:21px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}.stat{background:white;border-radius:12px;padding:17px;border-left:4px solid var(--gold)}.stat strong{display:block;font-size:27px;color:var(--green);margin-top:8px}.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:13px;font-weight:bold}input,select,textarea{width:100%;border:1px solid var(--border);border-radius:7px;padding:10px;background:white;color:var(--text)}textarea{min-height:90px;resize:vertical}.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.table-wrap{overflow-x:auto;width:100%}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}th{background:#f3f6f4;color:var(--green)}.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}.filters>*{flex:1;min-width:150px}.empty{text-align:center;color:#718078;padding:25px}.badge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:11px;background:#e8eee9;color:var(--green)}.badge.published,.badge.approved,.badge.present,.badge.active{background:#dff2e5;color:#176334}.badge.draft,.badge.pending,.badge.late{background:#fff1d5;color:#805600}.badge.absent,.badge.rejected{background:#fbe4e1;color:#922b21}.announcement{border:1px solid var(--border);padding:13px;border-radius:8px;margin:10px 0}.announcement h4{margin:0 0 7px}.detail-line{padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}footer{text-align:center;padding:20px;color:#718078;font-size:12px}
+[dir="rtl"]{text-align:right}[dir="rtl"] th,[dir="rtl"] td{text-align:right}[dir="rtl"] .app-layout{flex-direction:row-reverse}[dir="rtl"] .tab-button{text-align:right}[dir="rtl"] .stat{border-left:0;border-right:4px solid var(--gold)}[dir="rtl"] .welcome{flex-direction:row}
+.mobile-backdrop{display:none}
+@media(max-width:760px){header{padding:12px 14px;min-height:70px}.brand{font-size:17px}.menu-toggle{display:inline-flex;align-items:center;justify-content:center}.header-actions{gap:6px}.header-actions button{padding:8px 10px;font-size:12px}.app-layout{display:block;min-height:calc(100vh - 70px)}.sidebar{position:fixed;z-index:50;top:70px;bottom:0;left:0;width:270px;max-width:82vw;transform:translateX(-105%);transition:transform .22s ease;overflow-y:auto;box-shadow:5px 0 20px #0002}.sidebar.open{transform:translateX(0)}[dir="rtl"] .sidebar{left:auto;right:0;transform:translateX(105%);box-shadow:-5px 0 20px #0002}[dir="rtl"] .sidebar.open{transform:translateX(0)}.mobile-backdrop.show{display:block;position:fixed;inset:70px 0 0;background:#0006;z-index:40}.main-area{padding:15px 10px}.welcome{align-items:flex-start;flex-direction:column}.panel{padding:13px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:12px}.stat strong{font-size:23px}}
+@media(min-width:761px){.sidebar{position:sticky;top:76px;height:calc(100vh - 76px);overflow-y:auto}}
 </style>
 </head>
-
 <body>
-
 <header>
-  <div class="brand">
-    Quran Sciences Academy
-    <small>Admin Dashboard | لوحة تحكم الإدارة</small>
+  <div class="header-left">
+    <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false" onclick="toggleMenu()">☰</button>
+    <div class="brand">Quran Sciences Academy<small>Admin Dashboard | لوحة تحكم الإدارة</small></div>
   </div>
   <div class="header-actions">
     <button class="gold" id="languageButton" onclick="toggleLanguage()">العربية</button>
@@ -80,1084 +37,97 @@ footer{text-align:center;padding:25px;color:#718078;font-size:12px}
     <button class="danger" id="logoutButton" onclick="logout()">Logout</button>
   </div>
 </header>
-
-<main>
-<div id="message" class="message"></div>
-
-<div id="dashboard">
-
-  <div class="welcome">
-    <h2 id="welcomeTitle">Welcome, Administrator</h2>
-    <div class="muted">Quran Sciences Academy administration</div>
-  </div>
-
-  <nav class="tabs">
-    <button class="tab-button active" data-tab="overview" onclick="showTab('overview')">Overview</button>
-    <button class="tab-button" data-tab="courses" onclick="showTab('courses')">Courses</button>
-    <button class="tab-button" data-tab="users" onclick="showTab('users')">Users</button>
-    <button class="tab-button" data-tab="enrolments" onclick="showTab('enrolments')">Enrolments</button>
-    <button class="tab-button" data-tab="students" onclick="showTab('students')">Students</button>
-    <button class="tab-button" data-tab="attendance" onclick="showTab('attendance')">Attendance</button>
-    <button class="tab-button" data-tab="announcements" onclick="showTab('announcements')">Announcements</button>
-  </nav>
-
-  <!-- OVERVIEW -->
-  <section id="overview" class="section active">
-    <div class="stats">
-      <div class="stat">Students<strong id="studentCount">0</strong></div>
-      <div class="stat">Teachers<strong id="teacherCount">0</strong></div>
-      <div class="stat">Courses<strong id="courseCount">0</strong></div>
-      <div class="stat">Pending Enrolments<strong id="pendingCount">0</strong></div>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-heading" id="navHeading">ADMINISTRATION</div>
+    <nav class="tabs" aria-label="Dashboard navigation">
+      <button class="tab-button active" data-tab="overview" onclick="showTab('overview')"><span class="nav-icon">▦</span><span>Overview</span></button>
+      <button class="tab-button" data-tab="courses" onclick="showTab('courses')"><span class="nav-icon">▤</span><span>Courses</span></button>
+      <button class="tab-button" data-tab="users" onclick="showTab('users')"><span class="nav-icon">♙</span><span>Users</span></button>
+      <button class="tab-button" data-tab="enrolments" onclick="showTab('enrolments')"><span class="nav-icon">☷</span><span>Enrolments</span></button>
+      <button class="tab-button" data-tab="students" onclick="showTab('students')"><span class="nav-icon">♧</span><span>Students</span></button>
+      <button class="tab-button" data-tab="attendance" onclick="showTab('attendance')"><span class="nav-icon">✓</span><span>Attendance</span></button>
+      <button class="tab-button" data-tab="announcements" onclick="showTab('announcements')"><span class="nav-icon">▣</span><span>Announcements</span></button>
+    </nav>
+  </aside>
+  <div class="mobile-backdrop" id="mobileBackdrop" onclick="closeMenu()"></div>
+  <main class="main-area"><div class="content-wrap">
+    <div id="message" class="message"></div>
+    <div id="dashboard">
+      <div class="welcome"><div><h2 id="welcomeTitle">Welcome, Administrator</h2><div class="muted" id="welcomeSubtitle">Quran Sciences Academy administration</div></div></div>
+      <section id="overview" class="section active">
+        <h2 class="page-heading" data-en="Academy Overview" data-ar="نظرة عامة على الأكاديمية">Academy Overview</h2>
+        <div class="stats"><div class="stat"><span data-en="Students" data-ar="الطلاب">Students</span><strong id="studentCount">0</strong></div><div class="stat"><span data-en="Teachers" data-ar="المعلمون">Teachers</span><strong id="teacherCount">0</strong></div><div class="stat"><span data-en="Courses" data-ar="المقررات">Courses</span><strong id="courseCount">0</strong></div><div class="stat"><span data-en="Pending Enrolments" data-ar="التسجيلات المعلقة">Pending Enrolments</span><strong id="pendingCount">0</strong></div></div>
+        <div class="panel"><h3 data-en="Academy Overview" data-ar="ملخص الأكاديمية">Academy Overview</h3><p class="muted" id="lastUpdated"></p></div>
+      </section>
+      <section id="courses" class="section">
+        <h2 class="page-heading" data-en="Course Management" data-ar="إدارة المقررات">Course Management</h2>
+        <div class="panel"><h3 id="courseFormHeading">Create / Edit Course</h3><form id="courseForm"><input type="hidden" id="courseId"><div class="form-grid">
+          <div class="field"><label>Course Title (English)</label><input id="courseTitleEn" required></div><div class="field"><label>Course Title (Arabic)</label><input id="courseTitleAr" dir="rtl"></div><div class="field"><label>Department</label><select id="courseDepartment"><option value="">Select Department</option></select></div><div class="field"><label>Teacher</label><select id="courseTeacher"><option value="">Select Teacher</option></select></div><div class="field"><label>Status</label><select id="courseStatus"><option value="draft">Draft</option><option value="published">Published</option></select></div><div class="field"><label>Description</label><textarea id="courseDescription"></textarea></div>
+        </div><div class="form-actions"><button type="submit" class="gold">Save Course</button><button type="button" class="secondary" onclick="resetCourseForm()">Cancel</button></div></form></div>
+        <div class="panel"><h3>All Courses</h3><div class="table-wrap"><table><thead><tr><th>Course</th><th>Department</th><th>Teacher</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody id="courseRows"></tbody></table></div></div>
+      </section>
+      <section id="users" class="section"><h2 class="page-heading" data-en="User Management" data-ar="إدارة المستخدمين">User Management</h2><div class="panel"><p class="muted">Change student and teacher roles. Administrator accounts are protected.</p><input id="userSearch" placeholder="Search users..." oninput="renderUsers()"><div class="table-wrap"><table><thead><tr><th>Name</th><th>User ID</th><th>Current Role</th><th>New Role</th><th>Action</th></tr></thead><tbody id="userRows"></tbody></table></div></div></section>
+      <section id="enrolments" class="section"><h2 class="page-heading" data-en="Enrolment Management" data-ar="إدارة التسجيلات">Enrolment Management</h2><div class="panel"><div class="filters"><input id="enrolmentSearch" placeholder="Search student..." oninput="renderEnrolments()"><select id="enrolmentCourseFilter" onchange="renderEnrolments()"><option value="">All Courses</option></select><select id="enrolmentStatusFilter" onchange="renderEnrolments()"><option value="">All Statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div><div class="table-wrap"><table><thead><tr><th>Student</th><th>Course</th><th>Current Status</th><th>New Status</th><th>Action</th></tr></thead><tbody id="enrolmentRows"></tbody></table></div></div></section>
+      <section id="students" class="section"><h2 class="page-heading" data-en="Student Records" data-ar="سجلات الطلاب">Student Records</h2><div class="panel"><input id="studentSearch" placeholder="Search students..." oninput="renderStudentRecords()"><div class="table-wrap"><table><thead><tr><th>Student Name</th><th>Email</th><th>Registered</th><th>Action</th></tr></thead><tbody id="studentRows"></tbody></table></div><div id="studentDetails"></div></div></section>
+      <section id="attendance" class="section"><h2 class="page-heading" data-en="Attendance Management" data-ar="إدارة الحضور">Attendance Management</h2><div class="panel"><div class="stats"><div class="stat">Total<strong id="attendanceTotalCount">0</strong></div><div class="stat">Present<strong id="attendancePresentCount">0</strong></div><div class="stat">Absent<strong id="attendanceAbsentCount">0</strong></div><div class="stat">Late<strong id="attendanceLateCount">0</strong></div></div><div class="filters"><input id="attendanceSearch" placeholder="Search student..." oninput="renderAttendance()"><select id="attendanceCourse" onchange="renderAttendance()"><option value="">All Courses</option></select><input type="date" id="attendanceDate" onchange="renderAttendance()"><select id="attendanceStatus" onchange="renderAttendance()"><option value="">All Statuses</option><option value="present">Present</option><option value="absent">Absent</option><option value="late">Late</option></select></div><p id="attendanceMessage" class="muted"></p><div class="table-wrap"><table><thead><tr><th>Student</th><th>Course</th><th>Date</th><th>Status</th><th>Remarks</th><th>Action</th></tr></thead><tbody id="attendanceRows"></tbody></table></div></div></section>
+      <section id="announcements" class="section"><h2 class="page-heading" data-en="Announcements" data-ar="الإعلانات">Announcements</h2><div class="panel"><h3 id="announcementFormHeading">Create Announcement</h3><form id="announcementForm"><input type="hidden" id="announcementId"><div class="form-grid"><div class="field"><label>Title</label><input id="announcementTitle" required></div><div class="field"><label>Audience</label><select id="announcementAudience"><option value="both">Students and Teachers</option><option value="students">Students Only</option><option value="teachers">Teachers Only</option></select></div><div class="field"><label>Status</label><select id="announcementStatus"><option value="draft">Draft</option><option value="published">Published</option></select></div><div class="field"><label>Message</label><textarea id="announcementBody" required></textarea></div></div><div class="form-actions"><button type="submit" class="gold">Save Announcement</button><button type="button" class="secondary" onclick="resetAnnouncementForm()">Cancel</button></div></form><p id="announcementMessage" class="muted"></p></div><div class="panel"><h3>All Announcements</h3><div id="announcementList"></div></div></section>
     </div>
-    <div class="panel">
-      <h3>Academy Overview</h3>
-      <p class="muted" id="lastUpdated"></p>
-    </div>
-  </section>
-
-  <!-- COURSES -->
-  <section id="courses" class="section">
-    <div class="panel">
-      <h3 id="courseFormHeading">Create / Edit Course</h3>
-      <form id="courseForm">
-        <input type="hidden" id="courseId">
-        <div class="form-grid">
-          <div class="field">
-            <label>Course Title (English)</label>
-            <input id="courseTitleEn" required>
-          </div>
-          <div class="field">
-            <label>Course Title (Arabic)</label>
-            <input id="courseTitleAr" dir="rtl">
-          </div>
-          <div class="field">
-            <label>Department</label>
-            <select id="courseDepartment">
-              <option value="">Select Department</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Teacher</label>
-            <select id="courseTeacher">
-              <option value="">Select Teacher</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Status</label>
-            <select id="courseStatus">
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Description</label>
-            <textarea id="courseDescription"></textarea>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="gold">Save Course</button>
-          <button type="button" class="secondary" onclick="resetCourseForm()">Cancel</button>
-        </div>
-      </form>
-    </div>
-
-    <div class="panel">
-      <h3>All Courses</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Course</th><th>Department</th><th>Teacher</th><th>Status</th><th>Created</th><th>Actions</th></tr>
-          </thead>
-          <tbody id="courseRows"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- USERS -->
-  <section id="users" class="section">
-    <div class="panel">
-      <h3>User Management</h3>
-      <p class="muted">Change student and teacher roles. Administrator accounts are protected.</p>
-      <input id="userSearch" placeholder="Search users..." oninput="renderUsers()">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Name</th><th>User ID</th><th>Current Role</th><th>New Role</th><th>Action</th></tr>
-          </thead>
-          <tbody id="userRows"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- ENROLMENTS -->
-  <section id="enrolments" class="section">
-    <div class="panel">
-      <h3>Enrolment Management</h3>
-      <div class="filters">
-        <input id="enrolmentSearch" placeholder="Search student..." oninput="renderEnrolments()">
-        <select id="enrolmentCourseFilter" onchange="renderEnrolments()">
-          <option value="">All Courses</option>
-        </select>
-        <select id="enrolmentStatusFilter" onchange="renderEnrolments()">
-          <option value="">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Student</th><th>Course</th><th>Current Status</th><th>New Status</th><th>Action</th></tr>
-          </thead>
-          <tbody id="enrolmentRows"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- STUDENTS -->
-  <section id="students" class="section">
-    <div class="panel">
-      <h3>Student Records</h3>
-      <input id="studentSearch" placeholder="Search students..." oninput="renderStudentRecords()">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Student Name</th><th>Email</th><th>Registered</th><th>Action</th></tr>
-          </thead>
-          <tbody id="studentRows"></tbody>
-        </table>
-      </div>
-      <div id="studentDetails"></div>
-    </div>
-  </section>
-
-  <!-- ATTENDANCE -->
-  <section id="attendance" class="section">
-    <div class="panel">
-      <h3>Attendance Management</h3>
-      <div class="stats">
-        <div class="stat">Total<strong id="attendanceTotalCount">0</strong></div>
-        <div class="stat">Present<strong id="attendancePresentCount">0</strong></div>
-        <div class="stat">Absent<strong id="attendanceAbsentCount">0</strong></div>
-        <div class="stat">Late<strong id="attendanceLateCount">0</strong></div>
-      </div>
-      <div class="filters">
-        <input id="attendanceSearch" placeholder="Search student..." oninput="renderAttendance()">
-        <select id="attendanceCourse" onchange="renderAttendance()">
-          <option value="">All Courses</option>
-        </select>
-        <input type="date" id="attendanceDate" onchange="renderAttendance()">
-        <select id="attendanceStatus" onchange="renderAttendance()">
-          <option value="">All Statuses</option>
-          <option value="present">Present</option>
-          <option value="absent">Absent</option>
-          <option value="late">Late</option>
-        </select>
-      </div>
-      <p id="attendanceMessage" class="muted"></p>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Student</th><th>Course</th><th>Date</th><th>Status</th><th>Remarks</th><th>Action</th></tr>
-          </thead>
-          <tbody id="attendanceRows"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- ANNOUNCEMENTS -->
-  <section id="announcements" class="section">
-    <div class="panel">
-      <h3 id="announcementFormHeading">Create Announcement</h3>
-      <form id="announcementForm">
-        <input type="hidden" id="announcementId">
-        <div class="form-grid">
-          <div class="field">
-            <label>Title</label>
-            <input id="announcementTitle" required>
-          </div>
-          <div class="field">
-            <label>Audience</label>
-            <select id="announcementAudience">
-              <option value="both">Students and Teachers</option>
-              <option value="students">Students Only</option>
-              <option value="teachers">Teachers Only</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Status</label>
-            <select id="announcementStatus">
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Message</label>
-            <textarea id="announcementBody" required></textarea>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="gold">Save Announcement</button>
-          <button type="button" class="secondary" onclick="resetAnnouncementForm()">Cancel</button>
-        </div>
-      </form>
-      <p id="announcementMessage" class="muted"></p>
-    </div>
-    <div class="panel">
-      <h3>All Announcements</h3>
-      <div id="announcementList"></div>
-    </div>
-  </section>
-
+  </div></main>
 </div>
-</main>
-
 <footer>© Quran Sciences Academy</footer>
-
 <script>
 "use strict";
-
-/* =========================================
-   SUPABASE CONFIGURATION
-========================================= */
-
-const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
-
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
-
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/* =========================================
-   APPLICATION STATE
-========================================= */
-
-let currentUser = null;
-let currentProfile = null;
-let currentLanguage = "en";
-
-let profiles = [];
-let courses = [];
-let departments = [];
-let enrolments = [];
-let studentContacts = [];
-let attendanceRecords = [];
-let announcements = [];
-
-let enrolmentTableName = "enrollments";
-
-const $ = id => document.getElementById(id);
-
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  })[char]);
-}
-
-function showMessage(message, type = "success") {
-  const box = $("message");
-  box.textContent = message;
-  box.className = "message show" + (type === "error" ? " error" : "");
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function hideMessage() {
-  $("message").className = "message";
-  $("message").textContent = "";
-}
-
-function displayName(profile) {
-  return profile?.full_name || profile?.email || profile?.id || "Unknown";
-}
-
-function findProfile(id) {
-  return profiles.find(p => p.id === id);
-}
-
-function findCourse(id) {
-  return courses.find(c => c.id === id);
-}
-
-function courseTitle(course) {
-  if (!course) return "Unknown course";
-  return currentLanguage === "ar"
-    ? (course.title_ar || course.title_en || "Course")
-    : (course.title_en || course.title_ar || "Course");
-}
-
-function departmentName(id) {
-  const department = departments.find(d => d.id === id);
-  if (!department) return "—";
-  return currentLanguage === "ar"
-    ? (department.name_ar || department.name_en || "—")
-    : (department.name_en || department.name_ar || "—");
-}
-
-function teacherName(id) {
-  if (!id) return "—";
-  return displayName(findProfile(id));
-}
-
-function formatDate(value) {
-  if (!value) return "—";
-  const date = new Date(value);
-  return isNaN(date.getTime()) ? "—" : date.toLocaleDateString();
-}
-
-function badge(status) {
-  const safe = String(status || "unknown").toLowerCase();
-  return `<span class="badge ${escapeHTML(safe)}">${escapeHTML(status || "Unknown")}</span>`;
-}
-
-function emptyRow(columns, message = "No records found") {
-  return `<tr><td colspan="${columns}" class="empty">${escapeHTML(message)}</td></tr>`;
-}
-
-/* =========================================
-   AUTHENTICATION
-========================================= */
-
-async function start() {
-  try {
-    const {data,error} = await db.auth.getSession();
-    if (error) throw error;
-
-    if (!data.session) {
-      showMessage("Please log in first. Redirecting to login page...", "error");
-      setTimeout(() => location.href = "login.html", 1800);
-      return;
-    }
-
-    currentUser = data.session.user;
-
-    const {data:profile,error:profileError} = await db
-      .from("profiles")
-      .select("*")
-      .eq("id",currentUser.id)
-      .maybeSingle();
-
-    if (profileError) throw profileError;
-
-    if (!profile || profile.role !== "admin") {
-      await db.auth.signOut();
-      showMessage("Access denied. Administrator account required.", "error");
-      return;
-    }
-
-    currentProfile = profile;
-    $("welcomeTitle").textContent = "Welcome, " + displayName(profile);
-
-    /* Fix: show dashboard after successful admin verification */
-    $("dashboard").style.display = "block";
-
-    await loadDashboard();
-
-  } catch(error) {
-    console.error(error);
-    showMessage("Unable to load dashboard: " + error.message, "error");
-  }
-}
-
-/* =========================================
-   LOAD DATA
-========================================= */
-
-async function loadDashboard() {
-  hideMessage();
-
-  try {
-    const [
-      profileResult,
-      courseResult,
-      departmentResult,
-      contactResult,
-      attendanceResult,
-      announcementResult
-    ] = await Promise.all([
-      db.from("profiles").select("*"),
-      db.from("courses").select("*"),
-      db.from("departments").select("*"),
-      db.from("student_contact_details").select("*"),
-      db.from("attendance").select("*"),
-      db.from("announcements").select("*")
-    ]);
-
-    const results = [
-      ["profiles",profileResult],
-      ["courses",courseResult],
-      ["departments",departmentResult],
-      ["student_contact_details",contactResult],
-      ["attendance",attendanceResult],
-      ["announcements",announcementResult]
-    ];
-
-    for (const [name,result] of results) {
-      if (result.error) throw new Error(name + ": " + result.error.message);
-    }
-
-    profiles = profileResult.data || [];
-    courses = courseResult.data || [];
-    departments = departmentResult.data || [];
-    studentContacts = contactResult.data || [];
-    attendanceRecords = attendanceResult.data || [];
-    announcements = announcementResult.data || [];
-
-    /* Support either spelling of the enrolment table */
-    let enrolmentResult = await db.from("enrollments").select("*");
-
-    if (enrolmentResult.error) {
-      const fallback = await db.from("enrolments").select("*");
-      if (fallback.error) {
-        throw new Error("Enrolments: " + enrolmentResult.error.message);
-      }
-      enrolmentResult = fallback;
-      enrolmentTableName = "enrolments";
-    } else {
-      enrolmentTableName = "enrollments";
-    }
-
-    enrolments = enrolmentResult.data || [];
-
-    renderOverview();
-    fillCourseOptions();
-    renderCourses();
-    renderUsers();
-    renderEnrolments();
-    renderStudentRecords();
-    renderAttendance();
-    renderAnnouncements();
-
-    $("lastUpdated").textContent = "Last updated: " + new Date().toLocaleString();
-
-  } catch(error) {
-    console.error(error);
-    showMessage("Unable to load dashboard data: " + error.message, "error");
-    throw error;
-  }
-}
-
-async function refreshDashboard() {
-  try {
-    await loadDashboard();
-    showMessage("Dashboard refreshed successfully.");
-  } catch(error) {
-    console.error(error);
-  }
-}
-
-async function logout() {
-  const {error} = await db.auth.signOut();
-  if (error) {
-    showMessage("Logout failed: " + error.message, "error");
-    return;
-  }
-  location.href = "login.html";
-}
-
-/* =========================================
-   NAVIGATION
-========================================= */
-
-function showTab(tabName) {
-  document.querySelectorAll(".section").forEach(section => {
-    section.classList.remove("active");
-  });
-
-  document.querySelectorAll(".tab-button").forEach(button => {
-    button.classList.remove("active");
-  });
-
-  const section = $(tabName);
-  const button = document.querySelector(`[data-tab="${tabName}"]`);
-
-  if (section) section.classList.add("active");
-  if (button) button.classList.add("active");
-}
-
-/* =========================================
-   OVERVIEW
-========================================= */
-
-function renderOverview() {
-  $("studentCount").textContent = profiles.filter(p => p.role === "student").length;
-  $("teacherCount").textContent = profiles.filter(p => p.role === "teacher").length;
-  $("courseCount").textContent = courses.length;
-  $("pendingCount").textContent = enrolments.filter(e => e.status === "pending").length;
-}
-
-/* =========================================
-   LANGUAGE
-========================================= */
-
-function toggleLanguage() {
-  currentLanguage = currentLanguage === "en" ? "ar" : "en";
-
-  const ar = currentLanguage === "ar";
-  document.documentElement.lang = ar ? "ar" : "en";
-  document.documentElement.dir = ar ? "rtl" : "ltr";
-
-  $("languageButton").textContent = ar ? "English" : "العربية";
-  $("refreshButton").textContent = ar ? "تحديث" : "Refresh";
-  $("logoutButton").textContent = ar ? "تسجيل الخروج" : "Logout";
-
-  const labels = ar
-    ? ["الرئيسية","المقررات","المستخدمون","التسجيلات","الطلاب","الحضور","الإعلانات"]
-    : ["Overview","Courses","Users","Enrolments","Students","Attendance","Announcements"];
-
-  document.querySelectorAll(".tab-button").forEach((button,index) => {
-    button.textContent = labels[index];
-  });
-
-  renderCourses();
-  renderEnrolments();
-  renderStudentRecords();
-  renderAttendance();
-  renderAnnouncements();
-}
-
-/* =========================================
-   COURSE SELECT OPTIONS
-========================================= */
-
-function fillCourseOptions() {
-  const departmentSelect = $("courseDepartment");
-  const teacherSelect = $("courseTeacher");
-
-  departmentSelect.innerHTML = '<option value="">Select Department</option>';
-
-  departments.forEach(department => {
-    const option = document.createElement("option");
-    option.value = department.id;
-    option.textContent = departmentName(department.id);
-    departmentSelect.appendChild(option);
-  });
-
-  teacherSelect.innerHTML = '<option value="">Select Teacher</option>';
-
-  profiles.filter(p => p.role === "teacher").forEach(teacher => {
-    const option = document.createElement("option");
-    option.value = teacher.id;
-    option.textContent = displayName(teacher);
-    teacherSelect.appendChild(option);
-  });
-
-  ["enrolmentCourseFilter","attendanceCourse"].forEach(id => {
-    const select = $(id);
-    const oldValue = select.value;
-    select.innerHTML = '<option value="">All Courses</option>';
-
-    courses.forEach(course => {
-      const option = document.createElement("option");
-      option.value = course.id;
-      option.textContent = courseTitle(course);
-      select.appendChild(option);
-    });
-
-    select.value = oldValue;
-  });
-}
-
-/* =========================================
-   COURSE MANAGEMENT
-========================================= */
-
-function renderCourses() {
-  const body = $("courseRows");
-
-  if (!courses.length) {
-    body.innerHTML = emptyRow(6);
-    return;
-  }
-
-  body.innerHTML = courses.map(course => `
-    <tr>
-      <td>${escapeHTML(courseTitle(course))}</td>
-      <td>${escapeHTML(departmentName(course.department_id))}</td>
-      <td>${escapeHTML(teacherName(course.teacher_id))}</td>
-      <td>${badge(course.status)}</td>
-      <td>${escapeHTML(formatDate(course.created_at))}</td>
-      <td>
-        <button class="small" onclick="editCourse('${course.id}')">Edit</button>
-        <button class="small danger" onclick="deleteCourse('${course.id}')">Delete</button>
-      </td>
-    </tr>
-  `).join("");
-}
-
-async function saveCourse(event) {
-  event.preventDefault();
-
-  const id = $("courseId").value;
-
-  const record = {
-    title_en: $("courseTitleEn").value.trim(),
-    title_ar: $("courseTitleAr").value.trim(),
-    department_id: $("courseDepartment").value || null,
-    teacher_id: $("courseTeacher").value || null,
-    description: $("courseDescription").value.trim(),
-    status: $("courseStatus").value
-  };
-
-  if (!record.title_en) {
-    showMessage("Please enter the English course title.", "error");
-    return;
-  }
-
-  try {
-    const result = id
-      ? await db.from("courses").update(record).eq("id",id)
-      : await db.from("courses").insert(record);
-
-    if (result.error) throw result.error;
-
-    resetCourseForm();
-    await loadDashboard();
-    showMessage("Course saved successfully.");
-
-  } catch(error) {
-    showMessage("Course saving failed: " + error.message, "error");
-  }
-}
-
-function editCourse(id) {
-  const course = findCourse(id);
-  if (!course) return;
-
-  $("courseId").value = course.id;
-  $("courseTitleEn").value = course.title_en || "";
-  $("courseTitleAr").value = course.title_ar || "";
-  $("courseDepartment").value = course.department_id || "";
-  $("courseTeacher").value = course.teacher_id || "";
-  $("courseDescription").value = course.description || "";
-  $("courseStatus").value = course.status || "draft";
-  $("courseFormHeading").textContent = "Edit Course";
-
-  showTab("courses");
-  $("courseForm").scrollIntoView({behavior:"smooth"});
-}
-
-function resetCourseForm() {
-  $("courseForm").reset();
-  $("courseId").value = "";
-  $("courseFormHeading").textContent = "Create / Edit Course";
-}
-
-async function deleteCourse(id) {
-  if (!confirm("Delete this course?")) return;
-
-  try {
-    const {error} = await db.from("courses").delete().eq("id",id);
-    if (error) throw error;
-
-    await loadDashboard();
-    showMessage("Course deleted successfully.");
-
-  } catch(error) {
-    showMessage("Course deletion failed: " + error.message, "error");
-  }
-}
-
-/* =========================================
-   USER MANAGEMENT
-========================================= */
-
-function renderUsers() {
-  const body = $("userRows");
-  const search = ($("userSearch").value || "").toLowerCase().trim();
-
-  const filtered = profiles.filter(profile => {
-    const text = (displayName(profile) + " " + profile.id + " " + profile.role).toLowerCase();
-    return text.includes(search);
-  });
-
-  if (!filtered.length) {
-    body.innerHTML = emptyRow(5);
-    return;
-  }
-
-  body.innerHTML = filtered.map(profile => {
-    const protectedUser = profile.role === "admin";
-
-    return `
-      <tr>
-        <td>${escapeHTML(displayName(profile))}</td>
-        <td>${escapeHTML(profile.id)}</td>
-        <td>${badge(profile.role)}</td>
-        <td>
-          ${protectedUser ? "Protected administrator" : `
-            <select id="role-${profile.id}">
-              <option value="student" ${profile.role === "student" ? "selected" : ""}>Student</option>
-              <option value="teacher" ${profile.role === "teacher" ? "selected" : ""}>Teacher</option>
-            </select>
-          `}
-        </td>
-        <td>
-          ${protectedUser ? "Protected" : `
-            <button class="small" onclick="changeUserRole('${profile.id}')">Save Role</button>
-          `}
-        </td>
-      </tr>
-    `;
-  }).join("");
-}
-
-async function changeUserRole(userId) {
-  const select = $("role-" + userId);
-  if (!select) return;
-
-  if (!confirm("Change this user's role to " + select.value + "?")) return;
-
-  try {
-    const {error} = await db.rpc("academy_admin_change_user_role", {
-      p_user_id:userId,
-      p_new_role:select.value
-    });
-
-    if (error) throw error;
-
-    await loadDashboard();
-    showMessage("User role updated successfully.");
-
-  } catch(error) {
-    showMessage("Role update failed: " + error.message, "error");
-  }
-}
-
-/* =========================================
-   ENROLMENT MANAGEMENT
-========================================= */
-
-function renderEnrolments() {
-  const body = $("enrolmentRows");
-  const search = ($("enrolmentSearch").value || "").toLowerCase().trim();
-  const courseFilter = $("enrolmentCourseFilter").value;
-  const statusFilter = $("enrolmentStatusFilter").value;
-
-  const filtered = enrolments.filter(enrolment => {
-    const student = findProfile(enrolment.student_id);
-    const matchesSearch = displayName(student).toLowerCase().includes(search);
-    const matchesCourse = !courseFilter || enrolment.course_id === courseFilter;
-    const matchesStatus = !statusFilter || enrolment.status === statusFilter;
-
-    return matchesSearch && matchesCourse && matchesStatus;
-  });
-
-  if (!filtered.length) {
-    body.innerHTML = emptyRow(5);
-    return;
-  }
-
-  body.innerHTML = filtered.map(enrolment => `
-    <tr>
-      <td>${escapeHTML(displayName(findProfile(enrolment.student_id)))}</td>
-      <td>${escapeHTML(courseTitle(findCourse(enrolment.course_id)))}</td>
-      <td>${badge(enrolment.status)}</td>
-      <td>
-        <select id="enrolment-status-${enrolment.id}">
-          <option value="pending" ${enrolment.status === "pending" ? "selected" : ""}>Pending</option>
-          <option value="approved" ${enrolment.status === "approved" ? "selected" : ""}>Approved</option>
-          <option value="rejected" ${enrolment.status === "rejected" ? "selected" : ""}>Rejected</option>
-        </select>
-      </td>
-      <td><button class="small" onclick="updateEnrolment('${enrolment.id}')">Save</button></td>
-    </tr>
-  `).join("");
-}
-
-async function updateEnrolment(id) {
-  const select = $("enrolment-status-" + id);
-  if (!select) return;
-
-  try {
-    const {error} = await db.from(enrolmentTableName)
-      .update({status:select.value})
-      .eq("id",id);
-
-    if (error) throw error;
-
-    await loadDashboard();
-    showMessage("Enrolment updated successfully.");
-
-  } catch(error) {
-    showMessage("Enrolment update failed: " + error.message, "error");
-  }
-}
-
-/* =========================================
-   STUDENT RECORDS
-========================================= */
-
-function contactForStudent(id) {
-  return studentContacts.find(contact => contact.user_id === id);
-}
-
-function renderStudentRecords() {
-  const body = $("studentRows");
-  const search = ($("studentSearch").value || "").toLowerCase().trim();
-
-  const students = profiles.filter(profile =>
-    profile.role === "student" &&
-    displayName(profile).toLowerCase().includes(search)
-  );
-
-  if (!students.length) {
-    body.innerHTML = emptyRow(4);
-    return;
-  }
-
-  body.innerHTML = students.map(student => {
-    const contact = contactForStudent(student.id);
-
-    return `
-      <tr>
-        <td>${escapeHTML(displayName(student))}</td>
-        <td>${escapeHTML(contact?.email || "—")}</td>
-        <td>${escapeHTML(formatDate(contact?.registered_at || student.created_at))}</td>
-        <td><button class="small" onclick="viewStudent('${student.id}')">View Details</button></td>
-      </tr>
-    `;
-  }).join("");
-}
-
-function viewStudent(id) {
-  const student = findProfile(id);
-  if (!student) return;
-
-  const contact = contactForStudent(id);
-  const studentEnrolments = enrolments.filter(e => e.student_id === id);
-  const studentAttendance = attendanceRecords.filter(a => a.student_id === id);
-
-  let html = `
-    <div class="panel">
-      <h3>Student Details</h3>
-      <div class="detail-line"><strong>Name:</strong> ${escapeHTML(displayName(student))}</div>
-      <div class="detail-line"><strong>Email:</strong> ${escapeHTML(contact?.email || "—")}</div>
-      <div class="detail-line"><strong>Student ID:</strong> ${escapeHTML(student.id)}</div>
-      <div class="detail-line"><strong>Registered:</strong> ${escapeHTML(formatDate(contact?.registered_at || student.created_at))}</div>
-      <h3 style="margin-top:18px">Enrolments</h3>
-  `;
-
-  if (studentEnrolments.length) {
-    html += studentEnrolments.map(e => `
-      <div class="detail-line">${escapeHTML(courseTitle(findCourse(e.course_id)))} — ${badge(e.status)}</div>
-    `).join("");
-  } else {
-    html += '<p class="muted">No enrolments found.</p>';
-  }
-
-  html += `<h3 style="margin-top:18px">Attendance Records</h3>`;
-
-  if (studentAttendance.length) {
-    html += studentAttendance.map(a => `
-      <div class="detail-line">
-        ${escapeHTML(courseTitle(findCourse(a.course_id)))}
-        — ${escapeHTML(formatDate(a.attendance_date))}
-        — ${badge(a.status)}
-      </div>
-    `).join("");
-  } else {
-    html += '<p class="muted">No attendance records found.</p>';
-  }
-
-  html += `<div class="form-actions"><button class="secondary" onclick="$('studentDetails').innerHTML=''">Close Details</button></div></div>`;
-
-  $("studentDetails").innerHTML = html;
-  $("studentDetails").scrollIntoView({behavior:"smooth"});
-}
-
-/* =========================================
-   ATTENDANCE MANAGEMENT
-========================================= */
-
-function renderAttendance() {
-  const body = $("attendanceRows");
-
-  const search = ($("attendanceSearch").value || "").toLowerCase().trim();
-  const courseFilter = $("attendanceCourse").value;
-  const dateFilter = $("attendanceDate").value;
-  const statusFilter = $("attendanceStatus").value;
-
-  $("attendanceTotalCount").textContent = attendanceRecords.length;
-  $("attendancePresentCount").textContent = attendanceRecords.filter(a => a.status === "present").length;
-  $("attendanceAbsentCount").textContent = attendanceRecords.filter(a => a.status === "absent").length;
-  $("attendanceLateCount").textContent = attendanceRecords.filter(a => a.status === "late").length;
-
-  const filtered = attendanceRecords.filter(record => {
-    const student = findProfile(record.student_id);
-    const nameMatches = displayName(student).toLowerCase().includes(search);
-    const courseMatches = !courseFilter || record.course_id === courseFilter;
-    const dateMatches = !dateFilter || record.attendance_date === dateFilter;
-    const statusMatches = !statusFilter || record.status === statusFilter;
-
-    return nameMatches && courseMatches && dateMatches && statusMatches;
-  });
-
-  $("attendanceMessage").textContent = filtered.length + " attendance record(s) found.";
-
-  if (!filtered.length) {
-    body.innerHTML = emptyRow(6);
-    return;
-  }
-
-  body.innerHTML = filtered.map(record => `
-    <tr>
-      <td>${escapeHTML(displayName(findProfile(record.student_id)))}</td>
-      <td>${escapeHTML(courseTitle(findCourse(record.course_id)))}</td>
-      <td>${escapeHTML(formatDate(record.attendance_date))}</td>
-      <td>${badge(record.status)}</td>
-      <td>${escapeHTML(record.remarks || "—")}</td>
-      <td>
-        <select id="attendance-status-${record.id}">
-          <option value="present" ${record.status === "present" ? "selected" : ""}>Present</option>
-          <option value="absent" ${record.status === "absent" ? "selected" : ""}>Absent</option>
-          <option value="late" ${record.status === "late" ? "selected" : ""}>Late</option>
-        </select>
-        <button class="small" onclick="updateAttendance('${record.id}')">Save</button>
-      </td>
-    </tr>
-  `).join("");
-}
-
-async function updateAttendance(id) {
-  const select = $("attendance-status-" + id);
-  if (!select) return;
-
-  try {
-    const {error} = await db.from("attendance")
-      .update({status:select.value})
-      .eq("id",id);
-
-    if (error) throw error;
-
-    await loadDashboard();
-    showMessage("Attendance updated successfully.");
-
-  } catch(error) {
-    showMessage("Attendance update failed: " + error.message, "error");
-  }
-}
-
-/* =========================================
-   ANNOUNCEMENTS
-========================================= */
-
-function renderAnnouncements() {
-  const container = $("announcementList");
-
-  if (!announcements.length) {
-    container.innerHTML = '<p class="empty">No announcements found.</p>';
-    return;
-  }
-
-  container.innerHTML = announcements.map(item => `
-    <div class="announcement">
-      <h4>${escapeHTML(item.title || "Announcement")}</h4>
-      <p>${escapeHTML(item.body || "")}</p>
-      <p class="muted">
-        Audience: ${escapeHTML(item.audience || "both")}
-        &nbsp; | &nbsp; Status: ${escapeHTML(item.status || "unknown")}
-      </p>
-      <button class="small" onclick="editAnnouncement('${item.id}')">Edit</button>
-      <button class="small danger" onclick="deleteAnnouncement('${item.id}')">Delete</button>
-    </div>
-  `).join("");
-}
-
-async function saveAnnouncement(event) {
-  event.preventDefault();
-
-  const id = $("announcementId").value;
-
-  const record = {
-    title: $("announcementTitle").value.trim(),
-    body: $("announcementBody").value.trim(),
-    audience: $("announcementAudience").value,
-    status: $("announcementStatus").value
-  };
-
-  if (!record.title || !record.body) {
-    $("announcementMessage").textContent = "Please enter a title and message.";
-    return;
-  }
-
-  try {
-    if (record.status === "published") {
-      record.published_at = new Date().toISOString();
-    }
-
-    const result = id
-      ? await db.from("announcements").update(record).eq("id",id)
-      : await db.from("announcements").insert(record);
-
-    if (result.error) throw result.error;
-
-    resetAnnouncementForm();
-    await loadDashboard();
-    $("announcementMessage").textContent = "Announcement saved successfully.";
-
-  } catch(error) {
-    $("announcementMessage").textContent = "Announcement saving failed: " + error.message;
-  }
-}
-
-function editAnnouncement(id) {
-  const item = announcements.find(a => a.id === id);
-  if (!item) return;
-
-  $("announcementId").value = item.id;
-  $("announcementTitle").value = item.title || "";
-  $("announcementBody").value = item.body || "";
-  $("announcementAudience").value = item.audience || "both";
-  $("announcementStatus").value = item.status || "draft";
-  $("announcementFormHeading").textContent = "Edit Announcement";
-
-  showTab("announcements");
-  $("announcementForm").scrollIntoView({behavior:"smooth"});
-}
-
-function resetAnnouncementForm() {
-  $("announcementForm").reset();
-  $("announcementId").value = "";
-  $("announcementFormHeading").textContent = "Create Announcement";
-  $("announcementMessage").textContent = "";
-}
-
-async function deleteAnnouncement(id) {
-  if (!confirm("Delete this announcement?")) return;
-
-  try {
-    const {error} = await db.from("announcements").delete().eq("id",id);
-    if (error) throw error;
-
-    await loadDashboard();
-    $("announcementMessage").textContent = "Announcement deleted successfully.";
-
-  } catch(error) {
-    $("announcementMessage").textContent = "Announcement deletion failed: " + error.message;
-  }
-}
-
-/* =========================================
-   EVENT LISTENERS
-========================================= */
-
-$("courseForm").addEventListener("submit",saveCourse);
-$("announcementForm").addEventListener("submit",saveAnnouncement);
-
-/* =========================================
-   START APPLICATION
-========================================= */
-
+const SUPABASE_URL="https://kxaovcknyddctnqvrudi.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let currentUser=null,currentProfile=null,currentLanguage="en";
+let profiles=[],courses=[],departments=[],enrolments=[],studentContacts=[],attendanceRecords=[],announcements=[];
+let enrolmentTableName="enrollments";
+const $=id=>document.getElementById(id);
+function toggleMenu(){const open=!$("sidebar").classList.contains("open");$("sidebar").classList.toggle("open",open);$("mobileBackdrop").classList.toggle("show",open);$("menuToggle").setAttribute("aria-expanded",String(open));$("menuToggle").textContent=open?"×":"☰"}
+function closeMenu(){$("sidebar").classList.remove("open");$("mobileBackdrop").classList.remove("show");$("menuToggle").setAttribute("aria-expanded","false");$("menuToggle").textContent="☰"}
+function escapeHTML(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[char])}
+function showMessage(message,type="success"){const box=$("message");box.textContent=message;box.className="message show"+(type==="error"?" error":"");window.scrollTo({top:0,behavior:"smooth"})}
+function hideMessage(){$("message").className="message";$("message").textContent=""}
+function displayName(profile){return profile?.full_name||profile?.email||profile?.id||"Unknown"}
+function findProfile(id){return profiles.find(p=>p.id===id)}
+function findCourse(id){return courses.find(c=>c.id===id)}
+function courseTitle(course){if(!course)return "Unknown course";return currentLanguage==="ar"?(course.title_ar||course.title_en||"Course"):(course.title_en||course.title_ar||"Course")}
+function departmentName(id){const d=departments.find(x=>x.id===id);if(!d)return "—";return currentLanguage==="ar"?(d.name_ar||d.name_en||"—"):(d.name_en||d.name_ar||"—")}
+function teacherName(id){if(!id)return "—";return displayName(findProfile(id))}
+function formatDate(value){if(!value)return "—";const date=new Date(value);return isNaN(date.getTime())?"—":date.toLocaleDateString()}
+function badge(status){const safe=String(status||"unknown").toLowerCase();return `<span class="badge ${escapeHTML(safe)}">${escapeHTML(status||"Unknown")}</span>`}
+function emptyRow(columns,message="No records found"){return `<tr><td colspan="${columns}" class="empty">${escapeHTML(message)}</td></tr>`}
+async function start(){try{const {data,error}=await db.auth.getSession();if(error)throw error;if(!data.session){showMessage("Please log in first. Redirecting to login page...","error");setTimeout(()=>location.href="login.html",1800);return}currentUser=data.session.user;const {data:profile,error:profileError}=await db.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();if(profileError)throw profileError;if(!profile||profile.role!=="admin"){await db.auth.signOut();showMessage("Access denied. Administrator account required.","error");return}currentProfile=profile;$("welcomeTitle").textContent="Welcome, "+displayName(profile);$("dashboard").style.display="block";await loadDashboard()}catch(error){console.error(error);showMessage("Unable to load dashboard: "+error.message,"error")}}
+async function loadDashboard(){hideMessage();try{const [pr,cr,dr,co,ar,an]=await Promise.all([db.from("profiles").select("*"),db.from("courses").select("*"),db.from("departments").select("*"),db.from("student_contact_details").select("*"),db.from("attendance").select("*"),db.from("announcements").select("*")]);for(const [name,result] of [["profiles",pr],["courses",cr],["departments",dr],["student_contact_details",co],["attendance",ar],["announcements",an]])if(result.error)throw new Error(name+": "+result.error.message);profiles=pr.data||[];courses=cr.data||[];departments=dr.data||[];studentContacts=co.data||[];attendanceRecords=ar.data||[];announcements=an.data||[];let er=await db.from("enrollments").select("*");if(er.error){const fallback=await db.from("enrolments").select("*");if(fallback.error)throw new Error("Enrolments: "+er.error.message);er=fallback;enrolmentTableName="enrolments"}else enrolmentTableName="enrollments";enrolments=er.data||[];renderOverview();fillCourseOptions();renderCourses();renderUsers();renderEnrolments();renderStudentRecords();renderAttendance();renderAnnouncements();$("lastUpdated").textContent="Last updated: "+new Date().toLocaleString()}catch(error){console.error(error);showMessage("Unable to load dashboard data: "+error.message,"error");throw error}}
+async function refreshDashboard(){try{await loadDashboard();showMessage("Dashboard refreshed successfully.")}catch(error){console.error(error)}}
+async function logout(){const {error}=await db.auth.signOut();if(error){showMessage("Logout failed: "+error.message,"error");return}location.href="login.html"}
+function showTab(tabName){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.querySelectorAll(".tab-button").forEach(b=>b.classList.remove("active"));const section=$(tabName),button=document.querySelector(`[data-tab="${tabName}"]`);if(section)section.classList.add("active");if(button)button.classList.add("active");closeMenu();window.scrollTo({top:0,behavior:"smooth"})}
+function renderOverview(){$("studentCount").textContent=profiles.filter(p=>p.role==="student").length;$("teacherCount").textContent=profiles.filter(p=>p.role==="teacher").length;$("courseCount").textContent=courses.length;$("pendingCount").textContent=enrolments.filter(e=>e.status==="pending").length}
+function toggleLanguage(){currentLanguage=currentLanguage==="en"?"ar":"en";const ar=currentLanguage==="ar";document.documentElement.lang=ar?"ar":"en";document.documentElement.dir=ar?"rtl":"ltr";$("languageButton").textContent=ar?"English":"العربية";$("refreshButton").textContent=ar?"تحديث":"Refresh";$("logoutButton").textContent=ar?"تسجيل الخروج":"Logout";$("navHeading").textContent=ar?"الإدارة":"ADMINISTRATION";const labels=ar?["الرئيسية","المقررات","المستخدمون","التسجيلات","الطلاب","الحضور","الإعلانات"]:["Overview","Courses","Users","Enrolments","Students","Attendance","Announcements"];document.querySelectorAll(".tab-button span:last-child").forEach((s,i)=>s.textContent=labels[i]);document.querySelectorAll("[data-en][data-ar]").forEach(el=>el.textContent=ar?el.dataset.ar:el.dataset.en);renderCourses();renderEnrolments();renderStudentRecords();renderAttendance();renderAnnouncements()}
+function fillCourseOptions(){const ds=$("courseDepartment"),ts=$("courseTeacher");ds.innerHTML='<option value="">Select Department</option>';departments.forEach(d=>{const o=document.createElement("option");o.value=d.id;o.textContent=departmentName(d.id);ds.appendChild(o)});ts.innerHTML='<option value="">Select Teacher</option>';profiles.filter(p=>p.role==="teacher").forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=displayName(t);ts.appendChild(o)});["enrolmentCourseFilter","attendanceCourse"].forEach(id=>{const s=$(id),old=s.value;s.innerHTML='<option value="">All Courses</option>';courses.forEach(c=>{const o=document.createElement("option");o.value=c.id;o.textContent=courseTitle(c);s.appendChild(o)});s.value=old})}
+function renderCourses(){const body=$("courseRows");if(!courses.length){body.innerHTML=emptyRow(6);return}body.innerHTML=courses.map(c=>`<tr><td>${escapeHTML(courseTitle(c))}</td><td>${escapeHTML(departmentName(c.department_id))}</td><td>${escapeHTML(teacherName(c.teacher_id))}</td><td>${badge(c.status)}</td><td>${escapeHTML(formatDate(c.created_at))}</td><td><button class="small" onclick="editCourse('${c.id}')">Edit</button> <button class="small danger" onclick="deleteCourse('${c.id}')">Delete</button></td></tr>`).join("")}
+async function saveCourse(event){event.preventDefault();const id=$("courseId").value,record={title_en:$("courseTitleEn").value.trim(),title_ar:$("courseTitleAr").value.trim(),department_id:$("courseDepartment").value||null,teacher_id:$("courseTeacher").value||null,description:$("courseDescription").value.trim(),status:$("courseStatus").value};if(!record.title_en){showMessage("Please enter the English course title.","error");return}try{const result=id?await db.from("courses").update(record).eq("id",id):await db.from("courses").insert(record);if(result.error)throw result.error;resetCourseForm();await loadDashboard();showMessage("Course saved successfully.")}catch(error){showMessage("Course saving failed: "+error.message,"error")}}
+function editCourse(id){const c=findCourse(id);if(!c)return;$("courseId").value=c.id;$("courseTitleEn").value=c.title_en||"";$("courseTitleAr").value=c.title_ar||"";$("courseDepartment").value=c.department_id||"";$("courseTeacher").value=c.teacher_id||"";$("courseDescription").value=c.description||"";$("courseStatus").value=c.status||"draft";$("courseFormHeading").textContent="Edit Course";showTab("courses");$("courseForm").scrollIntoView({behavior:"smooth"})}
+function resetCourseForm(){$("courseForm").reset();$("courseId").value="";$("courseFormHeading").textContent="Create / Edit Course"}
+async function deleteCourse(id){if(!confirm("Delete this course?"))return;try{const {error}=await db.from("courses").delete().eq("id",id);if(error)throw error;await loadDashboard();showMessage("Course deleted successfully.")}catch(error){showMessage("Course deletion failed: "+error.message,"error")}}
+function renderUsers(){const body=$("userRows"),search=($("userSearch").value||"").toLowerCase().trim(),filtered=profiles.filter(p=>(displayName(p)+" "+p.id+" "+p.role).toLowerCase().includes(search));if(!filtered.length){body.innerHTML=emptyRow(5);return}body.innerHTML=filtered.map(p=>{const protectedUser=p.role==="admin";return `<tr><td>${escapeHTML(displayName(p))}</td><td>${escapeHTML(p.id)}</td><td>${badge(p.role)}</td><td>${protectedUser?"Protected administrator":`<select id="role-${p.id}"><option value="student" ${p.role==="student"?"selected":""}>Student</option><option value="teacher" ${p.role==="teacher"?"selected":""}>Teacher</option></select>`}</td><td>${protectedUser?"Protected":`<button class="small" onclick="changeUserRole('${p.id}')">Save Role</button>`}</td></tr>`}).join("")}
+async function changeUserRole(userId){const select=$("role-"+userId);if(!select)return;if(!confirm("Change this user's role to "+select.value+"?"))return;try{const {error}=await db.rpc("academy_admin_change_user_role",{p_user_id:userId,p_new_role:select.value});if(error)throw error;await loadDashboard();showMessage("User role updated successfully.")}catch(error){showMessage("Role update failed: "+error.message,"error")}}
+function renderEnrolments(){const body=$("enrolmentRows"),search=($("enrolmentSearch").value||"").toLowerCase().trim(),cf=$("enrolmentCourseFilter").value,sf=$("enrolmentStatusFilter").value,filtered=enrolments.filter(e=>displayName(findProfile(e.student_id)).toLowerCase().includes(search)&&(!cf||e.course_id===cf)&&(!sf||e.status===sf));if(!filtered.length){body.innerHTML=emptyRow(5);return}body.innerHTML=filtered.map(e=>`<tr><td>${escapeHTML(displayName(findProfile(e.student_id)))}</td><td>${escapeHTML(courseTitle(findCourse(e.course_id)))}</td><td>${badge(e.status)}</td><td><select id="enrolment-status-${e.id}"><option value="pending" ${e.status==="pending"?"selected":""}>Pending</option><option value="approved" ${e.status==="approved"?"selected":""}>Approved</option><option value="rejected" ${e.status==="rejected"?"selected":""}>Rejected</option></select></td><td><button class="small" onclick="updateEnrolment('${e.id}')">Save</button></td></tr>`).join("")}
+async function updateEnrolment(id){const s=$("enrolment-status-"+id);if(!s)return;try{const {error}=await db.from(enrolmentTableName).update({status:s.value}).eq("id",id);if(error)throw error;await loadDashboard();showMessage("Enrolment updated successfully.")}catch(error){showMessage("Enrolment update failed: "+error.message,"error")}}
+function contactForStudent(id){return studentContacts.find(c=>c.user_id===id)}
+function renderStudentRecords(){const body=$("studentRows"),search=($("studentSearch").value||"").toLowerCase().trim(),students=profiles.filter(p=>p.role==="student"&&displayName(p).toLowerCase().includes(search));if(!students.length){body.innerHTML=emptyRow(4);return}body.innerHTML=students.map(s=>{const c=contactForStudent(s.id);return `<tr><td>${escapeHTML(displayName(s))}</td><td>${escapeHTML(c?.email||"—")}</td><td>${escapeHTML(formatDate(c?.registered_at||s.created_at))}</td><td><button class="small" onclick="viewStudent('${s.id}')">View Details</button></td></tr>`}).join("")}
+function viewStudent(id){const s=findProfile(id);if(!s)return;const c=contactForStudent(id),se=enrolments.filter(e=>e.student_id===id),sa=attendanceRecords.filter(a=>a.student_id===id);let html=`<div class="panel"><h3>Student Details</h3><div class="detail-line"><strong>Name:</strong> ${escapeHTML(displayName(s))}</div><div class="detail-line"><strong>Email:</strong> ${escapeHTML(c?.email||"—")}</div><div class="detail-line"><strong>Student ID:</strong> ${escapeHTML(s.id)}</div><div class="detail-line"><strong>Registered:</strong> ${escapeHTML(formatDate(c?.registered_at||s.created_at))}</div><h3 style="margin-top:18px">Enrolments</h3>`;html+=se.length?se.map(e=>`<div class="detail-line">${escapeHTML(courseTitle(findCourse(e.course_id)))} — ${badge(e.status)}</div>`).join(""):'<p class="muted">No enrolments found.</p>';html+='<h3 style="margin-top:18px">Attendance Records</h3>';html+=sa.length?sa.map(a=>`<div class="detail-line">${escapeHTML(courseTitle(findCourse(a.course_id)))} — ${escapeHTML(formatDate(a.attendance_date))} — ${badge(a.status)}</div>`).join(""):'<p class="muted">No attendance records found.</p>';html+='<div class="form-actions"><button class="secondary" onclick="$(\'studentDetails\').innerHTML=\'\'">Close Details</button></div></div>';$('studentDetails').innerHTML=html;$('studentDetails').scrollIntoView({behavior:'smooth'})}
+function renderAttendance(){const body=$("attendanceRows"),search=($("attendanceSearch").value||"").toLowerCase().trim(),cf=$("attendanceCourse").value,df=$("attendanceDate").value,sf=$("attendanceStatus").value;$("attendanceTotalCount").textContent=attendanceRecords.length;$("attendancePresentCount").textContent=attendanceRecords.filter(a=>a.status==="present").length;$("attendanceAbsentCount").textContent=attendanceRecords.filter(a=>a.status==="absent").length;$("attendanceLateCount").textContent=attendanceRecords.filter(a=>a.status==="late").length;const filtered=attendanceRecords.filter(r=>displayName(findProfile(r.student_id)).toLowerCase().includes(search)&&(!cf||r.course_id===cf)&&(!df||r.attendance_date===df)&&(!sf||r.status===sf));$("attendanceMessage").textContent=filtered.length+" attendance record(s) found.";if(!filtered.length){body.innerHTML=emptyRow(6);return}body.innerHTML=filtered.map(r=>`<tr><td>${escapeHTML(displayName(findProfile(r.student_id)))}</td><td>${escapeHTML(courseTitle(findCourse(r.course_id)))}</td><td>${escapeHTML(formatDate(r.attendance_date))}</td><td>${badge(r.status)}</td><td>${escapeHTML(r.remarks||"—")}</td><td><select id="attendance-status-${r.id}"><option value="present" ${r.status==="present"?"selected":""}>Present</option><option value="absent" ${r.status==="absent"?"selected":""}>Absent</option><option value="late" ${r.status==="late"?"selected":""}>Late</option></select> <button class="small" onclick="updateAttendance('${r.id}')">Save</button></td></tr>`).join("")}
+async function updateAttendance(id){const s=$("attendance-status-"+id);if(!s)return;try{const {error}=await db.from("attendance").update({status:s.value}).eq("id",id);if(error)throw error;await loadDashboard();showMessage("Attendance updated successfully.")}catch(error){showMessage("Attendance update failed: "+error.message,"error")}}
+function renderAnnouncements(){const box=$("announcementList");if(!announcements.length){box.innerHTML='<p class="empty">No announcements found.</p>';return}box.innerHTML=announcements.map(a=>`<div class="announcement"><h4>${escapeHTML(a.title||"Announcement")}</h4><p>${escapeHTML(a.body||"")}</p><p class="muted">Audience: ${escapeHTML(a.audience||"both")} &nbsp; | &nbsp; Status: ${escapeHTML(a.status||"unknown")}</p><button class="small" onclick="editAnnouncement('${a.id}')">Edit</button> <button class="small danger" onclick="deleteAnnouncement('${a.id}')">Delete</button></div>`).join("")}
+async function saveAnnouncement(event){event.preventDefault();const id=$("announcementId").value,record={title:$("announcementTitle").value.trim(),body:$("announcementBody").value.trim(),audience:$("announcementAudience").value,status:$("announcementStatus").value};if(!record.title||!record.body){$("announcementMessage").textContent="Please enter a title and message.";return}try{if(record.status==="published")record.published_at=new Date().toISOString();const result=id?await db.from("announcements").update(record).eq("id",id):await db.from("announcements").insert(record);if(result.error)throw result.error;resetAnnouncementForm();await loadDashboard();$("announcementMessage").textContent="Announcement saved successfully."}catch(error){$("announcementMessage").textContent="Announcement saving failed: "+error.message}}
+function editAnnouncement(id){const a=announcements.find(x=>x.id===id);if(!a)return;$("announcementId").value=a.id;$("announcementTitle").value=a.title||"";$("announcementBody").value=a.body||"";$("announcementAudience").value=a.audience||"both";$("announcementStatus").value=a.status||"draft";$("announcementFormHeading").textContent="Edit Announcement";showTab("announcements");$("announcementForm").scrollIntoView({behavior:"smooth"})}
+function resetAnnouncementForm(){$("announcementForm").reset();$("announcementId").value="";$("announcementFormHeading").textContent="Create Announcement";$("announcementMessage").textContent=""}
+async function deleteAnnouncement(id){if(!confirm("Delete this announcement?"))return;try{const {error}=await db.from("announcements").delete().eq("id",id);if(error)throw error;await loadDashboard();$("announcementMessage").textContent="Announcement deleted successfully."}catch(error){$("announcementMessage").textContent="Announcement deletion failed: "+error.message}}
+$("courseForm").addEventListener("submit",saveCourse);$("announcementForm").addEventListener("submit",saveAnnouncement);
 start();
-
 </script>
 </body>
 </html>

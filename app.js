@@ -1,8 +1,9 @@
 
 (() => {
+  "use strict";
+
   const toggle = document.getElementById("languageToggle");
   const year = document.getElementById("year");
-
   const page = document.documentElement;
 
   const defaultTitles = {
@@ -27,7 +28,10 @@
 
     page.lang = language;
     page.dir = language === "ar" ? "rtl" : "ltr";
-    document.body.dir = page.dir;
+
+    if (document.body) {
+      document.body.dir = page.dir;
+    }
 
     document.querySelectorAll("[data-ar][data-en]").forEach((element) => {
       element.textContent = element.dataset[language];
@@ -44,19 +48,25 @@
     try {
       localStorage.setItem("academy-language", language);
     } catch (error) {
-      // The website will still work if storage is unavailable.
+      // The page continues working if local storage is unavailable.
     }
-  }
-
-  if (toggle) {
-    toggle.addEventListener("click", () => {
-      setLanguage(language === "ar" ? "en" : "ar");
-    });
   }
 
   if (year) {
     year.textContent = new Date().getFullYear();
   }
 
-  setLanguage(language);
+  /*
+   * The Student Portal has its own translation system.
+   * Do not attach a second language-toggle listener there.
+   */
+  if (page.dataset.page !== "student-portal") {
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        setLanguage(language === "ar" ? "en" : "ar");
+      });
+    }
+
+    setLanguage(language);
+  }
 })();

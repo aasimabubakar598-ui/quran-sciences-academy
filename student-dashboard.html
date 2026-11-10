@@ -4,78 +4,567 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0f2a24">
-<title>لوحة الطالب | أكاديمية القرآن الكريم</title>
-<link rel="stylesheet" href="/style.css">
+<title>لوحة المعلم | أكاديمية القرآن الكريم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/app.js" defer></script>
 <style>
-:root{--green:#0f2a24;--green2:#183b32;--gold:#d8bd78;--bg:#f3f6f4;--border:#e4e8e4;--text:#20312b;--muted:#64746e}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}button{font:inherit;cursor:pointer}.site-header{background:var(--green);color:#fff;min-height:70px;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}.site-header .logo{color:#fff;text-decoration:none;font-weight:bold;font-size:19px}.site-header button{border:0;border-radius:8px;padding:10px 16px;background:var(--gold);color:var(--green);font-weight:bold}.portal-layout{max-width:1500px;margin:24px auto;padding:0 18px;display:grid;grid-template-columns:255px minmax(0,1fr);gap:22px;align-items:start}.sidebar{background:var(--green);border-radius:15px;padding:18px 13px;color:white;position:sticky;top:18px}.sidebar-title{color:var(--gold);font-weight:bold;font-size:16px;padding:7px 10px 17px;border-bottom:1px solid #ffffff24;margin-bottom:12px}.sidebar-nav{display:grid;gap:7px}.nav-item{border:0;border-radius:8px;background:transparent;color:#fff;text-align:right;padding:12px 13px;width:100%;font-weight:bold}.nav-item:hover,.nav-item.active{background:var(--gold);color:var(--green)}.mobile-menu{display:none;background:var(--green2);color:white;border:0;border-radius:8px;padding:10px 14px;margin-bottom:12px}.portal-content{min-width:0}.dashboard{max-width:none;margin:0;padding:0 0 35px}.welcome-card{background:var(--green);color:white;padding:27px;border-radius:18px;margin-bottom:20px}.welcome-card h1{color:var(--gold);margin-top:0}.welcome-card p{line-height:1.8}.dashboard-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.dashboard-actions button{border:0;border-radius:8px;padding:11px 17px;background:var(--gold);color:var(--green);font-weight:bold}.dashboard-actions a{color:var(--gold);align-self:center}.dashboard-section{display:none;margin:0}.dashboard-section.active{display:block}.dashboard-section>h2{color:var(--green);border-bottom:2px solid var(--gold);padding-bottom:10px;margin:0 0 17px}.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.dashboard-card,.material-card,.attendance-record{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 4px 15px #00000008}.dashboard-card h3,.material-card h3,.attendance-record h3{color:var(--green);margin:0 0 10px}.dashboard-card p,.material-card p,.attendance-record p{color:var(--muted);line-height:1.8;overflow-wrap:anywhere}.status,.material-course{display:inline-block;padding:5px 12px;border-radius:20px;background:#edf4ee;color:#176438;font-size:13px;margin:4px 0}.empty-state{background:#fff;padding:22px;border-radius:12px;color:var(--muted);text-align:center;grid-column:1/-1}.dashboard-message{padding:13px;border-radius:9px;margin:14px 0;line-height:1.7;overflow-wrap:anywhere}.dashboard-message.error{background:#fcebea;color:#a12622}.dashboard-message.info{background:#edf4ee;color:#176438}.enroll-button{margin-top:14px;width:100%;border:0;border-radius:8px;padding:11px 16px;background:var(--gold);color:var(--green);font-weight:bold}.enroll-button:disabled{opacity:.65;cursor:not-allowed}.attendance-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:13px;margin-bottom:18px}.attendance-stat{background:white;border:1px solid var(--border);border-radius:12px;padding:17px;text-align:center}.attendance-stat strong{display:block;color:var(--green);font-size:26px;margin-bottom:6px}.attendance-stat span{color:var(--muted);font-size:14px}.attendance-record{margin-bottom:12px}.attendance-status{display:inline-block;padding:5px 12px;border-radius:20px;font-size:13px;font-weight:bold}.attendance-status.present{background:#e7f5eb;color:#176438}.attendance-status.absent{background:#fcebea;color:#a12622}.attendance-status.late{background:#fff4dc;color:#8a5a00}.material-card{margin-bottom:13px}.material-date{color:var(--muted);font-size:13px;margin:10px 0}.material-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.material-actions button{border:0;border-radius:8px;padding:10px 15px;background:var(--green);color:white;font-weight:bold}.material-actions button.download{background:var(--gold);color:var(--green)}.material-actions button:disabled{opacity:.6;cursor:wait}.site-footer{text-align:center;padding:22px;color:var(--muted);font-size:13px}
-[dir=rtl] .nav-item{text-align:right}[dir=ltr] .nav-item{text-align:left}
-@media(max-width:800px){.portal-layout{display:block;margin:15px auto;padding:0 12px}.mobile-menu{display:inline-block}.sidebar{display:none;position:relative;top:auto;margin-bottom:15px}.sidebar.open{display:block}.sidebar-title{padding-bottom:10px}.sidebar-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.nav-item{font-size:13px}.welcome-card{padding:21px}.material-actions button{flex:1}}
-@media(max-width:480px){.site-header{padding:12px}.site-header .logo{font-size:16px}.sidebar-nav{grid-template-columns:1fr 1fr}.dashboard-grid{grid-template-columns:1fr}.dashboard-actions>*{flex:1}.attendance-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+:root{--bg:#0f2a24;--panel:#183b32;--panel2:#20483d;--gold:#d8bd78;--text:#f5f1e7;--muted:#c3cbbf;--border:rgba(216,189,120,.2);--green:#80c69a;--red:#e69b91}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Tajawal,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:#102f28;border-bottom:1px solid var(--border);padding:18px 5%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{color:var(--gold);font-size:21px;font-weight:800}.header-actions,.actions,.material-actions,.attendance-actions{display:flex;gap:9px;flex-wrap:wrap}
+.header-actions button{background:var(--panel2);color:white;border:1px solid var(--border);border-radius:9px;padding:9px 14px}
+main{max-width:1150px;margin:30px auto;padding:0 18px 50px}h1,h2,h3{color:var(--gold)}h1{margin-bottom:6px;font-size:29px}h2{margin-top:0;font-size:21px}.muted{color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:15px;margin:25px 0}.stat,.section{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:20px}.stat strong{display:block;color:var(--gold);font-size:30px;margin-top:8px}.section{margin-bottom:22px}
+.course,.request,.student,.material-card,.item-card,.attendance-row{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:15px;margin-top:12px}.course h3,.material-card h3,.item-card h3{margin:0 0 8px}
+.request{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.approve,.reject,.primary-btn,.secondary-btn,.danger-btn{border:0;border-radius:8px;padding:10px 15px;font-weight:700;color:white}.approve,.primary-btn{background:#286b4b}.reject,.danger-btn{background:#75413d}.secondary-btn{background:#8a7037}.primary-btn:disabled,button:disabled{opacity:.5;cursor:not-allowed}
+.message{padding:12px;border-radius:9px;margin:12px 0;background:var(--panel2);color:var(--muted);overflow-wrap:anywhere;line-height:1.7}.error{color:var(--red)}.success{color:var(--green)}.status{color:var(--gold);font-size:14px;margin-top:7px}
+.field{display:flex;flex-direction:column;gap:7px;min-width:0}.field label{color:var(--gold);font-weight:700}.field input,.field select,.field textarea,.attendance-row select,.attendance-row textarea{width:100%;padding:11px;border-radius:8px;border:1px solid var(--border);background:#102f28;color:var(--text);font-size:15px}.field textarea{min-height:85px;resize:vertical}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px;margin:15px 0}.full{grid-column:1/-1}.attendance-row{display:grid;grid-template-columns:minmax(130px,1fr) minmax(140px,.8fr) minmax(150px,1fr);gap:12px;align-items:center}.attendance-row textarea{min-height:42px}
+.attendance-summary{display:flex;flex-wrap:wrap;gap:12px;margin:15px 0;color:var(--muted)}.attendance-summary strong{color:var(--gold)}
+.attendance-row{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.attendance-student-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.attendance-status-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.attendance-choice{border:1px solid #cbdccf;background:#fff;color:#385744;border-radius:9px;padding:10px 8px;font-weight:700}
+.attendance-choice.active[data-status="present"]{background:#347653;color:#fff;border-color:#347653}
+.attendance-choice.active[data-status="absent"]{background:#a94e48;color:#fff;border-color:#a94e48}
+.attendance-choice.active[data-status="late"]{background:#a88435;color:#fff;border-color:#a88435}
+.attendance-notes summary{color:#617469;cursor:pointer;font-size:13px}.attendance-notes textarea{margin-top:8px}
+.attendance-actions{margin:12px 0}#markAllPresentBtn{background:#a88435}
+@media(max-width:480px){.attendance-status-options{gap:5px}.attendance-choice{font-size:13px;padding:10px 4px}}
+.material-help,.meta{color:var(--muted);font-size:13px;line-height:1.8;overflow-wrap:anywhere}.material-actions{margin-top:14px}.material-actions button{border:0;border-radius:8px;padding:10px 15px;color:white;font-weight:700}.material-open{background:#286b4b}.material-download{background:#8a7037}.material-delete{background:#75413d}
+.empty{background:var(--panel2);padding:16px;border-radius:10px;color:var(--muted);margin-top:12px}.progress{color:var(--gold);margin-top:12px;font-size:14px}
+.item-card p{color:var(--muted);line-height:1.7;overflow-wrap:anywhere}.inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.inline-actions button{border:0;border-radius:8px;padding:9px 13px;color:white;font-weight:700}
+hr{border:0;border-top:1px solid var(--border);margin:20px 0}footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid var(--border)}
+
+.dashboard-shell{display:grid;grid-template-columns:245px minmax(0,1fr);max-width:1500px;margin:0 auto;min-height:calc(100vh - 75px)}
+.sidebar{background:#102f28;border-left:1px solid var(--border);padding:24px 14px;position:sticky;top:0;height:calc(100vh - 0px);overflow-y:auto}
+.sidebar-heading{color:var(--gold);font-weight:800;font-size:17px;padding:0 12px 15px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.side-nav{display:grid;gap:7px}.nav-link{width:100%;text-align:right;border:1px solid transparent;background:transparent;color:var(--muted);padding:12px 13px;border-radius:9px;font-weight:700;transition:.18s}
+.nav-link:hover,.nav-link.active{background:var(--panel2);border-color:var(--border);color:var(--gold)}
+.dashboard-shell main{width:100%;max-width:none;margin:0;padding:28px 25px 50px;min-width:0}
+.dashboard-page{display:none}.dashboard-page.active{display:block}.mobile-nav-row{display:none;align-items:center;gap:12px;color:var(--gold);font-weight:800;margin-bottom:18px}
+.menu-toggle{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px}
+@media(max-width:850px){.dashboard-shell{grid-template-columns:1fr}.sidebar{position:fixed;z-index:20;top:0;bottom:0;right:0;width:min(290px,82vw);height:100vh;transform:translateX(105%);transition:transform .2s ease;box-shadow:-10px 0 30px #0005}.sidebar.open{transform:translateX(0)}.dashboard-shell main{padding:18px 14px 40px}.mobile-nav-row{display:flex}}
+@media(min-width:851px){.sidebar{transform:none!important}}
+
+@media(max-width:650px){h1{font-size:24px}.request{align-items:flex-start}.actions{width:100%}.actions button{flex:1}.attendance-row{grid-template-columns:1fr}.attendance-actions button,.material-actions button{width:100%}.full{grid-column:auto}}
+
+/* SOFT GREEN THEME */
+:root{--bg:#f1f7f2;--panel:#ffffff;--panel2:#e5f0e7;--gold:#a88435;--text:#243b2e;--muted:#617469;--border:#d3e3d6;--green:#347653;--red:#b94b45}
+body{background:var(--bg);color:var(--text)}
+header{background:#ffffff;border-bottom:1px solid var(--border);box-shadow:0 2px 12px rgba(32,68,45,.05)}
+.brand{color:#285c40}
+h1,h2,h3{color:#285c40}
+.header-actions button{background:#e5f0e7;color:#285c40;border:1px solid #c9ddce}
+.sidebar{background:#dcebe0;border-color:#c9ddce}
+.sidebar-heading{color:#285c40;border-bottom-color:#c4d9c9}
+.nav-link{color:#476553}
+.nav-link:hover,.nav-link.active{background:#ffffff;border-color:#c5dacb;color:#24583c;box-shadow:0 2px 8px rgba(37,88,60,.07)}
+.stat,.section{background:#ffffff;border-color:var(--border);box-shadow:0 3px 14px rgba(32,68,45,.045)}
+.stat strong{color:#a88435}
+.course,.request,.student,.material-card,.item-card,.attendance-row{background:#f6faf6;border-color:#d7e6da}
+.course h3,.material-card h3,.item-card h3{color:#285c40}
+.field label{color:#426b50}
+.field input,.field select,.field textarea,.attendance-row select,.attendance-row textarea{background:#ffffff;color:#243b2e;border:1px solid #cbdccf}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #a8cbb1;outline-offset:1px}
+.message{background:#eaf3ec;color:#50685a}
+.status,.progress{color:#98752d}
+.attendance-summary strong{color:#98752d}
+.empty{background:#edf5ef;color:#536a5b}
+.item-card p{color:#617469}
+footer{color:#617469;border-top-color:#d3e3d6}
+.primary-btn,.approve,.material-open{background:#347653}
+.secondary-btn,.material-download{background:#a88435}
+.reject,.danger-btn,.material-delete{background:#a94e48}
+.menu-toggle{background:#ffffff;border:1px solid #c9ddce;color:#285c40}
+.mobile-nav-row{color:#285c40}
+@media(max-width:850px){.sidebar{background:#e5f0e7;box-shadow:-10px 0 30px rgba(31,65,43,.15)}}
+
 </style>
 </head>
 <body>
-<header class="site-header"><a href="/index.html" class="logo"><span>أكاديمية القرآن الكريم</span></a><button id="languageToggle" type="button">English</button></header>
-<div class="portal-layout">
-<aside class="sidebar" id="studentSidebar"><div class="sidebar-title">أكاديمية القرآن الكريم</div><nav class="sidebar-nav" aria-label="Student navigation">
-<button class="nav-item active" data-view="departments" onclick="showStudentView('departments')">الأقسام العلمية</button>
-<button class="nav-item" data-view="courses" onclick="showStudentView('courses')">المقررات المتاحة</button>
-<button class="nav-item" data-view="enrollments" onclick="showStudentView('enrollments')">مقرراتي المسجلة</button>
-<button class="nav-item" data-view="materials" onclick="showStudentView('materials')">المواد التعليمية</button>
-<button class="nav-item" data-view="attendance" onclick="showStudentView('attendance')">الحضور والغياب</button>
-</nav></aside>
-<div class="portal-content"><button class="mobile-menu" id="mobileMenuButton" type="button" aria-expanded="false">☰ القائمة</button>
-<main class="dashboard">
-<section class="welcome-card"><h1 id="welcomeTitle">مرحباً بك في الأكاديمية</h1><p id="welcomeDescription">هذه لوحتك الخاصة لمتابعة مقرراتك الدراسية.</p><div class="dashboard-actions"><button type="button" id="refreshButton">تحديث البيانات</button><a href="/index.html" id="homeLink">الصفحة الرئيسية</a><button type="button" id="logoutButton">تسجيل الخروج</button></div></section>
-<div id="dashboardMessage" class="dashboard-message info">جارٍ تحميل بياناتك...</div>
-<section class="dashboard-section active" id="view-departments"><h2 id="departmentsHeading">الأقسام العلمية</h2><div id="departmentsList" class="dashboard-grid"><div class="empty-state">جارٍ التحميل...</div></div></section>
-<section class="dashboard-section" id="view-courses"><h2 id="coursesHeading">المقررات المتاحة</h2><div id="coursesList" class="dashboard-grid"><div class="empty-state">جارٍ التحميل...</div></div></section>
-<section class="dashboard-section" id="view-enrollments"><h2 id="enrollmentsHeading">مقرراتي المسجلة</h2><div id="enrollmentsList" class="dashboard-grid"><div class="empty-state">جارٍ التحميل...</div></div></section>
-<section class="dashboard-section" id="view-materials"><h2 id="materialsHeading">المواد التعليمية</h2><p id="materialsDescription">الملفات التعليمية الخاصة بالمقررات المقبولة في تسجيلك.</p><div id="materialsMessage" class="dashboard-message info">جارٍ تحميل المواد التعليمية...</div><div id="materialsList"><div class="empty-state">جارٍ تحميل المواد التعليمية...</div></div></section>
-<section class="dashboard-section" id="view-attendance"><h2 id="attendanceHeading">سجل الحضور والغياب</h2><div id="attendanceSummary" class="attendance-summary"><div class="attendance-stat"><strong>0</strong><span>جارٍ التحميل...</span></div></div><div id="attendanceList"><div class="empty-state">جارٍ تحميل سجل الحضور...</div></div></section>
-</main></div></div>
-<footer class="site-footer"><p>© <span id="year"></span> أكاديمية القرآن الكريم وعلومه</p></footer>
+<header>
+ <div class="brand" data-ar="أكاديمية القرآن الكريم وعلومه" data-en="Quran Sciences Academy">أكاديمية القرآن الكريم وعلومه</div>
+ <div class="header-actions"><button id="languageBtn" type="button">English</button><button id="logoutBtn" type="button" data-ar="تسجيل الخروج" data-en="Logout">تسجيل الخروج</button></div>
+</header>
+<div class="dashboard-shell">
+ <aside class="sidebar" id="sidebar">
+  <div class="sidebar-heading" data-ar="القائمة الرئيسية" data-en="Main Menu">القائمة الرئيسية</div>
+  <nav class="side-nav" aria-label="Teacher dashboard navigation">
+   <button type="button" class="nav-link active" data-page="home" data-ar="الرئيسية" data-en="Home">الرئيسية</button>
+   <button type="button" class="nav-link" data-page="courses" data-ar="مقرراتي" data-en="My Courses">مقرراتي</button>
+   <button type="button" class="nav-link" data-page="requests" data-ar="طلبات التسجيل" data-en="Enrolment Requests">طلبات التسجيل</button>
+   <button type="button" class="nav-link" data-page="students" data-ar="طلابي" data-en="My Students">طلابي</button>
+   <button type="button" class="nav-link" data-page="materials" data-ar="المواد التعليمية" data-en="Learning Materials">المواد التعليمية</button>
+   <button type="button" class="nav-link" data-page="attendance" data-ar="الحضور" data-en="Attendance">الحضور</button>
+   <button type="button" class="nav-link" data-page="assignments" data-ar="الواجبات" data-en="Assignments">الواجبات</button>
+   <button type="button" class="nav-link" data-page="exams" data-ar="الاختبارات" data-en="Examinations">الاختبارات</button>
+   <button type="button" class="nav-link" data-page="questions" data-ar="أسئلة الاختبارات" data-en="Exam Questions">أسئلة الاختبارات</button>
+   <button type="button" class="nav-link" data-page="results" data-ar="النتائج والمحاولات" data-en="Results & Attempts">النتائج والمحاولات</button>
+  </nav>
+ </aside>
+ <main>
+ <div class="mobile-nav-row"><button type="button" id="menuToggle" class="menu-toggle" aria-expanded="false" data-ar="☰ القائمة" data-en="☰ Menu">☰ القائمة</button><span data-ar="لوحة المعلم" data-en="Teacher Dashboard">لوحة المعلم</span></div>
+ <div class="dashboard-page active" id="page-home">
+ <div class="welcome"><h1 data-ar="لوحة تحكم المعلم" data-en="Teacher Dashboard">لوحة تحكم المعلم</h1><div class="muted"><span data-ar="مرحباً، " data-en="Welcome, ">مرحباً، </span><strong id="teacherName">...</strong></div></div>
+ <div id="message" class="message">جاري تحميل البيانات...</div>
+ <div class="stats">
+  <div class="stat"><span data-ar="المقررات" data-en="Courses">المقررات</span><strong id="courseCount">0</strong></div>
+  <div class="stat"><span data-ar="الطلاب" data-en="Students">الطلاب</span><strong id="studentCount">0</strong></div>
+  <div class="stat"><span data-ar="طلبات التسجيل" data-en="Pending Requests">طلبات التسجيل</span><strong id="requestCount">0</strong></div>
+ </div>
+ </div>
+ <div class="dashboard-page" id="page-courses">
+ <section class="section"><h2 data-ar="مقرراتي" data-en="My Courses">مقرراتي</h2><div id="coursesList"></div></section>
+ </div>
+ <div class="dashboard-page" id="page-requests">
+ <section class="section"><h2 data-ar="طلبات تسجيل الطلاب" data-en="Student Enrolment Requests">طلبات تسجيل الطلاب</h2><div id="requestsList"></div></section>
+ </div>
+ <div class="dashboard-page" id="page-students">
+ <section class="section"><h2 data-ar="طلابي" data-en="My Students">طلابي</h2><div id="studentsList"></div></section>
+
+ </div>
+ <div class="dashboard-page" id="page-materials">
+ <section class="section">
+  <h2 data-ar="المواد التعليمية" data-en="Learning Materials">المواد التعليمية</h2>
+  <p class="muted" data-ar="ارفع ملفات PDF ليستطيع الطلاب المقبولون في المقرر الوصول إليها." data-en="Upload PDF files for approved students in the selected course.">ارفع ملفات PDF ليستطيع الطلاب المقبولون في المقرر الوصول إليها.</p>
+  <div id="materialsMessage" class="message">جاري تحميل المواد التعليمية...</div>
+  <div class="grid">
+   <div class="field"><label for="materialCourse" data-ar="اختر المقرر" data-en="Select Course">اختر المقرر</label><select id="materialCourse"><option value="">اختر المقرر</option></select></div>
+   <div class="field"><label for="materialTitleAr" data-ar="العنوان بالعربية" data-en="Arabic Title">العنوان بالعربية</label><input id="materialTitleAr" maxlength="200"></div>
+   <div class="field"><label for="materialTitleEn" data-ar="العنوان بالإنجليزية" data-en="English Title">العنوان بالإنجليزية</label><input id="materialTitleEn" maxlength="200"></div>
+   <div class="field full"><label for="materialDescription" data-ar="وصف الملف (اختياري)" data-en="Description (Optional)">وصف الملف (اختياري)</label><textarea id="materialDescription" maxlength="2000"></textarea></div>
+   <div class="field full"><label for="materialFile" data-ar="اختر ملف PDF" data-en="Choose PDF File">اختر ملف PDF</label><input type="file" id="materialFile" accept=".pdf,application/pdf"><div class="material-help" data-ar="الحد الأقصى 10 ميجابايت. PDF فقط." data-en="Maximum 10 MB. PDF only.">الحد الأقصى 10 ميجابايت. PDF فقط.</div></div>
+   <div class="field full"><button type="button" class="primary-btn" id="uploadMaterialBtn" data-ar="رفع المادة التعليمية" data-en="Upload Material">رفع المادة التعليمية</button></div>
+  </div>
+  <div id="uploadProgress" class="progress"></div><h3 data-ar="المواد التي قمت برفعها" data-en="Materials You Uploaded">المواد التي قمت برفعها</h3><div id="materialsList"></div>
+ </section>
+
+ </div>
+ <div class="dashboard-page" id="page-attendance">
+ <section class="section">
+  <h2 data-ar="إدارة الحضور" data-en="Attendance Management">إدارة الحضور</h2>
+  <p class="muted" data-ar="اختر المقرر وتاريخ الدرس لتسجيل حضور الطلاب." data-en="Select a course and lesson date to record attendance.">اختر المقرر وتاريخ الدرس لتسجيل حضور الطلاب.</p>
+  <div class="grid">
+   <div class="field"><label for="attendanceCourse" data-ar="المقرر" data-en="Course">المقرر</label><select id="attendanceCourse"><option value="">اختر المقرر</option></select></div>
+   <div class="field"><label for="attendanceDate" data-ar="تاريخ الدرس" data-en="Lesson Date">تاريخ الدرس</label><input type="date" id="attendanceDate"></div>
+  </div>
+  <div class="attendance-actions">
+   <button type="button" class="primary-btn" id="loadAttendanceBtn" data-ar="عرض الطلاب" data-en="Load Students">عرض الطلاب</button>
+   <button type="button" class="secondary-btn" id="markAllPresentBtn" disabled data-ar="تحديد الكل حاضراً" data-en="Mark All Present">تحديد الكل حاضراً</button>
+  </div>
+  <div id="attendanceMessage" class="message" style="display:none"></div>
+  <div id="attendanceSummary" class="attendance-summary" style="display:none">
+   <span><span data-ar="إجمالي الطلاب: " data-en="Total students: ">إجمالي الطلاب: </span><strong id="attendanceTotal">0</strong></span>
+   <span><span data-ar="حاضر: " data-en="Present: ">حاضر: </span><strong id="presentTotal">0</strong></span>
+   <span><span data-ar="غائب: " data-en="Absent: ">غائب: </span><strong id="absentTotal">0</strong></span>
+   <span><span data-ar="متأخر: " data-en="Late: ">متأخر: </span><strong id="lateTotal">0</strong></span>
+  </div>
+  <div id="attendanceList"></div><div class="attendance-actions"><button type="button" class="primary-btn" id="saveAttendanceBtn" disabled data-ar="حفظ الحضور" data-en="Save Attendance">حفظ الحضور</button></div>
+ </section>
+
+ </div>
+ <div class="dashboard-page" id="page-assignments">
+ <!-- ASSIGNMENTS -->
+ <section class="section">
+  <h2 data-ar="الواجبات" data-en="Assignments">الواجبات</h2>
+  <p class="muted" data-ar="أنشئ واجبات للمقررات، ثم راجع إجابات الطلاب النصية وسجّل الدرجات والملاحظات." data-en="Create course assignments, review students' text submissions, and record marks and feedback.">أنشئ واجبات للمقررات، ثم راجع إجابات الطلاب النصية وسجّل الدرجات والملاحظات.</p>
+  <div id="assignmentMessage" class="message">...</div>
+  <div class="grid">
+   <div class="field"><label for="assignmentCourse" data-ar="المقرر" data-en="Course">المقرر</label><select id="assignmentCourse"></select></div>
+   <div class="field"><label for="assignmentTitleAr" data-ar="عنوان الواجب بالعربية" data-en="Assignment Title (Arabic)">عنوان الواجب بالعربية</label><input id="assignmentTitleAr" maxlength="200"></div>
+   <div class="field"><label for="assignmentTitleEn" data-ar="عنوان الواجب بالإنجليزية" data-en="Assignment Title (English)">عنوان الواجب بالإنجليزية</label><input id="assignmentTitleEn" maxlength="200"></div>
+   <div class="field"><label for="assignmentDue" data-ar="موعد التسليم" data-en="Due Date">موعد التسليم</label><input id="assignmentDue" type="datetime-local"></div>
+   <div class="field"><label for="assignmentMaxScore" data-ar="الدرجة النهائية" data-en="Maximum Score">الدرجة النهائية</label><input id="assignmentMaxScore" type="number" min="0.01" step="0.01" value="10"></div>
+   <div class="field"><label for="assignmentStatus" data-ar="الحالة" data-en="Status">الحالة</label><select id="assignmentStatus"><option value="draft">Draft / مسودة</option><option value="published">Published / منشور</option></select></div>
+   <div class="field full"><label for="assignmentDescription" data-ar="الوصف والتعليمات" data-en="Description and Instructions">الوصف والتعليمات</label><textarea id="assignmentDescription" maxlength="5000"></textarea></div>
+   <div class="field full"><button type="button" class="primary-btn" id="createAssignmentBtn" data-ar="إنشاء الواجب" data-en="Create Assignment">إنشاء الواجب</button></div>
+  </div>
+  <hr><h3 data-ar="واجباتي" data-en="My Assignments">واجباتي</h3><div id="assignmentsList"></div>
+  <div id="assignmentDetails" class="item-card" style="display:none" aria-live="polite"></div>
+  <hr><h3 data-ar="تسليمات الطلاب" data-en="Student Submissions">تسليمات الطلاب</h3>
+  <div class="field"><label for="assignmentReviewSelect" data-ar="اختر الواجب لمراجعة التسليمات" data-en="Select an assignment to review submissions">اختر الواجب لمراجعة التسليمات</label><select id="assignmentReviewSelect"></select></div>
+  <div id="assignmentSubmissionsList"></div>
+ </section>
+
+ </div>
+ <div class="dashboard-page" id="page-exams">
+ <!-- EXAMS -->
+ <section class="section">
+  <h2 data-ar="الاختبارات" data-en="Examinations">الاختبارات</h2>
+  <p class="muted" data-ar="أنشئ اختبارات إلكترونية أو اختبارات بملفات PDF. تبدأ الاختبارات كمسودة حتى تراجع إعداداتها." data-en="Create online or PDF-based examinations. Exams are created as drafts so you can review their settings before publishing.">أنشئ اختبارات إلكترونية أو اختبارات بملفات PDF. تبدأ الاختبارات كمسودة حتى تراجع إعداداتها.</p>
+  <div id="examMessage" class="message">...</div>
+  <div class="grid">
+   <div class="field"><label for="examCourse" data-ar="المقرر" data-en="Course">المقرر</label><select id="examCourse"></select></div>
+   <div class="field"><label for="examTitleAr" data-ar="عنوان الاختبار بالعربية" data-en="Exam Title (Arabic)">عنوان الاختبار بالعربية</label><input id="examTitleAr" maxlength="200"></div>
+   <div class="field"><label for="examTitleEn" data-ar="عنوان الاختبار بالإنجليزية" data-en="Exam Title (English)">عنوان الاختبار بالإنجليزية</label><input id="examTitleEn" maxlength="200"></div>
+   <div class="field"><label for="examMode" data-ar="نوع الاختبار" data-en="Exam Mode">نوع الاختبار</label><select id="examMode"><option value="online">Online / إلكتروني</option><option value="file">PDF File / ملف PDF</option><option value="both">Both / كلاهما</option></select></div>
+   <div class="field"><label for="examStart" data-ar="وقت البداية" data-en="Start Time">وقت البداية</label><input id="examStart" type="datetime-local"></div>
+   <div class="field"><label for="examEnd" data-ar="وقت النهاية" data-en="End Time">وقت النهاية</label><input id="examEnd" type="datetime-local"></div>
+   <div class="field"><label for="examDuration" data-ar="مدة الاختبار بالدقائق" data-en="Duration (minutes)">مدة الاختبار بالدقائق</label><input id="examDuration" type="number" min="1" value="60"></div>
+   <div class="field"><label for="examAttempts" data-ar="عدد المحاولات المسموح" data-en="Maximum Attempts">عدد المحاولات المسموح</label><input id="examAttempts" type="number" min="1" value="1"></div>
+   <div class="field"><label for="examMaxScore" data-ar="الدرجة النهائية" data-en="Maximum Score">الدرجة النهائية</label><input id="examMaxScore" type="number" min="0.01" step="0.01" value="100"></div>
+   <div class="field full"><label for="examDescription" data-ar="الوصف والتعليمات" data-en="Description and Instructions">الوصف والتعليمات</label><textarea id="examDescription" maxlength="5000"></textarea></div>
+   <div class="field full"><button type="button" class="primary-btn" id="createExamBtn" data-ar="إنشاء الاختبار كمسودة" data-en="Create Exam as Draft">إنشاء الاختبار كمسودة</button></div>
+  </div>
+  <hr><h3 data-ar="اختباراتي" data-en="My Exams">اختباراتي</h3><div id="examsList"></div>
+  <div id="examDetails" class="item-card" style="display:none" aria-live="polite"></div>
+  <hr><h3 data-ar="رفع ورقة الاختبار PDF" data-en="Upload Exam Paper PDF">رفع ورقة الاختبار PDF</h3>
+  <div class="grid">
+   <div class="field"><label for="paperExamSelect" data-ar="اختر الاختبار" data-en="Select Exam">اختر الاختبار</label><select id="paperExamSelect"></select></div>
+   <div class="field"><label for="examPaperFile" data-ar="ملف ورقة الاختبار" data-en="Exam Paper File">ملف ورقة الاختبار</label><input id="examPaperFile" type="file" accept=".pdf,application/pdf"></div>
+   <div class="field full"><button type="button" class="primary-btn" id="uploadExamPaperBtn" data-ar="رفع ورقة الاختبار" data-en="Upload Exam Paper">رفع ورقة الاختبار</button></div>
+  </div>
+ </section>
+ </div>
+ <div class="dashboard-page" id="page-questions">
+ <section class="section">
+  <h2 data-ar="إدارة أسئلة الاختبار" data-en="Manage Exam Questions">إدارة أسئلة الاختبار</h2>
+  <div class="field"><label for="questionExamSelect" data-ar="اختر اختباراً" data-en="Select an exam">اختر اختباراً</label><select id="questionExamSelect"></select></div>
+  <div class="grid">
+   <div class="field"><label for="questionType" data-ar="نوع السؤال" data-en="Question Type">نوع السؤال</label><select id="questionType"><option value="multiple_choice">Multiple Choice / اختيار من متعدد</option><option value="written">Written / مقالي</option></select></div>
+   <div class="field"><label for="questionPoints" data-ar="درجة السؤال" data-en="Question Points">درجة السؤال</label><input id="questionPoints" type="number" min="0.01" step="0.01" value="1"></div>
+   <div class="field"><label for="questionAr" data-ar="السؤال بالعربية" data-en="Question (Arabic)">السؤال بالعربية</label><textarea id="questionAr"></textarea></div>
+   <div class="field"><label for="questionEn" data-ar="السؤال بالإنجليزية" data-en="Question (English)">السؤال بالإنجليزية</label><textarea id="questionEn"></textarea></div>
+   <div class="field full" id="mcqFields"><label data-ar="خيارات الإجابة (أدخل خياراً في كل سطر: الرمز|العربية|English)" data-en="Options (one per line: ID|Arabic|English)">خيارات الإجابة (أدخل خياراً في كل سطر: الرمز|العربية|English)</label><textarea id="questionOptions" placeholder="A|الخيار الأول|First option&#10;B|الخيار الثاني|Second option"></textarea><label for="correctOption" data-ar="رمز الإجابة الصحيحة" data-en="Correct Option ID">رمز الإجابة الصحيحة</label><input id="correctOption" maxlength="20" placeholder="A"></div>
+   <div class="field full"><button type="button" class="primary-btn" id="addQuestionBtn" data-ar="إضافة السؤال" data-en="Add Question">إضافة السؤال</button></div>
+  </div>
+  <div id="questionsList"></div>
+ </section>
+ </div>
+ <div class="dashboard-page" id="page-results">
+ <section class="section">
+  <h2 data-ar="مراجعة محاولات الطلاب" data-en="Review Student Attempts">مراجعة محاولات الطلاب</h2>
+  <div class="field"><label for="attemptExamSelect" data-ar="اختر الاختبار" data-en="Select Exam">اختر الاختبار</label><select id="attemptExamSelect"></select></div>
+  <div id="attemptsList"></div>
+ </section>
+ </div>
+</main>
+</div>
+<footer>© <span id="year"></span> <span data-ar="أكاديمية القرآن الكريم وعلومه" data-en="Quran Sciences Academy">أكاديمية القرآن الكريم وعلومه</span></footer>
+
 <script>
 (() => {
 "use strict";
 const SUPABASE_URL="https://kxaovcknyddctnqvrudi.supabase.co";
-const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+const SUPABASE_ANON_KEY="sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
 const MATERIALS_BUCKET="academy-learning-materials";
+const EXAM_BUCKET="academy-exam-files";
+const MAX_FILE_SIZE=10*1024*1024;
+const MAX_EXAM_FILE_SIZE=50*1024*1024;
+if(!window.supabase){alert("Supabase library failed to load. Please refresh.");return;}
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let language=localStorage.getItem("academy-language")||"ar";
+let teacherId=null,courses=[],enrollments=[],attendanceStudents=[],learningMaterials=[],assignments=[],exams=[];
 const $=id=>document.getElementById(id);
-const message=$("dashboardMessage"),departmentsList=$("departmentsList"),coursesList=$("coursesList"),enrollmentsList=$("enrollmentsList"),attendanceSummary=$("attendanceSummary"),attendanceList=$("attendanceList"),materialsList=$("materialsList"),materialsMessage=$("materialsMessage");
-if(!window.supabase){message.textContent="Supabase could not load. Please refresh.";message.className="dashboard-message error";return;}
-const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let currentUser=null,currentProfile=null,departments=[],courses=[],enrollments=[],attendanceRecords=[],learningMaterials=[];
-function language(){return document.documentElement.lang==="en"?"en":"ar"}function t(ar,en){return language()==="ar"?ar:en}
-function showMessage(text,type="info"){message.textContent=text;message.className="dashboard-message "+type}function showMaterialsMessage(text,type="info"){materialsMessage.textContent=text;materialsMessage.className="dashboard-message "+type}
-function emptyState(ar,en){const div=document.createElement("div");div.className="empty-state";div.textContent=t(ar,en);return div}
-function courseTitle(course){return language()==="ar"?(course.title_ar||course.title_en||"مقرر بدون عنوان"):(course.title_en||course.title_ar||"Untitled course")}
-function departmentTitle(name){if(language()==="ar")return name||"";if(name&&name.includes("تجويد"))return "Tajweed";if(name&&name.includes("حفظ"))return "Memorization & Revision";return name||""}
-function createCard(title,description,extra){const card=document.createElement("article");card.className="dashboard-card";const h=document.createElement("h3");h.textContent=title;card.appendChild(h);const p=document.createElement("p");p.textContent=description||t("لا يوجد وصف لهذا العنصر حالياً.","No description is available yet.");card.appendChild(p);if(extra)card.appendChild(extra);return card}
-function renderDepartments(){departmentsList.replaceChildren();if(!departments.length){departmentsList.appendChild(emptyState("لا توجد أقسام متاحة حالياً.","No departments available."));return;}departments.forEach(d=>{const name=d.name_ar||"";const desc=name.includes("تجويد")?t("قسم دراسة أحكام التجويد وتطبيقها.","Study and practice of Tajweed rules."):t("قسم حفظ القرآن الكريم ومراجعته.","Quran memorization and revision.");departmentsList.appendChild(createCard(departmentTitle(name),desc));});}
-function renderCourses(){coursesList.replaceChildren();if(!courses.length){coursesList.appendChild(emptyState("لا توجد مقررات متاحة حالياً.","No courses are available yet."));return;}courses.forEach(course=>{const dep=departments.find(x=>String(x.id)===String(course.department_id));const details=document.createElement("div"),label=document.createElement("span");label.className="status";label.textContent=dep?departmentTitle(dep.name_ar):t("قسم غير محدد","Unassigned department");details.appendChild(label);const enrolled=enrollments.some(x=>String(x.course_id)===String(course.id));const btn=document.createElement("button");btn.type="button";btn.className="enroll-button";if(enrolled){btn.textContent=t("تم التسجيل","Enrolled");btn.disabled=true;}else{btn.textContent=t("التسجيل في المقرر","Enroll");btn.addEventListener("click",()=>enrollInCourse(course,btn));}details.appendChild(btn);coursesList.appendChild(createCard(courseTitle(course),course.description||t("لا يوجد وصف للمقرر.","No course description."),details));});}
-function renderEnrollments(){enrollmentsList.replaceChildren();if(!enrollments.length){enrollmentsList.appendChild(emptyState("لم تسجل في أي مقرر بعد.","You have not enrolled in any courses yet."));return;}enrollments.forEach(e=>{const course=courses.find(x=>String(x.id)===String(e.course_id));const title=course?courseTitle(course):t("مقرر غير متاح","Unavailable course");const names={pending:t("قيد المراجعة","Pending"),approved:t("مقبول","Approved"),active:t("نشط","Active"),rejected:t("مرفوض","Rejected"),completed:t("مكتمل","Completed")};const status=names[e.status]||e.status||t("غير محدد","Not specified"),tag=document.createElement("span");tag.className="status";tag.textContent=status;enrollmentsList.appendChild(createCard(title,t("حالة التسجيل:","Enrollment status:")+" "+status,tag));});}
-function formatMaterialDate(v){if(!v)return "";const d=new Date(v);if(Number.isNaN(d.getTime()))return v;return new Intl.DateTimeFormat(language()==="ar"?"ar":"en",{year:"numeric",month:"long",day:"numeric"}).format(d)}
-function materialTitle(m){return language()==="ar"?(m.title_ar||m.title_en||"ملف تعليمي"):(m.title_en||m.title_ar||"Learning material")}
-function renderLearningMaterials(){materialsList.replaceChildren();if(!learningMaterials.length){materialsList.appendChild(emptyState("لا توجد مواد تعليمية متاحة لمقرراتك المقبولة حالياً.","There are no learning materials available for your approved courses yet."));return;}learningMaterials.forEach(m=>{const course=courses.find(x=>String(x.id)===String(m.course_id)),card=document.createElement("article");card.className="material-card";const h=document.createElement("h3");h.textContent=materialTitle(m);const tag=document.createElement("span");tag.className="material-course";tag.textContent=course?courseTitle(course):t("المقرر","Course");const p=document.createElement("p");p.textContent=m.description||t("لا يوجد وصف لهذا الملف.","No description for this file.");const date=document.createElement("div");date.className="material-date";date.textContent=t("تاريخ الإضافة: ","Added: ")+formatMaterialDate(m.created_at);const actions=document.createElement("div");actions.className="material-actions";const open=document.createElement("button");open.type="button";open.textContent=t("فتح ملف PDF","Open PDF");open.addEventListener("click",()=>openMaterial(m,open,false));const download=document.createElement("button");download.type="button";download.className="download";download.textContent=t("تحميل PDF","Download PDF");download.addEventListener("click",()=>openMaterial(m,download,true));actions.append(open,download);card.append(h,tag,p,date,actions);materialsList.appendChild(card);});}
-async function openMaterial(m,button,download){const original=button.textContent;button.disabled=true;button.textContent=t("جارٍ تجهيز الملف...","Preparing file...");try{if(!m.file_path)throw new Error(t("مسار الملف غير موجود.","The file path is missing."));const options=download?{download:m.file_name||true}:undefined;const {data,error}=await client.storage.from(MATERIALS_BUCKET).createSignedUrl(m.file_path,300,options);if(error)throw error;if(!data||!data.signedUrl)throw new Error(t("تعذر إنشاء رابط الملف.","Could not create the file link."));const a=document.createElement("a");a.href=data.signedUrl;a.target="_blank";a.rel="noopener noreferrer";if(download)a.download=m.file_name||"learning-material.pdf";document.body.appendChild(a);a.click();a.remove();showMaterialsMessage(download?t("بدأ تحميل الملف.","The download has started."):t("تم تجهيز الملف للفتح.","The file is ready to open."));}catch(e){console.error("Learning material error:",e);showMaterialsMessage(t("تعذر فتح الملف: ","Could not open the file: ")+(e.message||String(e)),"error");}finally{button.disabled=false;button.textContent=original;}}
-async function loadLearningMaterials(){materialsList.replaceChildren();materialsList.appendChild(emptyState("جارٍ تحميل المواد التعليمية...","Loading learning materials..."));const ids=[...new Set(enrollments.filter(e=>e.status==="approved").map(e=>e.course_id))];if(!ids.length){learningMaterials=[];renderLearningMaterials();showMaterialsMessage(t("ستظهر المواد التعليمية بعد قبول تسجيلك في أحد المقررات.","Learning materials will appear after your enrolment in a course is approved."));return;}const {data,error}=await client.from("learning_materials").select("id, course_id, title_ar, title_en, description, file_path, file_name, created_at").in("course_id",ids).order("created_at",{ascending:false});if(error)throw new Error(t("تعذر تحميل المواد التعليمية: ","Could not load learning materials: ")+error.message);learningMaterials=data||[];renderLearningMaterials();showMaterialsMessage(learningMaterials.length?t("تم تحميل المواد التعليمية بنجاح.","Learning materials loaded successfully."):t("لا توجد ملفات تعليمية مضافة لهذه المقررات حتى الآن.","No learning materials have been added to these courses yet."));}
-function attendanceStatusName(s){return({present:t("حاضر","Present"),absent:t("غائب","Absent"),late:t("متأخر","Late")})[s]||s||t("غير محدد","Not specified")}
-function renderAttendance(){attendanceSummary.replaceChildren();attendanceList.replaceChildren();const counts={present:0,absent:0,late:0};attendanceRecords.forEach(r=>{if(Object.prototype.hasOwnProperty.call(counts,r.status))counts[r.status]++;});[{label:t("إجمالي السجلات","Total Records"),value:attendanceRecords.length},{label:t("حاضر","Present"),value:counts.present},{label:t("غائب","Absent"),value:counts.absent},{label:t("متأخر","Late"),value:counts.late}].forEach(s=>{const box=document.createElement("div"),n=document.createElement("strong"),l=document.createElement("span");box.className="attendance-stat";n.textContent=s.value;l.textContent=s.label;box.append(n,l);attendanceSummary.appendChild(box);});if(!attendanceRecords.length){attendanceList.appendChild(emptyState("لا توجد سجلات حضور مسجلة لك حتى الآن.","There are no attendance records for you yet."));return;}attendanceRecords.forEach(r=>{const course=courses.find(x=>String(x.id)===String(r.course_id)),card=document.createElement("article"),h=document.createElement("h3"),date=document.createElement("p"),status=document.createElement("span");card.className="attendance-record";h.textContent=course?courseTitle(course):t("مقرر غير متاح","Unavailable course");date.textContent=t("التاريخ: ","Date: ")+(r.attendance_date||"");status.className="attendance-status "+(["present","absent","late"].includes(r.status)?r.status:"");status.textContent=attendanceStatusName(r.status);card.append(h,date,status);if(r.remarks){const p=document.createElement("p");p.textContent=t("ملاحظات المعلم: ","Teacher's remarks: ")+r.remarks;card.appendChild(p);}attendanceList.appendChild(card);});}
-async function loadAttendance(){attendanceSummary.replaceChildren();attendanceList.replaceChildren();attendanceList.appendChild(emptyState("جارٍ تحميل سجل الحضور...","Loading attendance records..."));const {data,error}=await client.from("attendance").select("student_id, course_id, attendance_date, status, remarks").eq("student_id",currentUser.id).order("attendance_date",{ascending:false});if(error)throw new Error(t("تعذر تحميل سجل الحضور: ","Could not load attendance records: ")+error.message);attendanceRecords=data||[];renderAttendance();}
-function renderAll(){renderDepartments();renderCourses();renderEnrollments();renderAttendance();renderLearningMaterials();$("departmentsHeading").textContent=t("الأقسام العلمية","Departments");$("coursesHeading").textContent=t("المقررات المتاحة","Available Courses");$("enrollmentsHeading").textContent=t("مقرراتي المسجلة","My Enrolled Courses");$("attendanceHeading").textContent=t("سجل الحضور والغياب","My Attendance");$("materialsHeading").textContent=t("المواد التعليمية","Learning Materials");$("materialsDescription").textContent=t("الملفات التعليمية الخاصة بالمقررات المقبولة في تسجيلك.","Learning files for courses in which your enrolment has been approved.");$("refreshButton").textContent=t("تحديث البيانات","Refresh");$("logoutButton").textContent=t("تسجيل الخروج","Log out");$("homeLink").textContent=t("الصفحة الرئيسية","Homepage");$("languageToggle").textContent=t("English","العربية");if(currentProfile){$("welcomeTitle").textContent=t("مرحباً، ","Welcome, ")+(currentProfile.full_name||"");$("welcomeDescription").textContent=t("هذه لوحتك الخاصة لمتابعة مقرراتك الدراسية.","Your personal dashboard for following your courses.");}updateNavLabels();}
-function updateNavLabels(){const labels=language()==="ar"?["الأقسام العلمية","المقررات المتاحة","مقرراتي المسجلة","المواد التعليمية","الحضور والغياب"]:["Departments","Available Courses","My Enrolments","Learning Materials","Attendance"];document.querySelectorAll(".nav-item").forEach((b,i)=>b.textContent=labels[i]);$("mobileMenuButton").textContent=t("☰ القائمة","☰ Menu");}
-async function enrollInCourse(course,button){button.disabled=true;button.textContent=t("جارٍ التسجيل...","Enrolling...");try{const {data:existing,error:checkError}=await client.from("enrollments").select("id").eq("student_id",currentUser.id).eq("course_id",course.id);if(checkError)throw checkError;if(existing&&existing.length){showMessage(t("أنت مسجل في هذا المقرر بالفعل.","You are already enrolled in this course."));await loadDashboard();return;}const {error}=await client.from("enrollments").insert({student_id:currentUser.id,course_id:course.id,status:"pending"});if(error)throw error;showMessage(t("تم إرسال طلب التسجيل بنجاح.","Your enrollment request was submitted successfully."));await loadDashboard();}catch(e){button.disabled=false;button.textContent=t("التسجيل في المقرر","Enroll");showMessage(t("تعذر التسجيل: ","Could not enroll: ")+e.message,"error");}}
-async function loadDashboard(){showMessage(t("جارٍ تحميل بياناتك...","Loading your information..."));const {data:sessionData,error:sessionError}=await client.auth.getSession();if(sessionError)throw new Error(t("تعذر التحقق من جلسة الدخول: ","Could not check login session: ")+sessionError.message);if(!sessionData.session){showMessage(t("لا توجد جلسة دخول نشطة. يرجى تسجيل الدخول مرة أخرى.","No active login session was found. Please log in again."),"error");return;}const {data:authData,error:authError}=await client.auth.getUser(sessionData.session.access_token);if(authError)throw new Error(t("تعذر التحقق من حسابك: ","Could not verify your account: ")+authError.message);if(!authData.user){showMessage(t("تعذر العثور على حساب المستخدم.","Could not find the user account."),"error");return;}currentUser=authData.user;const {data:profile,error:profileError}=await client.from("profiles").select("id, full_name, role").eq("id",currentUser.id).single();if(profileError)throw new Error(t("تعذر تحميل الملف الشخصي: ","Could not load student profile: ")+profileError.message);currentProfile=profile;if(profile.role!=="student"){showMessage(t("هذه اللوحة مخصصة للطلاب فقط. نوع حسابك: ","This dashboard is for students only. Your account role is: ")+profile.role,"error");return;}const results=await Promise.all([client.from("departments").select("id, name_ar"),client.from("courses").select("id, title_en, title_ar, description, department_id, created_at"),client.from("enrollments").select("id, student_id, course_id, status, created_at").eq("student_id",currentUser.id)]);if(results.some(r=>r.error))throw (results.find(r=>r.error).error);departments=results[0].data||[];courses=results[1].data||[];enrollments=results[2].data||[];renderAll();try{await loadAttendance();}catch(e){attendanceRecords=[];attendanceSummary.replaceChildren();attendanceList.replaceChildren();attendanceList.appendChild(emptyState("تعذر تحميل سجل الحضور. يرجى المحاولة لاحقاً.","Could not load attendance records. Please try again later."));console.error("Attendance loading error:",e);showMessage(t("تم تحميل لوحة الطالب، ولكن تعذر تحميل سجل الحضور: ","Dashboard loaded, but attendance could not be loaded: ")+e.message,"error");}try{await loadLearningMaterials();}catch(e){learningMaterials=[];materialsList.replaceChildren();materialsList.appendChild(emptyState("تعذر تحميل المواد التعليمية. يرجى المحاولة لاحقاً.","Could not load learning materials. Please try again later."));console.error("Learning materials error:",e);showMaterialsMessage(t("تعذر تحميل المواد التعليمية: ","Could not load learning materials: ")+e.message,"error");}showMessage(t("تم تحميل لوحة الطالب بنجاح.","Student dashboard loaded successfully."));}
-$("refreshButton").addEventListener("click",async()=>{try{await loadDashboard();}catch(e){showMessage(e.message,"error");}});
-$("logoutButton").addEventListener("click",async()=>{const {error}=await client.auth.signOut();if(error){showMessage(error.message,"error");return;}window.location.href="/login.html";});
-$("mobileMenuButton").addEventListener("click",()=>{const side=$("studentSidebar");const open=side.classList.toggle("open");$("mobileMenuButton").setAttribute("aria-expanded",String(open));});
-const languageObserver=new MutationObserver(()=>{renderAll();});languageObserver.observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
-$("year").textContent=new Date().getFullYear();
-window.showStudentView=function(name){document.querySelectorAll(".dashboard-section").forEach(s=>s.classList.toggle("active",s.id==="view-"+name));document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===name));$("studentSidebar").classList.remove("open");$("mobileMenuButton").setAttribute("aria-expanded","false");window.scrollTo({top:0,behavior:"smooth"});};
-loadDashboard().catch(e=>showMessage(t("حدث خطأ أثناء تحميل البيانات: ","Could not load dashboard: ")+e.message,"error"));
+function showDashboardPage(page){
+ document.querySelectorAll(".dashboard-page").forEach(el=>el.classList.toggle("active",el.id==="page-"+page));
+ document.querySelectorAll(".nav-link").forEach(el=>el.classList.toggle("active",el.dataset.page===page));
+ const side=$("sidebar"),toggle=$("menuToggle");if(side)side.classList.remove("open");if(toggle)toggle.setAttribute("aria-expanded","false");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".nav-link").forEach(btn=>btn.addEventListener("click",()=>showDashboardPage(btn.dataset.page)));
+$("menuToggle").addEventListener("click",()=>{const side=$("sidebar"),open=!side.classList.contains("open");side.classList.toggle("open",open);$("menuToggle").setAttribute("aria-expanded",String(open));});
+const t=(ar,en)=>language==="ar"?ar:en;
+const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function message(id,msg,type=""){const el=$(id);el.textContent=msg;el.className="message "+type;}
+function courseName(c){return language==="ar"?(c.title_ar||c.title_en||""):(c.title_en||c.title_ar||"");}
+function todayLocal(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+function dateText(v){if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?v:new Intl.DateTimeFormat(language==="ar"?"ar":"en",{dateStyle:"medium",timeStyle:"short"}).format(d);}
+function uniqueId(){return crypto?.randomUUID?crypto.randomUUID():Date.now().toString(36)+"-"+Math.random().toString(36).slice(2);}
+function fillCourseSelect(id,placeholder){const s=$(id),old=s.value;s.innerHTML="";const p=document.createElement("option");p.value="";p.textContent=placeholder;s.appendChild(p);courses.forEach(c=>{const o=document.createElement("option");o.value=c.id;o.textContent=courseName(c);s.appendChild(o);});if(courses.some(c=>String(c.id)===String(old)))s.value=old;else if(courses.length)s.value=courses[0].id;}
+function fillEntitySelect(id,items,placeholder,labelFn){const s=$(id),old=s.value;s.innerHTML="";const p=document.createElement("option");p.value="";p.textContent=placeholder;s.appendChild(p);items.forEach(x=>{const o=document.createElement("option");o.value=x.id;o.textContent=labelFn(x);s.appendChild(o);});if(items.some(x=>String(x.id)===String(old)))s.value=old;}
+function translatePage(){document.documentElement.lang=language;document.documentElement.dir=language==="ar"?"rtl":"ltr";document.querySelectorAll("[data-ar]").forEach(el=>{el.textContent=el.dataset[language];});$("languageBtn").textContent=language==="ar"?"English":"العربية";renderCourses();renderRequests();renderStudents();renderAttendanceRows();renderLearningMaterials();renderAssignments();renderExams();loadQuestions();loadAttempts();}
+$("languageBtn").addEventListener("click",()=>{language=language==="ar"?"en":"ar";localStorage.setItem("academy-language",language);translatePage();});
+$("logoutBtn").addEventListener("click",async()=>{const {error}=await supabase.auth.signOut();if(error){message("message","Logout failed: "+error.message,"error");return;}location.href="/login.html";});
+$("loadAttendanceBtn").addEventListener("click",loadAttendance);$("markAllPresentBtn").addEventListener("click",markAllPresent);$("saveAttendanceBtn").addEventListener("click",saveAttendance);$("uploadMaterialBtn").addEventListener("click",uploadMaterial);
+$("attendanceCourse").addEventListener("change",resetAttendance);$("attendanceDate").addEventListener("change",resetAttendance);
+$("materialCourse").addEventListener("change",()=>$("uploadProgress").textContent="");
+$("createAssignmentBtn").addEventListener("click",createAssignment);$("assignmentReviewSelect").addEventListener("change",loadAssignmentSubmissions);
+$("createExamBtn").addEventListener("click",createExam);$("questionExamSelect").addEventListener("change",loadQuestions);$("addQuestionBtn").addEventListener("click",addQuestion);$("paperExamSelect").addEventListener("change",()=>{});$("uploadExamPaperBtn").addEventListener("click",uploadExamPaper);$("attemptExamSelect").addEventListener("change",loadAttempts);
+$("questionType").addEventListener("change",()=>{$("mcqFields").style.display=$("questionType").value==="multiple_choice"?"flex":"none";});
+window.addEventListener("error",e=>message("message","JavaScript error: "+e.message,"error"));
+window.addEventListener("unhandledrejection",e=>message("message","Unexpected error: "+(e.reason?.message||String(e.reason)),"error"));
+
+async function loadDashboard(){
+ try{
+  const {data:authData,error:authError}=await supabase.auth.getUser();
+  if(authError||!authData.user){location.href="/login.html";return;}
+  teacherId=authData.user.id;
+  const {data:profile,error}=await supabase.from("profiles").select("full_name,role").eq("id",teacherId).single();
+  if(error||!profile||profile.role!=="teacher"){message("message",t("ليس لديك صلاحية الدخول إلى لوحة المعلم.","You are not authorized to access this dashboard."),"error");return;}
+  $("teacherName").textContent=profile.full_name||authData.user.email;$("attendanceDate").value=todayLocal();$("year").textContent=new Date().getFullYear();
+  await loadCourses();
+ }catch(e){message("message","Dashboard error: "+e.message,"error");}
+}
+async function loadCourses(){
+ const {data,error}=await supabase.from("courses").select("id,title_ar,title_en,description,status").eq("teacher_id",teacherId).order("created_at",{ascending:false});
+ if(error){message("message","Could not load courses: "+error.message,"error");return;}
+ courses=data||[];renderCourses();
+ ["materialCourse","attendanceCourse","assignmentCourse","examCourse"].forEach(id=>fillCourseSelect(id,t("اختر المقرر","Select course")));
+ if(!courses.length){enrollments=[];attendanceStudents=[];learningMaterials=[];assignments=[];exams=[];renderRequests();renderStudents();renderLearningMaterials();renderAssignments();renderExams();message("message",t("لا توجد مقررات معينة لك حالياً.","No courses are assigned to you yet."));return;}
+ await loadEnrollments();await loadLearningMaterials();await loadAssignments();await loadExams();
+}
+async function loadEnrollments(){
+ const ids=courses.map(c=>c.id);const {data,error}=await supabase.from("enrollments").select("id,student_id,course_id,status").in("course_id",ids);
+ if(error){message("message","Could not load enrolments: "+error.message,"error");return;}
+ enrollments=data||[];const studentIds=[...new Set(enrollments.map(e=>e.student_id))];let profiles=[];
+ if(studentIds.length){const r=await supabase.from("profiles").select("id,full_name").in("id",studentIds);if(r.error){message("message","Could not load student profiles: "+r.error.message,"error");return;}profiles=r.data||[];}
+ const map=new Map(profiles.map(p=>[p.id,p]));enrollments=enrollments.map(e=>({...e,student_name:map.get(e.student_id)?.full_name||e.student_id}));
+ renderRequests();renderStudents();$("courseCount").textContent=courses.length;$("studentCount").textContent=new Set(enrollments.filter(e=>e.status==="approved").map(e=>e.student_id)).size;$("requestCount").textContent=enrollments.filter(e=>e.status==="pending").length;
+ message("message",t("تم تحميل بيانات لوحة المعلم بنجاح.","Teacher dashboard loaded successfully."),"success");await loadAttendance();
+}
+function renderCourses(){
+ const box=$("coursesList");box.innerHTML="";fillCourseSelect("attendanceCourse",t("اختر المقرر","Select course"));
+ if(!courses.length){box.textContent=t("لا توجد مقررات.","No courses found.");return;}
+ courses.forEach(c=>{const d=document.createElement("div");d.className="course";const h=document.createElement("h3");h.textContent=courseName(c);const p=document.createElement("p");p.textContent=c.description||"";const s=document.createElement("div");s.className="status";s.textContent=t("الحالة: ","Status: ")+(c.status||"");d.append(h,p,s);box.appendChild(d);});
+}
+function renderRequests(){
+ const box=$("requestsList");box.innerHTML="";const pending=enrollments.filter(e=>e.status==="pending");$("requestCount").textContent=pending.length;
+ if(!pending.length){box.textContent=t("لا توجد طلبات تسجيل معلقة.","There are no pending enrolment requests.");return;}
+ pending.forEach(e=>{const c=courses.find(x=>x.id===e.course_id),d=document.createElement("div");d.className="request";const info=document.createElement("div"),name=document.createElement("strong"),course=document.createElement("div");name.textContent=e.student_name;course.className="muted";course.textContent=c?courseName(c):"";info.append(name,course);const actions=document.createElement("div");actions.className="actions";
+ [["approved","approve",t("قبول","Approve")],["rejected","reject",t("رفض","Reject")]].forEach(([status,cls,label])=>{const b=document.createElement("button");b.className=cls;b.textContent=label;b.onclick=()=>updateEnrollment(e.id,status);actions.appendChild(b);});d.append(info,actions);box.appendChild(d);});
+}
+function renderStudents(){
+ const box=$("studentsList");box.innerHTML="";const unique=new Map();enrollments.filter(e=>e.status==="approved").forEach(e=>{if(!unique.has(e.student_id))unique.set(e.student_id,e);});$("studentCount").textContent=unique.size;
+ if(!unique.size){box.textContent=t("لا يوجد طلاب مسجلون حالياً.","No approved students yet.");return;}unique.forEach(e=>{const d=document.createElement("div");d.className="student";d.textContent=e.student_name;box.appendChild(d);});
+}
+async function updateEnrollment(id,status){const {error}=await supabase.from("enrollments").update({status}).eq("id",id);if(error){message("message","Could not update enrolment: "+error.message,"error");return;}message("message",t("تم تحديث طلب التسجيل.","Enrolment updated."),"success");await loadEnrollments();}
+
+function renderMaterialCourseOptions(){fillCourseSelect("materialCourse",t("اختر المقرر","Select course"));}
+function materialTitle(m){return language==="ar"?(m.title_ar||m.title_en||"مادة تعليمية"):(m.title_en||m.title_ar||"Learning material");}
+function renderLearningMaterials(){
+ const box=$("materialsList");box.innerHTML="";if(!learningMaterials.length){const d=document.createElement("div");d.className="empty";d.textContent=t("لم تقم برفع أي مواد تعليمية حتى الآن.","You have not uploaded any learning materials yet.");box.appendChild(d);return;}
+ learningMaterials.forEach(m=>{const c=courses.find(x=>String(x.id)===String(m.course_id)),card=document.createElement("article");card.className="material-card";const h=document.createElement("h3");h.textContent=materialTitle(m);const p=document.createElement("p");p.textContent=t("المقرر: ","Course: ")+(c?courseName(c):m.course_id);const desc=document.createElement("p");desc.textContent=m.description||t("لا يوجد وصف لهذا الملف.","No description available.");const file=document.createElement("div");file.className="meta";file.textContent=t("اسم الملف: ","File: ")+m.file_name;const date=document.createElement("div");date.className="meta";date.textContent=t("تاريخ الرفع: ","Uploaded: ")+dateText(m.created_at);const actions=document.createElement("div");actions.className="material-actions";
+ [["material-open",t("فتح PDF","Open PDF"),()=>openMaterial(m,false)],["material-download",t("تحميل","Download"),()=>openMaterial(m,true)],["material-delete",t("حذف","Delete"),()=>deleteMaterial(m)]].forEach(([cls,label,fn])=>{const b=document.createElement("button");b.className=cls;b.textContent=label;b.onclick=fn;actions.appendChild(b);});card.append(h,p,desc,file,date,actions);box.appendChild(card);});
+}
+async function loadLearningMaterials(){
+ const {data,error}=await supabase.from("learning_materials").select("id,course_id,teacher_id,title_ar,title_en,description,file_path,file_name,created_at").eq("teacher_id",teacherId).order("created_at",{ascending:false});
+ if(error){learningMaterials=[];renderLearningMaterials();message("materialsMessage",t("تعذر تحميل المواد التعليمية: ","Could not load learning materials: ")+error.message,"error");return;}
+ learningMaterials=data||[];renderLearningMaterials();message("materialsMessage",learningMaterials.length?t("تم تحميل المواد التعليمية بنجاح.","Learning materials loaded successfully."):t("لا توجد مواد تعليمية مرفوعة حتى الآن.","No learning materials uploaded yet."),"success");
+}
+async function uploadMaterial(){
+ const courseId=$("materialCourse").value,titleAr=$("materialTitleAr").value.trim(),titleEn=$("materialTitleEn").value.trim(),description=$("materialDescription").value.trim(),file=$("materialFile").files[0];
+ if(!courseId||!courses.some(c=>String(c.id)===String(courseId))){message("materialsMessage",t("يرجى اختيار مقرر معين لك.","Select a course assigned to you."),"error");return;}
+ if(!titleAr||!titleEn){message("materialsMessage",t("أدخل العنوان بالعربية والإنجليزية.","Enter both Arabic and English titles."),"error");return;}
+ if(!file||!file.name.toLowerCase().endsWith(".pdf")||(file.type&&file.type!=="application/pdf")){message("materialsMessage",t("اختر ملف PDF صحيحاً.","Choose a valid PDF file."),"error");return;}
+ if(file.size>MAX_FILE_SIZE){message("materialsMessage",t("حجم الملف يتجاوز 10 ميجابايت.","File exceeds 10 MB."),"error");return;}
+ const btn=$("uploadMaterialBtn");btn.disabled=true;let path=null;
+ try{path=courseId+"/"+uniqueId()+".pdf";const up=await supabase.storage.from(MATERIALS_BUCKET).upload(path,file,{upsert:false,contentType:"application/pdf"});if(up.error)throw up.error;
+ const ins=await supabase.from("learning_materials").insert({course_id:courseId,teacher_id:teacherId,title_ar:titleAr,title_en:titleEn,description:description||null,file_path:path,file_name:file.name});
+ if(ins.error){await supabase.storage.from(MATERIALS_BUCKET).remove([path]);throw ins.error;}
+ $("materialTitleAr").value="";$("materialTitleEn").value="";$("materialDescription").value="";$("materialFile").value="";$("uploadProgress").textContent="";message("materialsMessage",t("تم رفع المادة التعليمية وحفظها بنجاح.","Material uploaded and saved."),"success");await loadLearningMaterials();
+ }catch(e){message("materialsMessage",t("فشل رفع المادة التعليمية: ","Upload failed: ")+e.message,"error");}finally{btn.disabled=false;}
+}
+async function openMaterial(m,download){
+ const tab=window.open("about:blank","_blank");if(!tab){message("materialsMessage",t("اسمح بالنوافذ المنبثقة لفتح الملف.","Allow pop-ups to open the file."),"error");return;}
+ try{const opts=download?{download:m.file_name||true}:undefined;const {data,error}=await supabase.storage.from(MATERIALS_BUCKET).createSignedUrl(m.file_path,300,opts);if(error)throw error;if(!data?.signedUrl)throw new Error("Could not create signed URL");tab.location.href=data.signedUrl;}catch(e){tab.close();message("materialsMessage",t("تعذر فتح الملف: ","Could not open file: ")+e.message,"error");}
+}
+async function deleteMaterial(m){if(!confirm(t("هل أنت متأكد من حذف هذه المادة؟","Delete this learning material?")))return;
+ const {error}=await supabase.from("learning_materials").delete().eq("id",m.id).eq("teacher_id",teacherId);if(error){message("materialsMessage",error.message,"error");return;}
+ learningMaterials=learningMaterials.filter(x=>x.id!==m.id);renderLearningMaterials();const r=await supabase.storage.from(MATERIALS_BUCKET).remove([m.file_path]);if(r.error)message("materialsMessage",t("حُذف السجل لكن تعذر حذف ملف التخزين: ","Record deleted but storage file could not be deleted: ")+r.error.message,"error");else message("materialsMessage",t("تم حذف المادة.","Material deleted."),"success");
+}
+
+function resetAttendance(){attendanceStudents=[];$("attendanceList").innerHTML="";$("attendanceSummary").style.display="none";$("saveAttendanceBtn").disabled=true;$("markAllPresentBtn").disabled=true;$("attendanceMessage").style.display="none";}
+async function loadAttendance(){
+ resetAttendance();const courseId=$("attendanceCourse").value,date=$("attendanceDate").value;if(!courseId||!date){message("attendanceMessage",t("يرجى اختيار المقرر والتاريخ.","Select a course and date."));return;}
+ const approved=enrollments.filter(e=>String(e.course_id)===String(courseId)&&e.status==="approved"),unique=new Map();approved.forEach(e=>{if(!unique.has(e.student_id))unique.set(e.student_id,{student_id:e.student_id,student_name:e.student_name,status:"present",remarks:""});});
+ if(!unique.size){message("attendanceMessage",t("لا يوجد طلاب مقبولون في هذا المقرر.","No approved students in this course."));return;}
+ const {data,error}=await supabase.from("attendance").select("student_id,status,remarks").eq("course_id",courseId).eq("attendance_date",date);if(error){message("attendanceMessage","Could not load attendance: "+error.message,"error");return;}
+ const old=new Map((data||[]).map(a=>[a.student_id,a]));attendanceStudents=[...unique.values()].map(s=>old.has(s.student_id)?{...s,status:old.get(s.student_id).status,remarks:old.get(s.student_id).remarks||""}:s);
+ renderAttendanceRows();updateAttendanceSummary();$("attendanceSummary").style.display="flex";$("saveAttendanceBtn").disabled=false;$("markAllPresentBtn").disabled=false;message("attendanceMessage",t("تم تحميل الطلاب بنجاح.","Students loaded."),"success");
+}
+function renderAttendanceRows(){
+ const box=$("attendanceList");box.innerHTML="";
+ attendanceStudents.forEach((student,index)=>{
+  const row=document.createElement("div");row.className="attendance-row";
+  const head=document.createElement("div");head.className="attendance-student-head";
+  const name=document.createElement("strong");name.textContent=student.student_name;
+  const current=document.createElement("span");current.className="meta";current.textContent=t("الحالة: ","Status: ")+t(student.status==="present"?"حاضر":student.status==="absent"?"غائب":"متأخر",student.status.charAt(0).toUpperCase()+student.status.slice(1));
+  head.append(name,current);
+  const choices=document.createElement("div");choices.className="attendance-status-options";
+  [["present","حاضر","Present"],["absent","غائب","Absent"],["late","متأخر","Late"]].forEach(([value,ar,en])=>{
+   const button=document.createElement("button");button.type="button";button.className="attendance-choice"+(student.status===value?" active":"");button.dataset.status=value;button.textContent=t(ar,en);button.setAttribute("aria-pressed",String(student.status===value));
+   button.addEventListener("click",()=>{attendanceStudents[index].status=value;renderAttendanceRows();updateAttendanceSummary();});choices.appendChild(button);
+  });
+  const details=document.createElement("details");details.className="attendance-notes";const summary=document.createElement("summary");summary.textContent=t("إضافة ملاحظة (اختياري)","Add a note (optional)");const notes=document.createElement("textarea");notes.placeholder=t("ملاحظات الطالب (اختياري)","Student note (optional)");notes.value=student.remarks||"";notes.addEventListener("input",()=>attendanceStudents[index].remarks=notes.value);details.append(summary,notes);
+  row.append(head,choices,details);box.appendChild(row);
+ });
+}
+function markAllPresent(){if(!attendanceStudents.length)return;attendanceStudents.forEach(student=>student.status="present");renderAttendanceRows();updateAttendanceSummary();message("attendanceMessage",t("تم تحديد جميع الطلاب حاضرين. اضغط حفظ الحضور لتأكيد التسجيل.","All students are marked present. Select Save Attendance to confirm."),"success");}
+function updateAttendanceSummary(){const n=attendanceStudents.length;$("attendanceTotal").textContent=n;$("presentTotal").textContent=attendanceStudents.filter(s=>s.status==="present").length;$("absentTotal").textContent=attendanceStudents.filter(s=>s.status==="absent").length;$("lateTotal").textContent=attendanceStudents.filter(s=>s.status==="late").length;}
+async function saveAttendance(){
+ const courseId=$("attendanceCourse").value,date=$("attendanceDate").value;if(!courseId||!date||!attendanceStudents.length){message("attendanceMessage",t("لا توجد بيانات حضور للحفظ.","No attendance data to save."),"error");return;}
+ $("saveAttendanceBtn").disabled=true;const rows=attendanceStudents.map(s=>({student_id:s.student_id,course_id:courseId,attendance_date:date,status:s.status,remarks:s.remarks||null,marked_by:teacherId}));
+ const {error}=await supabase.from("attendance").upsert(rows,{onConflict:"student_id,course_id,attendance_date"});$("saveAttendanceBtn").disabled=false;if(error){message("attendanceMessage","Could not save attendance: "+error.message,"error");return;}message("attendanceMessage",t("تم حفظ الحضور بنجاح.","Attendance saved successfully."),"success");
+}
+
+/* ASSIGNMENTS: creation, listing and grading */
+async function loadAssignments(){
+ const {data,error}=await supabase.from("assignments").select("id,course_id,teacher_id,title_ar,title_en,description_ar,description_en,instructions_ar,instructions_en,due_date,max_score,status,created_at").eq("teacher_id",teacherId).order("created_at",{ascending:false});
+ if(error){assignments=[];renderAssignments();message("assignmentMessage","Could not load assignments: "+error.message,"error");return;}
+ assignments=data||[];renderAssignments();
+}
+function assignmentTitle(a){return language==="ar"?(a.title_ar||a.title_en):(a.title_en||a.title_ar);}
+function renderAssignments(){
+ const box=$("assignmentsList");box.innerHTML="";fillEntitySelect("assignmentReviewSelect",assignments,t("اختر واجباً","Select assignment"),a=>assignmentTitle(a)+" — "+(courses.find(c=>c.id===a.course_id)?courseName(courses.find(c=>c.id===a.course_id)):""));
+ if(!assignments.length){box.textContent=t("لا توجد واجبات حتى الآن.","No assignments yet.");$("assignmentSubmissionsList").innerHTML="";return;}
+ assignments.forEach(a=>{const c=courses.find(x=>x.id===a.course_id),card=document.createElement("article");card.className="item-card";const h=document.createElement("h3");h.textContent=assignmentTitle(a);const p=document.createElement("p");p.textContent=(c?courseName(c):"")+" • "+t("آخر موعد: ","Due: ")+dateText(a.due_date)+" • "+t("الدرجة: ","Max score: ")+a.max_score;const status=document.createElement("div");status.className="meta";status.textContent=t("الحالة: ","Status: ")+a.status;const actions=document.createElement("div");actions.className="inline-actions";
+ const view=document.createElement("button");view.className="secondary-btn";view.textContent=t("عرض التفاصيل","View details");view.onclick=()=>showAssignmentDetails(a);actions.appendChild(view);
+ if(a.status!=="closed"){const close=document.createElement("button");close.className="secondary-btn";close.textContent=t("إغلاق الواجب","Close assignment");close.onclick=()=>changeAssignmentStatus(a,"closed");actions.appendChild(close);}
+ if(a.status==="draft"){const pub=document.createElement("button");pub.className="approve";pub.textContent=t("نشر الواجب","Publish");pub.onclick=()=>changeAssignmentStatus(a,"published");actions.appendChild(pub);}
+ card.append(h,p,status,actions);box.appendChild(card);});
+}
+function showAssignmentDetails(a){
+ const box=$("assignmentDetails");box.style.display="block";box.innerHTML="";
+ const title=document.createElement("h3");title.textContent=assignmentTitle(a);
+ const course=courses.find(c=>String(c.id)===String(a.course_id));
+ const meta=document.createElement("p");meta.className="meta";meta.textContent=(course?courseName(course):"")+" • "+t("آخر موعد: ","Due: ")+dateText(a.due_date)+" • "+t("الدرجة النهائية: ","Maximum score: ")+a.max_score+" • "+t("الحالة: ","Status: ")+a.status;
+ const description=document.createElement("p");description.textContent=a.description_ar||a.description_en||a.instructions_ar||a.instructions_en||t("لا توجد تعليمات إضافية لهذا الواجب.","No additional instructions for this assignment.");
+ const close=document.createElement("button");close.className="secondary-btn";close.textContent=t("إغلاق التفاصيل","Close details");close.onclick=()=>{box.style.display="none";};box.append(title,meta,description,close);box.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+async function createAssignment(){
+ const courseId=$("assignmentCourse").value,titleAr=$("assignmentTitleAr").value.trim(),titleEn=$("assignmentTitleEn").value.trim(),due=$("assignmentDue").value,max=Number($("assignmentMaxScore").value),desc=$("assignmentDescription").value.trim();
+ if(!courseId||!titleAr||!titleEn||!due||!Number.isFinite(max)||max<=0){message("assignmentMessage",t("أكمل المقرر والعنوانين والموعد ودرجة صحيحة.","Complete course, both titles, due date and a valid maximum score."),"error");return;}
+ const btn=$("createAssignmentBtn");btn.disabled=true;
+ try{const payload={course_id:courseId,teacher_id:teacherId,title_ar:titleAr,title_en:titleEn,description_ar:desc||null,description_en:desc||null,instructions_ar:desc||null,instructions_en:desc||null,due_date:new Date(due).toISOString(),max_score:max,status:$("assignmentStatus").value};
+ const {error}=await supabase.from("assignments").insert(payload);if(error)throw error;
+ ["assignmentTitleAr","assignmentTitleEn","assignmentDescription","assignmentDue"].forEach(id=>$(id).value="");message("assignmentMessage",t("تم إنشاء الواجب.","Assignment created."),"success");await loadAssignments();
+ }catch(e){message("assignmentMessage",t("تعذر إنشاء الواجب: ","Could not create assignment: ")+e.message,"error");}finally{btn.disabled=false;}
+}
+async function changeAssignmentStatus(a,status){const {error}=await supabase.from("assignments").update({status}).eq("id",a.id).eq("teacher_id",teacherId);if(error){message("assignmentMessage",error.message,"error");return;}await loadAssignments();}
+async function loadAssignmentSubmissions(){
+ const id=$("assignmentReviewSelect").value,box=$("assignmentSubmissionsList");box.innerHTML="";if(!id)return;
+ const {data,error}=await supabase.from("assignment_submissions").select("id,assignment_id,student_id,submission_text,file_path,status,score,feedback,submitted_at").eq("assignment_id",id).order("submitted_at",{ascending:false});
+ if(error){message("assignmentMessage","Could not load submissions: "+error.message,"error");return;}
+ const ids=[...new Set((data||[]).map(x=>x.student_id))];let names={};if(ids.length){const r=await supabase.from("profiles").select("id,full_name").in("id",ids);if(r.error){message("assignmentMessage",r.error.message,"error");return;}names=Object.fromEntries((r.data||[]).map(p=>[p.id,p.full_name]));}
+ if(!data?.length){box.textContent=t("لا توجد تسليمات لهذا الواجب.","No submissions for this assignment.");return;}
+ const assignment=assignments.find(a=>a.id===id);
+ data.forEach(s=>{const card=document.createElement("article");card.className="item-card";const h=document.createElement("h3");h.textContent=names[s.student_id]||s.student_id;const body=document.createElement("p");body.textContent=s.submission_text||t("لا توجد إجابة نصية.","No text response.");const meta=document.createElement("div");meta.className="meta";meta.textContent=t("وقت التسليم: ","Submitted: ")+dateText(s.submitted_at)+" • "+t("الحالة: ","Status: ")+s.status+(s.file_path?" • "+t("مسار الملف: ","File path: ")+s.file_path:"");
+ const score=document.createElement("input");score.type="number";score.min="0";score.max=String(assignment?.max_score??100);score.step="0.01";score.placeholder=t("الدرجة","Score");score.value=s.score??"";
+ const feedback=document.createElement("textarea");feedback.placeholder=t("ملاحظات المعلم","Teacher feedback");feedback.value=s.feedback||"";
+ const btn=document.createElement("button");btn.className="approve";btn.textContent=t("حفظ الدرجة والملاحظات","Save grade and feedback");btn.onclick=async()=>{const n=Number(score.value);if(score.value===""||!Number.isFinite(n)||n<0||n>Number(assignment?.max_score)){message("assignmentMessage",t("أدخل درجة بين صفر والدرجة النهائية.","Enter a score between zero and the maximum."),"error");return;}btn.disabled=true;try{const {data:result,error:e}=await supabase.rpc("grade_assignment_submission",{p_submission_id:s.id,p_score:n,p_feedback:feedback.value||null});if(e)throw e;message("assignmentMessage",t("تم حفظ التقييم: ","Grade saved: ")+String(result??"graded"),"success");await loadAssignmentSubmissions();}catch(e){message("assignmentMessage",t("تعذر حفظ التقييم: ","Could not save grade: ")+e.message,"error");btn.disabled=false;}};
+ card.append(h,body,meta);if(s.file_path){const note=document.createElement("p");note.textContent=t("ملاحظة: ملف التسليم محفوظ في مسار التخزين أعلاه؛ لم يتم إنشاء رابط لأن حاوية ملفات الواجبات لم تُحدد بعد.","Note: The submission file path is shown above. A download link is not generated because the assignment storage bucket has not yet been confirmed.");card.appendChild(note);}const fields=document.createElement("div");fields.className="grid";const sf=document.createElement("div");sf.className="field";sf.append(t("الدرجة","Score"),score);const ff=document.createElement("div");ff.className="field";ff.append(t("الملاحظات","Feedback"),feedback);fields.append(sf,ff);card.append(fields,btn);box.appendChild(card);});
+}
+
+/* EXAMS */
+async function loadExams(){
+ const {data,error}=await supabase.from("exams").select("id,course_id,teacher_id,title_ar,title_en,description_ar,description_en,instructions_ar,instructions_en,exam_mode,exam_file_path,start_time,end_time,duration_minutes,max_attempts,max_score,status,created_at").eq("teacher_id",teacherId).order("created_at",{ascending:false});
+ if(error){exams=[];renderExams();message("examMessage","Could not load exams: "+error.message,"error");return;}
+ exams=data||[];renderExams();
+}
+function examTitle(e){return language==="ar"?(e.title_ar||e.title_en):(e.title_en||e.title_ar);}
+function renderExams(){
+ const box=$("examsList");box.innerHTML="";[["questionExamSelect",t("اختر اختباراً","Select exam")],["paperExamSelect",t("اختر اختباراً","Select exam")],["attemptExamSelect",t("اختر اختباراً","Select exam")]].forEach(([id,p])=>fillEntitySelect(id,exams,p,e=>examTitle(e)));
+ if(!exams.length){box.textContent=t("لا توجد اختبارات حتى الآن.","No exams yet.");$("questionsList").innerHTML="";$("attemptsList").innerHTML="";return;}
+ exams.forEach(e=>{const c=courses.find(x=>x.id===e.course_id),card=document.createElement("article");card.className="item-card";const h=document.createElement("h3");h.textContent=examTitle(e);const p=document.createElement("p");p.textContent=(c?courseName(c):"")+" • "+e.exam_mode+" • "+t("الدرجة: ","Max score: ")+e.max_score+" • "+t("البداية: ","Starts: ")+dateText(e.start_time)+" • "+t("النهاية: ","Ends: ")+dateText(e.end_time);const st=document.createElement("div");st.className="meta";st.textContent=t("الحالة: ","Status: ")+e.status+(e.exam_file_path?" • PDF attached":"");const actions=document.createElement("div");actions.className="inline-actions";
+ const view=document.createElement("button");view.className="secondary-btn";view.textContent=t("عرض التفاصيل","View details");view.onclick=()=>showExamDetails(e);actions.appendChild(view);
+ const manage=document.createElement("button");manage.className="secondary-btn";manage.textContent=t("إدارة الأسئلة","Manage questions");manage.onclick=()=>{showDashboardPage("questions");$("questionExamSelect").value=e.id;loadQuestions();};actions.appendChild(manage);
+ const attempts=document.createElement("button");attempts.className="secondary-btn";attempts.textContent=t("محاولات الطلاب","Student attempts");attempts.onclick=()=>{showDashboardPage("results");$("attemptExamSelect").value=e.id;loadAttempts();};actions.appendChild(attempts);
+ if(e.status==="draft"){const pub=document.createElement("button");pub.className="approve";pub.textContent=t("نشر الاختبار","Publish exam");pub.onclick=()=>changeExamStatus(e,"published");actions.appendChild(pub);}
+ if(e.status!=="closed"){const close=document.createElement("button");close.className="danger-btn";close.textContent=t("إغلاق الاختبار","Close exam");close.onclick=()=>changeExamStatus(e,"closed");actions.appendChild(close);}
+ card.append(h,p,st,actions);box.appendChild(card);});
+}
+function showExamDetails(e){
+ const box=$("examDetails");box.style.display="block";box.innerHTML="";
+ const title=document.createElement("h3");title.textContent=examTitle(e);
+ const course=courses.find(c=>String(c.id)===String(e.course_id));
+ const meta=document.createElement("p");meta.className="meta";meta.textContent=(course?courseName(course):"")+" • "+e.exam_mode+" • "+t("الدرجة: ","Maximum score: ")+e.max_score+" • "+t("البداية: ","Starts: ")+dateText(e.start_time)+" • "+t("النهاية: ","Ends: ")+dateText(e.end_time)+" • "+t("المدة: ","Duration: ")+e.duration_minutes+" "+t("دقيقة","minutes")+" • "+t("المحاولات: ","Attempts: ")+e.max_attempts+" • "+t("الحالة: ","Status: ")+e.status;
+ const desc=document.createElement("p");desc.textContent=e.description_ar||e.description_en||e.instructions_ar||e.instructions_en||t("لا توجد تعليمات إضافية لهذا الاختبار.","No additional instructions for this examination.");
+ box.append(title,meta,desc);
+ if(e.exam_file_path){const open=document.createElement("button");open.className="primary-btn";open.textContent=t("فتح ورقة الاختبار PDF","Open exam PDF");open.onclick=()=>openExamPaper(e);box.appendChild(open);}
+ const close=document.createElement("button");close.className="secondary-btn";close.style.marginInlineStart="8px";close.textContent=t("إغلاق التفاصيل","Close details");close.onclick=()=>{box.style.display="none";};box.appendChild(close);box.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function openExamPaper(e){
+ const tab=window.open("about:blank","_blank");if(!tab){message("examMessage",t("اسمح بالنوافذ المنبثقة لفتح الملف.","Allow pop-ups to open the PDF."),"error");return;}
+ try{const result=await supabase.storage.from(EXAM_BUCKET).createSignedUrl(e.exam_file_path,300);if(result.error)throw result.error;if(!result.data?.signedUrl)throw new Error("Could not create a secure PDF link");tab.location.href=result.data.signedUrl;}
+ catch(error){tab.close();message("examMessage",t("تعذر فتح ورقة الاختبار: ","Could not open exam paper: ")+error.message,"error");}
+}
+
+async function createExam(){
+ const courseId=$("examCourse").value,titleAr=$("examTitleAr").value.trim(),titleEn=$("examTitleEn").value.trim(),start=$("examStart").value,end=$("examEnd").value,duration=Number($("examDuration").value),attempts=Number($("examAttempts").value),max=Number($("examMaxScore").value),desc=$("examDescription").value.trim();
+ if(!courseId||!titleAr||!titleEn||!start||!end||new Date(end)<=new Date(start)||duration<1||attempts<1||max<=0){message("examMessage",t("تحقق من المقرر والعنوانين والأوقات والمدة والمحاولات والدرجة.","Check course, titles, times, duration, attempts and maximum score."),"error");return;}
+ const btn=$("createExamBtn");btn.disabled=true;
+ try{const {error}=await supabase.from("exams").insert({course_id:courseId,teacher_id:teacherId,title_ar:titleAr,title_en:titleEn,description_ar:desc||null,description_en:desc||null,instructions_ar:desc||null,instructions_en:desc||null,exam_mode:$("examMode").value,start_time:new Date(start).toISOString(),end_time:new Date(end).toISOString(),duration_minutes:duration,max_attempts:attempts,max_score:max,status:"draft"});if(error)throw error;
+ ["examTitleAr","examTitleEn","examStart","examEnd","examDescription"].forEach(id=>$(id).value="");message("examMessage",t("تم إنشاء الاختبار كمسودة. أضف الأسئلة أو ارفع الورقة ثم انشره.","Exam created as a draft. Add questions or upload the paper before publishing."),"success");await loadExams();
+ }catch(e){message("examMessage",t("تعذر إنشاء الاختبار: ","Could not create exam: ")+e.message,"error");}finally{btn.disabled=false;}
+}
+async function changeExamStatus(e,status){const {error}=await supabase.from("exams").update({status}).eq("id",e.id).eq("teacher_id",teacherId);if(error){message("examMessage",error.message,"error");return;}await loadExams();}
+async function loadQuestions(){
+ const examId=$("questionExamSelect").value,box=$("questionsList");box.innerHTML="";if(!examId)return;
+ const {data,error}=await supabase.from("exam_questions").select("id,exam_id,question_ar,question_en,question_type,options,points,sort_order").eq("exam_id",examId).order("sort_order",{ascending:true});
+ if(error){message("examMessage","Could not load questions: "+error.message,"error");return;}
+ if(!data?.length){box.textContent=t("لا توجد أسئلة مضافة.","No questions have been added.");return;}
+ data.forEach((q,i)=>{const card=document.createElement("div");card.className="item-card";const h=document.createElement("h3");h.textContent=(i+1)+". "+(language==="ar"?(q.question_ar||q.question_en):(q.question_en||q.question_ar));const p=document.createElement("p");p.textContent=q.question_type+" • "+t("الدرجة: ","Points: ")+q.points;if(q.question_type==="multiple_choice"&&Array.isArray(q.options)){const list=document.createElement("ul");q.options.forEach(o=>{const li=document.createElement("li");li.textContent=(o.id||"")+" — "+(language==="ar"?(o.text_ar||o.text_en):(o.text_en||o.text_ar));list.appendChild(li);});card.append(h,p,list);}else card.append(h,p);box.appendChild(card);});
+}
+async function addQuestion(){
+ const examId=$("questionExamSelect").value,type=$("questionType").value,ar=$("questionAr").value.trim(),en=$("questionEn").value.trim(),points=Number($("questionPoints").value);
+ if(!examId||!ar||!en||!Number.isFinite(points)||points<=0){message("examMessage",t("اختر اختباراً وأدخل نص السؤال والدرجة.","Select an exam and enter both question texts and points."),"error");return;}
+ const exam=exams.find(e=>e.id===examId);if(!exam||!["online","both"].includes(exam.exam_mode)){message("examMessage",t("هذا الاختبار ليس اختباراً إلكترونياً.","This exam does not support online questions."),"error");return;}
+ let options=null,correct=null;
+ if(type==="multiple_choice"){
+  const lines=$("questionOptions").value.split("\n").map(x=>x.trim()).filter(Boolean);
+  options=lines.map(line=>{const parts=line.split("|");return{id:(parts[0]||"").trim(),text_ar:(parts[1]||"").trim(),text_en:(parts.slice(2).join("|")||"").trim()};});
+  const answer=$("correctOption").value.trim();
+  if(options.length<2||options.some(o=>!o.id||!o.text_ar||!o.text_en)||new Set(options.map(o=>o.id)).size!==options.length||!options.some(o=>o.id===answer)){message("examMessage",t("أدخل خيارين صحيحين على الأقل وحدد رمز إجابة موجوداً.","Enter at least two valid options and a matching correct option ID."),"error");return;}
+  correct={id:answer};
+ }
+ const btn=$("addQuestionBtn");btn.disabled=true;
+ try{
+  const {data:existing,error:readError}=await supabase.from("exam_questions").select("id,sort_order").eq("exam_id",examId).order("sort_order",{ascending:false}).limit(1);if(readError)throw readError;
+  const sort=(existing?.[0]?.sort_order??0)+1;
+  const {data:q,error}=await supabase.from("exam_questions").insert({exam_id:examId,question_ar:ar,question_en:en,question_type:type,options,points,sort_order:sort}).select("id").single();if(error)throw error;
+  if(type==="multiple_choice"){const key=await supabase.from("exam_answer_keys").insert({question_id:q.id,correct_answer:correct});if(key.error)throw key.error;}
+  $("questionAr").value="";$("questionEn").value="";$("questionOptions").value="";$("correctOption").value="";message("examMessage",t("تمت إضافة السؤال.","Question added."),"success");await loadQuestions();
+ }catch(e){message("examMessage",t("تعذرت إضافة السؤال: ","Could not add question: ")+e.message,"error");}finally{btn.disabled=false;}
+}
+async function uploadExamPaper(){
+ const examId=$("paperExamSelect").value,file=$("examPaperFile").files[0],exam=exams.find(e=>e.id===examId);
+ if(!examId||!exam||!["file","both"].includes(exam.exam_mode)){message("examMessage",t("اختر اختباراً يدعم ملفات PDF.","Select an exam that supports PDF files."),"error");return;}
+ if(!file||!file.name.toLowerCase().endsWith(".pdf")||(file.type&&file.type!=="application/pdf")){message("examMessage",t("اختر ملف PDF صحيحاً.","Choose a valid PDF file."),"error");return;}
+ if(file.size>MAX_EXAM_FILE_SIZE){message("examMessage",t("الحد الأقصى لملف الاختبار 50 ميجابايت.","Maximum exam PDF size is 50 MB."),"error");return;}
+ const btn=$("uploadExamPaperBtn");btn.disabled=true;let path=null;
+ try{
+  path="papers/"+examId+"/"+uniqueId()+".pdf";const up=await supabase.storage.from(EXAM_BUCKET).upload(path,file,{upsert:false,contentType:"application/pdf"});if(up.error)throw up.error;
+  const upd=await supabase.from("exams").update({exam_file_path:path}).eq("id",examId).eq("teacher_id",teacherId);if(upd.error){await supabase.storage.from(EXAM_BUCKET).remove([path]);throw upd.error;}
+  $("examPaperFile").value="";message("examMessage",t("تم رفع ورقة الاختبار وربطها بالاختبار. لا يزال الاختبار مسودة.","Exam paper uploaded and attached. The exam remains a draft."),"success");await loadExams();
+ }catch(e){message("examMessage",t("تعذر رفع ورقة الاختبار: ","Could not upload exam paper: ")+e.message,"error");}finally{btn.disabled=false;}
+}
+async function loadAttempts(){
+ const examId=$("attemptExamSelect").value,box=$("attemptsList");box.innerHTML="";if(!examId)return;
+ const {data,error}=await supabase.from("exam_attempts").select("id,exam_id,student_id,attempt_number,submission_file_path,status,score,feedback,started_at,submitted_at,graded_at").eq("exam_id",examId).in("status",["submitted","graded"]).order("submitted_at",{ascending:false});
+ if(error){message("examMessage","Could not load attempts: "+error.message,"error");return;}
+ if(!data?.length){box.textContent=t("لا توجد محاولات مسلّمة لهذا الاختبار.","No submitted attempts for this exam.");return;}
+ const ids=[...new Set(data.map(a=>a.student_id))];const pr=await supabase.from("profiles").select("id,full_name").in("id",ids);if(pr.error){message("examMessage",pr.error.message,"error");return;}const names=Object.fromEntries((pr.data||[]).map(p=>[p.id,p.full_name]));
+ for(const a of data){
+  const card=document.createElement("article");card.className="item-card";const h=document.createElement("h3");h.textContent=(names[a.student_id]||a.student_id)+" • "+t("المحاولة ","Attempt ")+a.attempt_number;
+  const meta=document.createElement("div");meta.className="meta";meta.textContent=t("الحالة: ","Status: ")+a.status+" • "+t("التسليم: ","Submitted: ")+dateText(a.submitted_at)+" • "+t("الدرجة: ","Score: ")+(a.score??"—");
+  card.append(h,meta);
+  if(a.submission_file_path){
+   const path=document.createElement("p");path.textContent=t("ملف التسليم: ","Submission file: ")+a.submission_file_path;card.appendChild(path);
+   const open=document.createElement("button");open.className="secondary-btn";open.textContent=t("فتح ملف الطالب","Open student's PDF");open.onclick=async()=>{const tab=window.open("about:blank","_blank");if(!tab)return;const r=await supabase.storage.from(EXAM_BUCKET).createSignedUrl(a.submission_file_path,300);if(r.error||!r.data?.signedUrl){tab.close();message("examMessage",r.error?.message||"Could not create signed URL","error");return;}tab.location.href=r.data.signedUrl;};card.appendChild(open);
+   if(a.status==="submitted"){const score=document.createElement("input");score.type="number";score.min="0";score.max=String(exams.find(e=>e.id===examId)?.max_score||100);score.step="0.01";score.placeholder=t("الدرجة النهائية","Final score");const feedback=document.createElement("textarea");feedback.placeholder=t("ملاحظات المعلم","Teacher feedback");feedback.value=a.feedback||"";const grade=document.createElement("button");grade.className="approve";grade.textContent=t("تصحيح الاختبار","Grade file exam");grade.onclick=async()=>{const n=Number(score.value);if(score.value===""||n<0||n>Number(exams.find(e=>e.id===examId)?.max_score)){message("examMessage",t("أدخل درجة صحيحة ضمن الدرجة النهائية.","Enter a valid score within the exam maximum."),"error");return;}grade.disabled=true;const r=await supabase.rpc("grade_file_exam",{p_attempt_id:a.id,p_score:n,p_feedback:feedback.value||null});if(r.error){message("examMessage",r.error.message,"error");grade.disabled=false;return;}message("examMessage",t("تم تصحيح الاختبار.","File exam graded."),"success");await loadAttempts();};const wrap=document.createElement("div");wrap.className="grid";const f1=document.createElement("div");f1.className="field";f1.append(t("الدرجة","Score"),score);const f2=document.createElement("div");f2.className="field";f2.append(t("الملاحظات","Feedback"),feedback);wrap.append(f1,f2);card.append(wrap,grade);}
+  }else{
+   const examQuestions=await supabase.from("exam_questions").select("id,question_ar,question_en,question_type,points,sort_order").eq("exam_id",examId).eq("question_type","written").order("sort_order",{ascending:true});
+   if(examQuestions.error){message("examMessage",examQuestions.error.message,"error");}
+   else{
+    const answers=await supabase.from("exam_answers").select("id,attempt_id,question_id,answer_text,selected_option").eq("attempt_id",a.id);
+    if(answers.error){message("examMessage",answers.error.message,"error");}
+    else{
+     for(const q of examQuestions.data||[]){const ans=(answers.data||[]).find(x=>x.question_id===q.id);const qbox=document.createElement("div");qbox.className="item-card";const qh=document.createElement("strong");qh.textContent=language==="ar"?(q.question_ar||q.question_en):(q.question_en||q.question_ar);const response=document.createElement("p");response.textContent=ans?.answer_text||t("لم يقدم الطالب إجابة نصية لهذا السؤال.","No written response was provided.");const points=document.createElement("div");points.className="meta";points.textContent=t("الدرجة القصوى: ","Maximum points: ")+q.points;qbox.append(qh,response,points);
+      if(a.status==="submitted"){const input=document.createElement("input");input.type="number";input.min="0";input.max=String(q.points);input.step="0.01";input.placeholder=t("الدرجة الممنوحة","Awarded points");const grade=document.createElement("button");grade.className="approve";grade.textContent=t("حفظ درجة السؤال","Save question grade");grade.onclick=async()=>{const n=Number(input.value);if(input.value===""||n<0||n>Number(q.points)){message("examMessage",t("أدخل درجة ضمن درجة السؤال.","Enter a score within the question's points."),"error");return;}grade.disabled=true;const r=await supabase.rpc("grade_written_exam_answer",{p_attempt_id:a.id,p_question_id:q.id,p_awarded_points:n});if(r.error){message("examMessage",r.error.message,"error");grade.disabled=false;return;}const row=Array.isArray(r.data)?r.data[0]:r.data;message("examMessage",row?.attempt_status==="graded"?t("اكتمل تصحيح الاختبار. الدرجة النهائية: ","Exam fully graded. Final score: ")+row.final_score:t("تم حفظ درجة السؤال. الأسئلة المقالية المتبقية: ","Question grade saved. Written questions remaining: ")+(row?.remaining_written_questions??"—"),"success");await loadAttempts();};qbox.append(input,grade);}
+      card.appendChild(qbox);
+     }
+    }
+   }
+  }
+  if(a.status==="graded"&&a.feedback){const fb=document.createElement("p");fb.textContent=t("ملاحظات المعلم: ","Teacher feedback: ")+a.feedback;card.appendChild(fb);}
+  box.appendChild(card);
+ }
+}
+translatePage();loadDashboard();
 })();
 </script>
 </body>

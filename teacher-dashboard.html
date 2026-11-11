@@ -28,7 +28,10 @@ main{max-width:1150px;margin:30px auto;padding:0 18px 50px}h1,h2,h3{color:var(--
 .assignment-details{margin-top:13px;padding:13px;border:1px solid var(--border);border-radius:9px;background:#edf5ef;color:var(--text)}
 .assignment-details[hidden]{display:none}
 .assignment-details p{margin:7px 0;white-space:pre-wrap}
-.assignment-details strong{color:#285c40}
+.assignment-details strong,.exam-details strong{color:#285c40}
+.exam-details{margin-top:13px;padding:13px;border:1px solid var(--border);border-radius:9px;background:#edf5ef;color:var(--text)}
+.exam-details[hidden]{display:none}
+.exam-details p{margin:7px 0;white-space:pre-wrap;overflow-wrap:anywhere}
 hr{border:0;border-top:1px solid var(--border);margin:20px 0}footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid var(--border)}
 
 .dashboard-shell{display:grid;grid-template-columns:245px minmax(0,1fr);max-width:1500px;margin:0 auto;min-height:calc(100vh - 75px)}
@@ -456,13 +459,48 @@ async function loadExams(){
  exams=data||[];renderExams();
 }
 function examTitle(e){return language==="ar"?(e.title_ar||e.title_en):(e.title_en||e.title_ar);}
+function examModeText(mode){return ({online:t("إلكتروني","Online"),file:t("ملف PDF","PDF file"),both:t("إلكتروني وملف PDF","Online and PDF")})[mode]||mode||"—";}
+function examStatusText(status){return ({draft:t("مسودة","Draft"),published:t("منشور","Published"),closed:t("مغلق","Closed")})[status]||status||"—";}
 function renderExams(){
  const box=$("examsList");box.innerHTML="";[["questionExamSelect",t("اختر اختباراً","Select exam")],["paperExamSelect",t("اختر اختباراً","Select exam")],["attemptExamSelect",t("اختر اختباراً","Select exam")]].forEach(([id,p])=>fillEntitySelect(id,exams,p,e=>examTitle(e)));
  if(!exams.length){box.textContent=t("لا توجد اختبارات حتى الآن.","No exams yet.");$("questionsList").innerHTML="";$("attemptsList").innerHTML="";return;}
- exams.forEach(e=>{const c=courses.find(x=>x.id===e.course_id),card=document.createElement("article");card.className="item-card";const h=document.createElement("h3");h.textContent=examTitle(e);const p=document.createElement("p");p.textContent=(c?courseName(c):"")+" • "+e.exam_mode+" • "+t("الدرجة: ","Max score: ")+e.max_score+" • "+t("البداية: ","Starts: ")+dateText(e.start_time)+" • "+t("النهاية: ","Ends: ")+dateText(e.end_time);const st=document.createElement("div");st.className="meta";st.textContent=t("الحالة: ","Status: ")+e.status+(e.exam_file_path?" • PDF attached":"");const actions=document.createElement("div");actions.className="inline-actions";
- if(e.status==="draft"){const pub=document.createElement("button");pub.className="approve";pub.textContent=t("نشر الاختبار","Publish exam");pub.onclick=()=>changeExamStatus(e,"published");actions.appendChild(pub);}
- if(e.status!=="closed"){const close=document.createElement("button");close.className="danger-btn";close.textContent=t("إغلاق الاختبار","Close exam");close.onclick=()=>changeExamStatus(e,"closed");actions.appendChild(close);}
- card.append(h,p,st,actions);box.appendChild(card);});
+ exams.forEach(e=>{
+  const c=courses.find(x=>x.id===e.course_id),card=document.createElement("article");card.className="item-card";
+  const h=document.createElement("h3");h.textContent=examTitle(e);
+  const p=document.createElement("p");p.textContent=(c?courseName(c):"")+" • "+examModeText(e.exam_mode)+" • "+t("الدرجة: ","Max score: ")+e.max_score+" • "+t("البداية: ","Starts: ")+dateText(e.start_time)+" • "+t("النهاية: ","Ends: ")+dateText(e.end_time);
+  const st=document.createElement("div");st.className="meta";st.textContent=t("الحالة: ","Status: ")+examStatusText(e.status)+(e.exam_file_path?" • "+t("ملف PDF مرفق","PDF attached"):"");
+  const details=document.createElement("div");details.className="exam-details";details.hidden=true;
+  const addDetail=(label,value)=>{const line=document.createElement("p"),strong=document.createElement("strong");strong.textContent=label;line.append(strong,document.createTextNode(" "+(value===null||value===undefined||value===""?"—":String(value))));details.appendChild(line);};
+  addDetail(t("العنوان بالعربية:","Arabic title:"),e.title_ar);
+  addDetail(t("العنوان بالإنجليزية:","English title:"),e.title_en);
+  addDetail(t("المقرر:","Course:"),c?courseName(c):"");
+  addDetail(t("الوصف بالعربية:","Arabic description:"),e.description_ar);
+  addDetail(t("الوصف بالإنجليزية:","English description:"),e.description_en);
+  addDetail(t("التعليمات بالعربية:","Arabic instructions:"),e.instructions_ar);
+  addDetail(t("التعليمات بالإنجليزية:","English instructions:"),e.instructions_en);
+  addDetail(t("نوع الاختبار:","Exam type:"),examModeText(e.exam_mode));
+  addDetail(t("وقت البداية:","Start time:"),dateText(e.start_time));
+  addDetail(t("وقت النهاية:","End time:"),dateText(e.end_time));
+  addDetail(t("المدة بالدقائق:","Duration (minutes):"),e.duration_minutes);
+  addDetail(t("عدد المحاولات المسموح:","Allowed attempts:"),e.max_attempts);
+  addDetail(t("الدرجة النهائية:","Maximum score:"),e.max_score);
+  addDetail(t("الحالة:","Status:"),examStatusText(e.status));
+  addDetail(t("ملف الاختبار:","Exam file:"),e.exam_file_path?t("يوجد ملف PDF مرفق","PDF file attached"):t("لا يوجد ملف مرفق","No file attached"));
+  const actions=document.createElement("div");actions.className="inline-actions";
+  const view=document.createElement("button");view.className="secondary-btn";view.type="button";view.textContent=t("عرض تفاصيل الاختبار","View Exam");view.setAttribute("aria-expanded","false");
+  view.onclick=()=>{details.hidden=!details.hidden;view.setAttribute("aria-expanded",String(!details.hidden));view.textContent=details.hidden?t("عرض تفاصيل الاختبار","View Exam"):t("إخفاء التفاصيل","Hide Details");};actions.appendChild(view);
+  if(e.exam_file_path){const pdf=document.createElement("button");pdf.className="secondary-btn";pdf.type="button";pdf.textContent=t("فتح ملف الاختبار PDF","Open Exam PDF");pdf.onclick=()=>openExamPaper(e);actions.appendChild(pdf);}
+  if(e.status==="draft"){const pub=document.createElement("button");pub.className="approve";pub.type="button";pub.textContent=t("نشر الاختبار","Publish exam");pub.onclick=()=>changeExamStatus(e,"published");actions.appendChild(pub);}
+  if(e.status!=="closed"){const close=document.createElement("button");close.className="danger-btn";close.type="button";close.textContent=t("إغلاق الاختبار","Close exam");close.onclick=()=>changeExamStatus(e,"closed");actions.appendChild(close);}
+  card.append(h,p,st,actions,details);box.appendChild(card);
+ });
+}
+async function openExamPaper(e){
+ if(!e?.exam_file_path)return;
+ const tab=window.open("about:blank","_blank");
+ if(!tab){message("examMessage",t("يرجى السماح بفتح النوافذ المنبثقة لعرض ملف الاختبار.","Allow pop-ups to open the exam PDF."),"error");return;}
+ try{const {data,error}=await supabase.storage.from(EXAM_BUCKET).createSignedUrl(e.exam_file_path,300);if(error||!data?.signedUrl)throw error||new Error("Could not create a secure file link.");tab.location.href=data.signedUrl;}
+ catch(err){tab.close();message("examMessage",t("تعذر فتح ملف الاختبار: ","Could not open exam PDF: ")+err.message,"error");}
 }
 async function createExam(){
  const courseId=$("examCourse").value,titleAr=$("examTitleAr").value.trim(),titleEn=$("examTitleEn").value.trim(),start=$("examStart").value,end=$("examEnd").value,duration=Number($("examDuration").value),attempts=Number($("examAttempts").value),max=Number($("examMaxScore").value),desc=$("examDescription").value.trim();

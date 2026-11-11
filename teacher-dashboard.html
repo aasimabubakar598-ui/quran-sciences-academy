@@ -13,7 +13,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Tajawal,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
 header{background:#102f28;border-bottom:1px solid var(--border);padding:18px 5%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .brand{color:var(--gold);font-size:21px;font-weight:800}.header-actions,.actions,.material-actions,.attendance-actions{display:flex;gap:9px;flex-wrap:wrap}
-.header-actions button{background:var(--panel2);color:white;border:1px solid var(--border);border-radius:9px;padding:9px 14px}
+.header-actions button{background:var(--panel2);color:white;border:1px solid var(--border);border-radius:9px;padding:9px 14px}.header-actions button:disabled{opacity:.6;cursor:wait}
 main{max-width:1150px;margin:30px auto;padding:0 18px 50px}h1,h2,h3{color:var(--gold)}h1{margin-bottom:6px;font-size:29px}h2{margin-top:0;font-size:21px}.muted{color:var(--muted)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:15px;margin:25px 0}.stat,.section{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:20px}.stat strong{display:block;color:var(--gold);font-size:30px;margin-top:8px}.section{margin-bottom:22px}
 .course,.request,.student,.material-card,.item-card,.attendance-row{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:15px;margin-top:12px}.course h3,.material-card h3,.item-card h3{margin:0 0 8px}
@@ -82,7 +82,7 @@ footer{color:#617469;border-top-color:#d3e3d6}
 <body>
 <header>
  <div class="brand" data-ar="أكاديمية القرآن الكريم وعلومه" data-en="Quran Sciences Academy">أكاديمية القرآن الكريم وعلومه</div>
- <div class="header-actions"><button id="languageBtn" type="button">English</button><button id="logoutBtn" type="button" data-ar="تسجيل الخروج" data-en="Logout">تسجيل الخروج</button></div>
+ <div class="header-actions"><button id="refreshBtn" type="button" data-ar="تحديث البيانات" data-en="Refresh Data">تحديث البيانات</button><button id="languageBtn" type="button">English</button><button id="logoutBtn" type="button" data-ar="تسجيل الخروج" data-en="Logout">تسجيل الخروج</button></div>
 </header>
 <div class="dashboard-shell">
  <aside class="sidebar" id="sidebar">
@@ -263,6 +263,7 @@ function fillCourseSelect(id,placeholder){const s=$(id),old=s.value;s.innerHTML=
 function fillEntitySelect(id,items,placeholder,labelFn){const s=$(id),old=s.value;s.innerHTML="";const p=document.createElement("option");p.value="";p.textContent=placeholder;s.appendChild(p);items.forEach(x=>{const o=document.createElement("option");o.value=x.id;o.textContent=labelFn(x);s.appendChild(o);});if(items.some(x=>String(x.id)===String(old)))s.value=old;}
 function translatePage(){document.documentElement.lang=language;document.documentElement.dir=language==="ar"?"rtl":"ltr";document.querySelectorAll("[data-ar]").forEach(el=>{el.textContent=el.dataset[language];});$("languageBtn").textContent=language==="ar"?"English":"العربية";renderCourses();renderRequests();renderStudents();renderAttendanceRows();renderLearningMaterials();renderAssignments();renderExams();loadQuestions();loadAttempts();}
 $("languageBtn").addEventListener("click",()=>{language=language==="ar"?"en":"ar";localStorage.setItem("academy-language",language);translatePage();});
+$("refreshBtn").addEventListener("click",async()=>{const btn=$("refreshBtn");if(btn.disabled)return;btn.disabled=true;btn.textContent=t("جارٍ التحديث...","Refreshing...");try{await loadCourses();await loadQuestions();await loadAttempts();message("message",t("تم تحديث بيانات لوحة المعلم.","Teacher dashboard data refreshed."),"success");}catch(e){message("message",t("تعذر تحديث البيانات: ","Could not refresh dashboard: ")+e.message,"error");}finally{btn.disabled=false;btn.textContent=t("تحديث البيانات","Refresh Data");}});
 $("logoutBtn").addEventListener("click",async()=>{const {error}=await supabase.auth.signOut();if(error){message("message","Logout failed: "+error.message,"error");return;}location.href="/login.html";});
 $("loadAttendanceBtn").addEventListener("click",loadAttendance);$("saveAttendanceBtn").addEventListener("click",saveAttendance);$("uploadMaterialBtn").addEventListener("click",uploadMaterial);
 $("attendanceCourse").addEventListener("change",resetAttendance);$("attendanceDate").addEventListener("change",resetAttendance);

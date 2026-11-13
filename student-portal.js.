@@ -1,22 +1,28 @@
 
 /* =========================================================
    QURAN SCIENCES ACADEMY
-   STUDENT PORTAL — COMPLETE JAVASCRIPT
+   STUDENT PORTAL — CORRECTED JAVASCRIPT
    ========================================================= */
 
 const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
 
-const academy = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+const $ = id => document.getElementById(id);
 
+function getSavedLanguage() {
+  try {
+    const saved = localStorage.getItem("academy-language");
+    return saved === "en" ? "en" : "ar";
+  } catch {
+    return "ar";
+  }
+}
+
+let currentLanguage = getSavedLanguage();
 let currentUser = null;
 let currentProfile = null;
-let currentLanguage =
-  localStorage.getItem("academy-language") || "ar";
+let academy = null;
 
 let studentData = {
   departments: [],
@@ -25,10 +31,8 @@ let studentData = {
   attendance: []
 };
 
-const $ = id => document.getElementById(id);
-
 /* =========================================================
-   LANGUAGE AND GENERAL HELPERS
+   GENERAL HELPERS
    ========================================================= */
 
 function isArabic() {
@@ -69,9 +73,16 @@ function updateLanguage() {
   document.documentElement.lang = currentLanguage;
   document.documentElement.dir = isArabic() ? "rtl" : "ltr";
 
-  localStorage.setItem("academy-language", currentLanguage);
+  document.body.dir = document.documentElement.dir;
+
+  try {
+    localStorage.setItem("academy-language", currentLanguage);
+  } catch (error) {
+    console.warn("Could not save language preference:", error);
+  }
 
   const toggle = $("languageToggle");
+
   if (toggle) {
     toggle.textContent = isArabic() ? "English" : "العربية";
   }
@@ -86,7 +97,7 @@ function updateLanguage() {
 }
 
 /* =========================================================
-   SIDEBAR AND MOBILE NAVIGATION
+   SIDEBAR AND NAVIGATION
    ========================================================= */
 
 function showStudentView(view) {
@@ -94,7 +105,8 @@ function showStudentView(view) {
     section.classList.remove("active");
   });
 
-  const target = document.getElementById(`${view}Section`);
+  // Correct HTML IDs: view-departments, view-courses, etc.
+  const target = document.getElementById(`view-${view}`);
 
   if (target) {
     target.classList.add("active");
@@ -116,7 +128,6 @@ function openMobileSidebar() {
   $("studentSidebar")?.classList.add("open");
   $("studentSidebarOverlay")?.classList.add("visible");
   document.body.classList.add("menu-open");
-
   $("mobileMenuButton")?.setAttribute("aria-expanded", "true");
 }
 
@@ -124,7 +135,6 @@ function closeMobileSidebar() {
   $("studentSidebar")?.classList.remove("open");
   $("studentSidebarOverlay")?.classList.remove("visible");
   document.body.classList.remove("menu-open");
-
   $("mobileMenuButton")?.setAttribute("aria-expanded", "false");
 }
 
@@ -199,12 +209,8 @@ function renderCourses() {
           ${requested ? "disabled" : ""}
         >
           ${requested
-            ? (isArabic()
-                ? "تم إرسال طلب التسجيل"
-                : "Enrollment Requested")
-            : (isArabic()
-                ? "طلب التسجيل"
-                : "Request Enrollment")}
+            ? (isArabic() ? "تم إرسال طلب التسجيل" : "Enrollment Requested")
+            : (isArabic() ? "طلب التسجيل" : "Request Enrollment")}
         </button>
       </article>
     `;
@@ -363,7 +369,7 @@ function renderExams() {
 }
 
 /* =========================================================
-   RENDER ALL DASHBOARD SECTIONS
+   RENDER ALL
    ========================================================= */
 
 function renderAll() {
@@ -385,7 +391,7 @@ function renderAll() {
    ========================================================= */
 
 async function loadStudentData() {
-  if (!currentUser) return;
+  if (!currentUser || !academy) return;
 
   setRefreshButton(true);
   setMessage("");
@@ -408,9 +414,11 @@ async function loadStudentData() {
         .order("attendance_date", { ascending: false })
     ]);
 
-    const error = results.find(result => result.error)?.error;
+    const failedResult = results.find(result => result.error);
 
-    if (error) throw error;
+    if (failedResult) {
+      throw failedResult.error;
+    }
 
     const [
       departmentsResult,
@@ -452,7 +460,7 @@ async function loadStudentData() {
    ========================================================= */
 
 async function requestEnrollment(courseId) {
-  if (!currentUser || !courseId) return;
+  if (!currentUser || !academy || !courseId) return;
 
   const alreadyRequested = studentData.enrollments.some(
     enrollment => enrollment.course_id === courseId
@@ -484,8 +492,8 @@ async function requestEnrollment(courseId) {
 
     setMessage(
       isArabic()
-        ? `تعذر إرسال الطلب: ${error.message}`
-        : `Could not submit request: ${error.message}`,
+        ? `تعذر إرسال الطلب: ${error.message || "خطأ غير معروف"}`
+        : `Could not submit request: ${error.message || "Unknown error"}`,
       true
     );
   }
@@ -496,6 +504,8 @@ async function requestEnrollment(courseId) {
    ========================================================= */
 
 async function logoutStudent() {
+  if (!academy) return;
+
   const { error } = await academy.auth.signOut();
 
   if (error) {
@@ -516,6 +526,17 @@ async function initializeStudentPortal() {
       isArabic()
         ? "جارٍ تحميل بياناتك..."
         : "Loading your data..."
+    );
+
+    if (!window.supabase || !window.supabase.createClient) {
+      throw new Error(
+        "Supabase library did not load. Please check your internet connection."
+      );
+    }
+
+    academy = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
     );
 
     const { data, error } = await academy.auth.getSession();
@@ -549,10 +570,6 @@ async function initializeStudentPortal() {
 
     await loadStudentData();
 
-    if (!$("dashboardMessage")?.textContent) {
-      setMessage("");
-    }
-
   } catch (error) {
     console.error("Student portal initialization error:", error);
 
@@ -577,35 +594,20 @@ document.addEventListener("click", event => {
   }
 });
 
-$("refreshButton")?.addEventListener(
-  "click",
-  loadStudentData
-);
+$("refreshButton")?.addEventListener("click", loadStudentData);
 
-$("logoutButton")?.addEventListener(
-  "click",
-  logoutStudent
-);
+$("logoutButton")?.addEventListener("click", logoutStudent);
 
 $("languageToggle")?.addEventListener("click", () => {
   currentLanguage = isArabic() ? "en" : "ar";
   updateLanguage();
 });
 
-$("mobileMenuButton")?.addEventListener(
-  "click",
-  openMobileSidebar
-);
+$("mobileMenuButton")?.addEventListener("click", openMobileSidebar);
 
-$("sidebarCloseButton")?.addEventListener(
-  "click",
-  closeMobileSidebar
-);
+$("sidebarCloseButton")?.addEventListener("click", closeMobileSidebar);
 
-$("studentSidebarOverlay")?.addEventListener(
-  "click",
-  closeMobileSidebar
-);
+$("studentSidebarOverlay")?.addEventListener("click", closeMobileSidebar);
 
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") {

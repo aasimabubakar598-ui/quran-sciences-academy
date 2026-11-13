@@ -1,877 +1,731 @@
 
-<!DOCTYPE html>
-<html lang="ar" dir="rtl" data-page="student-portal">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0f2a24">
-<title>لوحة الطالب | أكاديمية القرآن الكريم</title>
-
-<link rel="stylesheet" href="/style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/app.js" defer></script>
-
-<style>
-:root{
---green:#0f2a24;
---green2:#183b32;
---green3:#285c40;
---menu-green:#24583C;
---menu-bg:#DCEBE0;
---gold:#d8bd78;
---bg:#f3f6f4;
---white:#fff;
---border:#e2e9e4;
---text:#20312b;
---muted:#64746e;
---soft:#edf4ee;
---shadow:0 8px 25px rgba(15,42,36,.06)
-}
-
-*{box-sizing:border-box}
-
-body{
-margin:0;
-background:var(--bg);
-color:var(--text);
-font-family:Arial,sans-serif
-}
-
-body.menu-open{overflow:hidden}
-button{font:inherit;cursor:pointer}
-
-.site-header{
-background:var(--green);
-color:#fff;
-min-height:76px;
-padding:14px 28px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:15px;
-box-shadow:0 3px 12px #00000012
-}
-
-.site-header .logo{
-color:#fff;
-text-decoration:none;
-font-weight:bold;
-font-size:20px;
-display:flex;
-align-items:center;
-gap:10px
-}
-
-.site-header .logo:before{
-content:"۞";
-color:var(--gold);
-font-size:27px
-}
-
-.site-header button{
-border:1px solid #d8bd7880;
-border-radius:9px;
-padding:10px 18px;
-background:var(--gold);
-color:var(--green);
-font-weight:bold
-}
-
-/* Layout */
-
-.portal-layout{
-max-width:1550px;
-margin:28px auto;
-padding:0 22px;
-display:grid;
-grid-template-columns:245px minmax(0,1fr);
-gap:25px;
-align-items:start
-}
-
-.sidebar{
-background:var(--menu-bg);
-border:1px solid #cbded0;
-border-radius:17px;
-padding:20px 13px;
-color:var(--menu-green);
-position:sticky;
-top:20px;
-box-shadow:var(--shadow);
-min-width:0;
-z-index:20
-}
-
-.sidebar-heading{
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:8px;
-padding:5px 9px 17px;
-border-bottom:1px solid #24583c25;
-margin-bottom:16px
-}
-
-.sidebar-title{
-color:var(--menu-green);
-font-weight:bold;
-font-size:16px;
-line-height:1.8
-}
-
-.sidebar-close{
-display:none;
-width:34px;
-height:34px;
-border:0;
-border-radius:8px;
-background:#24583c12;
-color:var(--menu-green);
-font-size:22px
-}
-
-.sidebar-nav{display:grid;gap:8px}
-
-.nav-item{
-border:0;
-border-radius:10px;
-background:transparent;
-color:var(--menu-green);
-text-align:right;
-padding:13px 14px;
-width:100%;
-font-weight:bold;
-font-size:14px;
-transition:.2s;
-position:relative;
-display:flex;
-align-items:center;
-gap:10px;
-min-height:46px
-}
-
-.nav-item:hover,.nav-item.active{
-background:#fff;
-color:var(--menu-green)
-}
-
-.nav-item.active{
-box-shadow:0 4px 12px #24583c16
-}
-
-.nav-item.active:before{
-content:"";
-position:absolute;
-right:0;
-top:25%;
-height:50%;
-width:4px;
-background:var(--menu-green);
-border-radius:5px 0 0 5px
-}
-
-[dir=ltr] .nav-item{text-align:left}
-
-[dir=ltr] .nav-item.active:before{
-right:auto;
-left:0
-}
-
-.portal-content{min-width:0}
-
-.dashboard{
-max-width:none;
-margin:0;
-padding:0 0 35px
-}
-
-.mobile-menu{
-display:none;
-background:var(--menu-green);
-color:#fff;
-border:0;
-border-radius:10px;
-padding:12px 17px;
-margin-bottom:15px;
-font-weight:bold;
-align-items:center;
-gap:9px
-}
-
-.sidebar-overlay{
-display:none;
-position:fixed;
-inset:0;
-background:rgba(8,25,18,.48);
-border:0;
-z-index:998
-}
-
-.sidebar-overlay.visible{display:block}
-
-.welcome-card{
-background:linear-gradient(125deg,var(--green),var(--green2));
-color:#fff;
-padding:32px;
-border-radius:19px;
-margin-bottom:23px;
-position:relative;
-overflow:hidden;
-box-shadow:var(--shadow)
-}
-
-.welcome-card:after{
-content:"۞";
-position:absolute;
-left:25px;
-bottom:-45px;
-font-size:180px;
-color:#ffffff09;
-pointer-events:none
-}
-
-.welcome-card h1{
-color:var(--gold);
-margin:0 0 12px;
-font-size:27px;
-position:relative;
-z-index:1
-}
-
-.welcome-card p{
-line-height:1.9;
-color:#e5eee8;
-margin:0;
-max-width:650px;
-position:relative;
-z-index:1
-}
-
-.dashboard-actions{
-display:flex;
-gap:11px;
-flex-wrap:wrap;
-margin-top:22px;
-position:relative;
-z-index:1
-}
-
-.dashboard-actions button{
-border:0;
-border-radius:9px;
-padding:12px 18px;
-background:var(--gold);
-color:var(--green);
-font-weight:bold
-}
-
-.dashboard-actions a{
-color:var(--gold);
-align-self:center;
-padding:9px 12px;
-text-decoration:none;
-font-weight:bold
-}
-
-.dashboard-actions button:disabled{
-opacity:.6;
-cursor:wait
-}
-
-.dashboard-message{
-padding:14px 17px;
-border-radius:10px;
-margin:0 0 21px;
-line-height:1.8;
-overflow-wrap:anywhere;
-font-size:14px
-}
-
-.dashboard-message.error{
-background:#fcebea;
-color:#a12622;
-border:1px solid #f3d1cf
-}
-
-.dashboard-message.info{
-background:#edf4ee;
-color:#176438;
-border:1px solid #d9e9dc
-}
-
-.dashboard-section{
-display:none;
-margin:0;
-animation:sectionFade .25s ease
-}
-
-.dashboard-section.active{display:block}
-
-@keyframes sectionFade{
-from{opacity:0;transform:translateY(7px)}
-to{opacity:1;transform:translateY(0)}
-}
-
-.dashboard-section>h2{
-color:var(--green);
-border-bottom:2px solid var(--gold);
-padding-bottom:13px;
-margin:0 0 21px;
-font-size:22px
-}
-
-.dashboard-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(235px,1fr));
-gap:17px
-}
-
-.dashboard-card,
-.material-card,
-.attendance-record,
-.exam-card{
-background:var(--white);
-border:1px solid var(--border);
-border-radius:15px;
-padding:22px;
-box-shadow:0 4px 15px #00000005;
-transition:.2s;
-min-width:0
-}
-
-.dashboard-card:hover,
-.material-card:hover,
-.attendance-record:hover,
-.exam-card:hover{
-transform:translateY(-2px);
-box-shadow:var(--shadow);
-border-color:#c9d9ce
-}
-
-.dashboard-card h3,
-.material-card h3,
-.attendance-record h3,
-.exam-card h3{
-color:var(--green);
-margin:0 0 12px;
-font-size:18px
-}
-
-.dashboard-card p,
-.material-card p,
-.attendance-record p,
-.exam-card p{
-color:var(--muted);
-line-height:1.9;
-overflow-wrap:anywhere;
-margin:8px 0
-}
-
-.status,.material-course{
-display:inline-block;
-padding:6px 13px;
-border-radius:20px;
-background:#edf4ee;
-color:#176438;
-font-size:13px;
-margin:5px 0;
-font-weight:bold
-}
-
-.empty-state{
-background:#fff;
-padding:28px 20px;
-border-radius:13px;
-color:var(--muted);
-text-align:center;
-grid-column:1/-1;
-border:1px dashed #ccd9d0;
-line-height:1.8
-}
-
-.enroll-button{
-margin-top:15px;
-width:100%;
-border:0;
-border-radius:9px;
-padding:12px 16px;
-background:var(--green);
-color:#fff;
-font-weight:bold
-}
-
-.enroll-button:disabled{
-opacity:.65;
-cursor:not-allowed
-}
-
-.attendance-summary{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-gap:14px;
-margin-bottom:20px
-}
-
-.attendance-stat{
-background:#fff;
-border:1px solid var(--border);
-border-radius:14px;
-padding:20px 15px;
-text-align:center
-}
-
-.attendance-stat strong{
-display:block;
-color:var(--green);
-font-size:29px;
-margin-bottom:8px
-}
-
-.attendance-stat span{color:var(--muted);font-size:14px}
-
-.attendance-record{margin-bottom:13px}
-
-.attendance-status{
-display:inline-block;
-padding:6px 13px;
-border-radius:20px;
-font-size:13px;
-font-weight:bold
-}
-
-.attendance-status.present{background:#e7f5eb;color:#176438}
-.attendance-status.absent{background:#fcebea;color:#a12622}
-.attendance-status.late{background:#fff4dc;color:#8a5a00}
-
-.material-card{margin-bottom:14px}
-
-.material-date{
-color:var(--muted);
-font-size:13px;
-margin:12px 0
-}
-
-.material-actions{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-top:17px
-}
-
-.material-actions button{
-border:0;
-border-radius:9px;
-padding:11px 17px;
-background:var(--green);
-color:#fff;
-font-weight:bold
-}
-
-.material-actions button.download{
-background:var(--gold);
-color:var(--green)
-}
-
-.material-actions button:disabled{
-opacity:.6;
-cursor:wait
-}
-
-/* Examinations */
-
-.exam-card{margin-bottom:15px}
-
-.exam-card .exam-meta{
-display:flex;
-gap:8px;
-flex-wrap:wrap;
-margin:12px 0
-}
-
-.exam-tag{
-display:inline-block;
-padding:6px 11px;
-border-radius:20px;
-background:#edf4ee;
-color:#176438;
-font-size:12px;
-font-weight:bold
-}
-
-.exam-tag.closed{
-background:#fcebea;
-color:#a12622
-}
-
-.exam-tag.pending{
-background:#fff4dc;
-color:#8a5a00
-}
-
-.exam-button{
-border:0;
-border-radius:9px;
-padding:12px 18px;
-background:var(--green);
-color:white;
-font-weight:bold;
-margin-top:12px;
-width:100%
-}
-
-.exam-button.secondary{
-background:var(--gold);
-color:var(--green)
-}
-
-.exam-button.danger{
-background:#a12622;
-color:#fff
-}
-
-.exam-button:disabled{
-opacity:.55;
-cursor:not-allowed
-}
-
-.exam-detail{
-background:white;
-border:1px solid var(--border);
-border-radius:15px;
-padding:22px;
-margin-bottom:18px
-}
-
-.exam-detail h3{color:var(--green);margin-top:0}
-
-.exam-question{
-background:#fff;
-border:1px solid var(--border);
-border-radius:13px;
-padding:20px;
-margin-bottom:15px
-}
-
-.exam-question h3{
-font-size:17px;
-color:var(--green);
-line-height:1.8;
-margin:0 0 10px
-}
-
-.question-number{
-color:var(--muted);
-font-size:13px;
-margin-bottom:8px
-}
-
-.question-points{
-font-size:13px;
-color:var(--muted);
-margin-bottom:12px
-}
-
-.option-label{
-display:flex;
-align-items:flex-start;
-gap:10px;
-padding:12px;
-border:1px solid var(--border);
-border-radius:9px;
-margin:9px 0;
-cursor:pointer;
-line-height:1.7
-}
-
-.option-label:has(input:checked){
-background:#edf4ee;
-border-color:#8aaf94
-}
-
-.option-label input{
-margin-top:5px;
-accent-color:var(--green)
-}
-
-.exam-question textarea{
-width:100%;
-min-height:120px;
-resize:vertical;
-border:1px solid var(--border);
-border-radius:9px;
-padding:13px;
-font:inherit;
-line-height:1.8;
-background:#fff;
-color:var(--text)
-}
-
-.exam-question textarea:focus{
-outline:2px solid #d8bd78;
-border-color:var(--green)
-}
-
-.exam-toolbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-flex-wrap:wrap;
-gap:12px;
-background:var(--green);
-color:white;
-padding:15px 18px;
-border-radius:12px;
-margin-bottom:18px
-}
-
-.exam-timer{
-font-size:19px;
-font-weight:bold;
-color:var(--gold);
-direction:ltr
-}
-
-.exam-instructions{
-background:#edf4ee;
-border-radius:10px;
-padding:15px;
-line-height:1.9;
-margin:15px 0
-}
-
-.exam-feedback{
-background:#edf4ee;
-border:1px solid #d9e9dc;
-border-radius:10px;
-padding:15px;
-margin-top:12px;
-line-height:1.8
-}
-
-.exam-file-input{
-display:block;
-width:100%;
-padding:15px;
-border:1px dashed #9bb7a3;
-border-radius:10px;
-margin:15px 0;
-background:#f7faf7
-}
-
-.exam-back{
-border:1px solid var(--border);
-border-radius:9px;
-padding:10px 16px;
-background:white;
-color:var(--green);
-font-weight:bold;
-margin-bottom:15px
-}
-
-.site-footer{
-text-align:center;
-padding:25px 15px;
-color:var(--muted);
-font-size:13px;
-border-top:1px solid var(--border);
-background:#fff
-}
-
-/* Responsive */
-
-@media(max-width:900px){
-.portal-layout{
-grid-template-columns:225px minmax(0,1fr);
-gap:17px
-}
-.welcome-card{padding:25px}
-}
-
-@media(max-width:800px){
-.portal-layout{
-display:block;
-margin:17px auto;
-padding:0 13px
-}
-
-.mobile-menu{display:inline-flex}
-
-.sidebar{
-display:block;
-position:fixed;
-top:0;
-right:0;
-bottom:0;
-width:min(290px,85vw);
-height:100dvh;
-min-height:100vh;
-margin:0;
-padding:22px 14px;
-border-radius:0;
-border:0;
-box-shadow:-8px 0 28px #00000020;
-overflow-y:auto;
-z-index:1000;
-transform:translateX(110%);
-visibility:hidden;
-transition:transform .28s ease,visibility .28s ease
-}
-
-.sidebar.open{
-transform:translateX(0);
-visibility:visible
-}
-
-.sidebar-close{
-display:flex;
-align-items:center;
-justify-content:center
-}
-
-.sidebar-nav{grid-template-columns:1fr;gap:9px}
-.nav-item{font-size:14px;padding:13px 14px;min-height:48px}
-.welcome-card{padding:23px}
-}
-
-@media(max-width:520px){
-.site-header{padding:12px 14px;min-height:65px}
-.site-header .logo{font-size:16px}
-.portal-layout{padding:0 11px;margin:13px auto}
-.dashboard-grid{grid-template-columns:1fr}
-.welcome-card{padding:20px;border-radius:15px}
-.welcome-card h1{font-size:21px}
-.welcome-card p{font-size:14px}
-.dashboard-actions{gap:8px}
-.dashboard-actions button{flex:1;padding:11px 12px;font-size:13px}
-.dashboard-section>h2{font-size:19px}
-.attendance-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
-.attendance-stat{padding:16px 10px}
-.attendance-stat strong{font-size:25px}
-.material-actions{flex-direction:column}
-.material-actions button{width:100%}
-.exam-question{padding:15px}
-}
-
-@media(prefers-reduced-motion:reduce){
-.sidebar,.nav-item,.dashboard-section{transition:none;animation:none}
-}
-</style>
-</head>
-
-<body>
-
-<header class="site-header">
-<a href="/index.html" class="logo">
-<span>أكاديمية القرآن الكريم</span>
-</a>
-<button id="languageToggle" type="button">English</button>
-</header>
-
-<div class="portal-layout">
-
-<aside class="sidebar" id="studentSidebar" aria-label="Student navigation">
-
-<div class="sidebar-heading">
-<div class="sidebar-title" data-i18n="academy">أكاديمية القرآن الكريم</div>
-<button class="sidebar-close" id="sidebarCloseButton" type="button">×</button>
-</div>
-
-<nav class="sidebar-nav">
-
-<button class="nav-item active" data-view="departments" onclick="showStudentView('departments')" data-i18n="departments">الأقسام العلمية</button>
-
-<button class="nav-item" data-view="courses" onclick="showStudentView('courses')" data-i18n="courses">المقررات المتاحة</button>
-
-<button class="nav-item" data-view="enrollments" onclick="showStudentView('enrollments')" data-i18n="myCourses">مقرراتي المسجلة</button>
-
-<button class="nav-item" data-view="materials" onclick="showStudentView('materials')" data-i18n="materials">المواد التعليمية</button>
-
-<button class="nav-item" data-view="exams" onclick="showStudentView('exams')" data-i18n="exams">الاختبارات</button>
-
-<button class="nav-item" data-view="attendance" onclick="showStudentView('attendance')" data-i18n="attendance">الحضور والغياب</button>
-
-</nav>
-</aside>
-
-<button class="sidebar-overlay" id="studentSidebarOverlay" type="button" aria-label="Close menu"></button>
-
-<div class="portal-content">
-
-<button class="mobile-menu" id="mobileMenuButton" type="button" aria-expanded="false" data-i18n="menu">☰ القائمة</button>
-
-<main class="dashboard">
-
-<section class="welcome-card">
-<h1 id="welcomeTitle" data-i18n="welcome">مرحباً بك في الأكاديمية</h1>
-<p data-i18n="welcomeDesc">هذه لوحتك الخاصة لمتابعة مقرراتك الدراسية.</p>
-
-<div class="dashboard-actions">
-<button type="button" id="refreshButton" data-i18n="refresh">تحديث البيانات</button>
-<a href="/index.html" data-i18n="home">الصفحة الرئيسية</a>
-<button type="button" id="logoutButton" data-i18n="logout">تسجيل الخروج</button>
-</div>
-</section>
-
-<div id="dashboardMessage" class="dashboard-message info" role="status" aria-live="polite">جارٍ تحميل بياناتك...</div>
-
-<section class="dashboard-section active" id="view-departments">
-<h2 data-i18n="departments">الأقسام العلمية</h2>
-<div id="departmentsList" class="dashboard-grid"><div class="empty-state">جارٍ التحميل...</div></div>
-</section>
-
-<section class="dashboard-section" id="view-courses">
-<h2 data-i18n="courses">المقررات المتاحة</h2>
-<div id="coursesList" class="dashboard-grid"><div class="empty-state">جارٍ التحميل...</div></div>
-</section>
-
-<section class="dashboard-section" id="view-enrollments">
-<h2 data-i18n="myCourses">مقرراتي المسجلة</h2>
-<div id="enrollmentsList" class="dashboard-grid"><div class="empty-state">جارٍ التحميل...</div></div>
-</section>
-
-<section class="dashboard-section" id="view-materials">
-<h2 data-i18n="materials">المواد التعليمية</h2>
-<p id="materialsDescription" data-i18n="materialsDesc">الملفات التعليمية الخاصة بالمقررات المقبولة في تسجيلك.</p>
-<div id="materialsMessage" class="dashboard-message info">جارٍ تحميل المواد التعليمية...</div>
-<div id="materialsList"><div class="empty-state">جارٍ التحميل...</div></div>
-</section>
-
-<!-- EXAMINATIONS -->
-<section class="dashboard-section" id="view-exams">
-<h2 data-i18n="exams">الاختبارات</h2>
-
-<div id="examsMessage" class="dashboard-message info"></div>
-
-<div id="examsList">
-<div class="empty-state" data-i18n="loading">جارٍ التحميل...</div>
-</div>
-
-<div id="examWorkspace" style="display:none"></div>
-</section>
-
-<section class="dashboard-section" id="view-attendance">
-<h2 data-i18n="attendance">سجل الحضور والغياب</h2>
-<div id="attendanceSummary" class="attendance-summary"></div>
-<div id="attendanceList"><div class="empty-state">جارٍ التحميل...</div></div>
-</section>
-
-</main>
-</div>
-</div>
-
-<footer class="site-footer">
-<p>© <span id="year"></span> <span data-i18n="academyFull">أكاديمية القرآن الكريم وعلومه</span></p>
-</footer>
-
-<script>
 (() => {
-"use strict";
+  "use strict";
 
-/* SUPABASE CONFIGURATION */
+  /* =========================================
+     QURAN SCIENCES ACADEMY
+     STUDENT PORTAL
+  ========================================= */
 
-const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
+  const SUPABASE_URL =
+    "https://kxaovcknyddctnqvrudi.supabase.co";
 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJr eG Fv";
-</script>
-</body>
-</html>
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+
+  const $ = (id) => document.getElementById(id);
+
+  let db = null;
+  let currentUser = null;
+  let currentProfile = null;
+  let language = "ar";
+
+  let departments = [];
+  let courses = [];
+  let enrollments = [];
+  let attendance = [];
+
+  let loading = false;
+
+  const translations = {
+    ar: {
+      academy: "أكاديمية القرآن الكريم",
+      academyFull: "أكاديمية القرآن الكريم وعلومه",
+      departments: "الأقسام العلمية",
+      courses: "المقررات المتاحة",
+      myCourses: "مقرراتي المسجلة",
+      materials: "المواد التعليمية",
+      exams: "الاختبارات",
+      attendance: "الحضور والغياب",
+      welcome: "مرحباً بك في الأكاديمية",
+      welcomeDesc: "هذه لوحتك الخاصة لمتابعة مقرراتك الدراسية.",
+      refresh: "تحديث البيانات",
+      home: "الصفحة الرئيسية",
+      logout: "تسجيل الخروج",
+      menu: "☰ القائمة",
+      loading: "جارٍ التحميل...",
+      loadingData: "جارٍ تحميل بياناتك...",
+      loaded: "تم تحميل بياناتك بنجاح.",
+      noDepartments: "لا توجد أقسام علمية متاحة حالياً.",
+      noCourses: "لا توجد مقررات متاحة حالياً.",
+      noEnrollments: "لم تسجل في أي مقرر حتى الآن.",
+      noAttendance: "لا توجد سجلات حضور حتى الآن.",
+      noMaterials: "لا توجد مواد تعليمية متاحة حالياً.",
+      noExams: "لا توجد اختبارات متاحة حالياً.",
+      enroll: "طلب التسجيل",
+      pending: "طلب التسجيل قيد المراجعة",
+      approved: "تم قبول التسجيل",
+      rejected: "تم رفض التسجيل",
+      present: "حاضر",
+      absent: "غائب",
+      late: "متأخر",
+      total: "إجمالي السجلات",
+      presentCount: "الحضور",
+      absentCount: "الغياب",
+      lateCount: "التأخر",
+      description: "الوصف غير متوفر.",
+      department: "القسم العلمي",
+      course: "المقرر",
+      date: "التاريخ",
+      materialsDesc: "الملفات التعليمية الخاصة بالمقررات المقبولة في تسجيلك.",
+      materialsPending: "سيتم عرض المواد التعليمية بعد ربط بيانات الملفات.",
+      examsPending: "سيتم عرض الاختبارات عند تحميل بيانات الاختبارات.",
+      loginRequired: "انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.",
+      profileError: "تعذر العثور على ملف الطالب.",
+      studentOnly: "هذه الصفحة مخصصة لحسابات الطلاب.",
+      loadingError: "تعذر تحميل البيانات: ",
+      enrollSuccess: "تم إرسال طلب التسجيل بنجاح.",
+      enrollError: "تعذر إرسال طلب التسجيل: ",
+      refreshError: "تعذر تحديث البيانات.",
+      refreshing: "جارٍ تحديث البيانات...",
+      signOut: "جارٍ تسجيل الخروج...",
+      networkError: "تعذر الاتصال بالخادم. تحقق من الإنترنت وحاول مرة أخرى."
+    },
+
+    en: {
+      academy: "Quran Sciences Academy",
+      academyFull: "Quran Sciences Academy",
+      departments: "Departments",
+      courses: "Available Courses",
+      myCourses: "My Enrollments",
+      materials: "Learning Materials",
+      exams: "Examinations",
+      attendance: "Attendance",
+      welcome: "Welcome to the Academy",
+      welcomeDesc: "Your personal dashboard for following your courses.",
+      refresh: "Refresh Data",
+      home: "Home",
+      logout: "Log Out",
+      menu: "☰ Menu",
+      loading: "Loading...",
+      loadingData: "Loading your data...",
+      loaded: "Your data has loaded successfully.",
+      noDepartments: "No departments are currently available.",
+      noCourses: "No courses are currently available.",
+      noEnrollments: "You have not enrolled in any courses yet.",
+      noAttendance: "No attendance records are available yet.",
+      noMaterials: "No learning materials are currently available.",
+      noExams: "No examinations are currently available.",
+      enroll: "Request Enrollment",
+      pending: "Enrollment pending review",
+      approved: "Enrollment approved",
+      rejected: "Enrollment rejected",
+      present: "Present",
+      absent: "Absent",
+      late: "Late",
+      total: "Total Records",
+      presentCount: "Present",
+      absentCount: "Absent",
+      lateCount: "Late",
+      description: "No description available.",
+      department: "Department",
+      course: "Course",
+      date: "Date",
+      materialsDesc: "Learning files for courses in which your enrollment is approved.",
+      materialsPending: "Learning materials will appear when file data is connected.",
+      examsPending: "Examinations will appear when examination data is loaded.",
+      loginRequired: "Your session has expired. Please log in again.",
+      profileError: "Your student profile could not be found.",
+      studentOnly: "This page is only for student accounts.",
+      loadingError: "Unable to load data: ",
+      enrollSuccess: "Your enrollment request was submitted successfully.",
+      enrollError: "Unable to submit enrollment: ",
+      refreshError: "Unable to refresh your data.",
+      refreshing: "Refreshing your data...",
+      signOut: "Signing out...",
+      networkError: "Unable to connect to the server. Check your internet connection."
+    }
+  };
+
+  function t(key) {
+    return translations[language][key] || key;
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[character]);
+  }
+
+  function showMessage(message, type = "info") {
+    const element = $("dashboardMessage");
+    if (!element) return;
+
+    element.className = `dashboard-message ${type}`;
+    element.textContent = message;
+  }
+
+  function emptyState(message) {
+    return `<div class="empty-state">${escapeHTML(message)}</div>`;
+  }
+
+  function getCourseTitle(course) {
+    return language === "ar"
+      ? (course.title_ar || course.title_en || "مقرر")
+      : (course.title_en || course.title_ar || "Course");
+  }
+
+  function getDepartmentName(department) {
+    return language === "ar"
+      ? (department.name_ar || department.name_en || "قسم")
+      : (department.name_en || department.name_ar || "Department");
+  }
+
+  function getDepartment(course) {
+    return departments.find(
+      (department) => department.id === course.department_id
+    );
+  }
+
+  function statusLabel(status) {
+    const labels = {
+      pending: t("pending"),
+      approved: t("approved"),
+      rejected: t("rejected")
+    };
+
+    return labels[status] || escapeHTML(status || "");
+  }
+
+  function setLanguage(nextLanguage) {
+    language = nextLanguage === "en" ? "en" : "ar";
+
+    const root = document.documentElement;
+    root.lang = language;
+    root.dir = language === "ar" ? "rtl" : "ltr";
+
+    document.body.dir = root.dir;
+
+    document.querySelectorAll("[data-i18n]").forEach((element) => {
+      const key = element.dataset.i18n;
+      if (translations[language][key]) {
+        element.textContent = translations[language][key];
+      }
+    });
+
+    const toggle = $("languageToggle");
+    if (toggle) {
+      toggle.textContent = language === "ar" ? "English" : "العربية";
+    }
+
+    try {
+      localStorage.setItem("academy-language", language);
+    } catch (_) {}
+
+    renderAll();
+  }
+
+  function getEnrollment(courseId) {
+    return enrollments.find(
+      (enrollment) => enrollment.course_id === courseId
+    );
+  }
+
+  function renderDepartments() {
+    const container = $("departmentsList");
+    if (!container) return;
+
+    if (!departments.length) {
+      container.innerHTML = emptyState(t("noDepartments"));
+      return;
+    }
+
+    container.innerHTML = departments.map((department) => {
+      const count = courses.filter(
+        (course) => course.department_id === department.id
+      ).length;
+
+      return `
+        <article class="dashboard-card">
+          <h3>${escapeHTML(getDepartmentName(department))}</h3>
+          <p>${count} ${language === "ar" ? "مقرر متاح" : "available courses"}</p>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function renderCourses() {
+    const container = $("coursesList");
+    if (!container) return;
+
+    if (!courses.length) {
+      container.innerHTML = emptyState(t("noCourses"));
+      return;
+    }
+
+    container.innerHTML = courses.map((course) => {
+      const enrollment = getEnrollment(course.id);
+      const department = getDepartment(course);
+
+      let button = `
+        <button class="enroll-button"
+          type="button"
+          data-enroll="${escapeHTML(course.id)}">
+          ${t("enroll")}
+        </button>
+      `;
+
+      if (enrollment) {
+        button = `
+          <span class="status">
+            ${statusLabel(enrollment.status)}
+          </span>
+        `;
+      }
+
+      return `
+        <article class="dashboard-card">
+          <h3>${escapeHTML(getCourseTitle(course))}</h3>
+          <p>
+            <strong>${t("department")}:</strong>
+            ${escapeHTML(department ? getDepartmentName(department) : "—")}
+          </p>
+          <p>${escapeHTML(course.description || t("description"))}</p>
+          ${button}
+        </article>
+      `;
+    }).join("");
+
+    container.querySelectorAll("[data-enroll]").forEach((button) => {
+      button.addEventListener("click", () => {
+        requestEnrollment(button.dataset.enroll, button);
+      });
+    });
+  }
+
+  function renderEnrollments() {
+    const container = $("enrollmentsList");
+    if (!container) return;
+
+    if (!enrollments.length) {
+      container.innerHTML = emptyState(t("noEnrollments"));
+      return;
+    }
+
+    container.innerHTML = enrollments.map((enrollment) => {
+      const course = courses.find(
+        (item) => item.id === enrollment.course_id
+      );
+
+      return `
+        <article class="dashboard-card">
+          <h3>${escapeHTML(course ? getCourseTitle(course) : t("course"))}</h3>
+          <span class="status">
+            ${statusLabel(enrollment.status)}
+          </span>
+          <p>${t("date")}: ${escapeHTML(
+            enrollment.created_at
+              ? new Date(enrollment.created_at).toLocaleDateString(
+                  language === "ar" ? "ar-SA" : "en-US"
+                )
+              : "—"
+          )}</p>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function renderAttendance() {
+    const container = $("attendanceList");
+    const summary = $("attendanceSummary");
+
+    if (!container || !summary) return;
+
+    const present = attendance.filter(
+      (item) => item.status === "present"
+    ).length;
+
+    const absent = attendance.filter(
+      (item) => item.status === "absent"
+    ).length;
+
+    const late = attendance.filter(
+      (item) => item.status === "late"
+    ).length;
+
+    summary.innerHTML = `
+      <div class="attendance-stat">
+        <strong>${attendance.length}</strong>
+        <span>${t("total")}</span>
+      </div>
+      <div class="attendance-stat">
+        <strong>${present}</strong>
+        <span>${t("presentCount")}</span>
+      </div>
+      <div class="attendance-stat">
+        <strong>${absent}</strong>
+        <span>${t("absentCount")}</span>
+      </div>
+      <div class="attendance-stat">
+        <strong>${late}</strong>
+        <span>${t("lateCount")}</span>
+      </div>
+    `;
+
+    if (!attendance.length) {
+      container.innerHTML = emptyState(t("noAttendance"));
+      return;
+    }
+
+    container.innerHTML = [...attendance]
+      .sort((a, b) =>
+        new Date(b.attendance_date) - new Date(a.attendance_date)
+      )
+      .map((record) => {
+        const course = courses.find(
+          (item) => item.id === record.course_id
+        );
+
+        const status = record.status || "";
+        const statusClass = ["present", "absent", "late"].includes(status)
+          ? status
+          : "";
+
+        return `
+          <article class="attendance-record">
+            <h3>${escapeHTML(
+              course ? getCourseTitle(course) : t("course")
+            )}</h3>
+            <p>${t("date")}: ${escapeHTML(record.attendance_date || "—")}</p>
+            <span class="attendance-status ${statusClass}">
+              ${escapeHTML(t(status) || status)}
+            </span>
+            ${record.remarks
+              ? `<p>${escapeHTML(record.remarks)}</p>`
+              : ""}
+          </article>
+        `;
+      }).join("");
+  }
+
+  function renderMaterials() {
+    const container = $("materialsList");
+    const message = $("materialsMessage");
+
+    if (container) {
+      container.innerHTML = emptyState(t("noMaterials"));
+    }
+
+    if (message) {
+      message.textContent = t("materialsPending");
+    }
+  }
+
+  function renderExams() {
+    const container = $("examsList");
+    const message = $("examsMessage");
+
+    if (container) {
+      container.innerHTML = emptyState(t("noExams"));
+    }
+
+    if (message) {
+      message.textContent = t("examsPending");
+    }
+  }
+
+  function renderAll() {
+    renderDepartments();
+    renderCourses();
+    renderEnrollments();
+    renderAttendance();
+    renderMaterials();
+    renderExams();
+
+    const welcome = $("welcomeTitle");
+    if (welcome && currentProfile) {
+      const name = currentProfile.full_name || "";
+      welcome.textContent = language === "ar"
+        ? `مرحباً ${name ? name + "، " : ""}بك في الأكاديمية`
+        : `Welcome ${name ? name + ", " : ""}to the Academy`;
+    }
+  }
+
+  async function loadStudentData() {
+    if (!currentUser || loading) return;
+
+    loading = true;
+
+    const refreshButton = $("refreshButton");
+    if (refreshButton) refreshButton.disabled = true;
+
+    showMessage(t("refreshing"), "info");
+
+    try {
+      const results = await Promise.all([
+        db.from("departments").select("*"),
+        db.from("courses")
+          .select("*")
+          .eq("status", "published"),
+        db.from("enrollments")
+          .select("*")
+          .eq("student_id", currentUser.id),
+        db.from("attendance")
+          .select("*")
+          .eq("student_id", currentUser.id)
+      ]);
+
+      const names = [
+        "departments",
+        "courses",
+        "enrollments",
+        "attendance"
+      ];
+
+      const errors = [];
+
+      results.forEach((result, index) => {
+        if (result.error) {
+          errors.push(`${names[index]}: ${result.error.message}`);
+        }
+      });
+
+      departments = results[0].data || [];
+      courses = results[1].data || [];
+      enrollments = results[2].data || [];
+      attendance = results[3].data || [];
+
+      renderAll();
+
+      if (errors.length) {
+        console.error("Student dashboard query errors:", errors);
+        showMessage(
+          t("loadingError") + errors.join(" | "),
+          "error"
+        );
+      } else {
+        showMessage(t("loaded"), "info");
+      }
+
+    } catch (error) {
+      console.error("Student dashboard loading error:", error);
+      showMessage(
+        t("networkError") + " " + (error.message || ""),
+        "error"
+      );
+    } finally {
+      loading = false;
+      if (refreshButton) refreshButton.disabled = false;
+    }
+  }
+
+  async function requestEnrollment(courseId, button) {
+    if (!currentUser || !courseId) return;
+
+    if (getEnrollment(courseId)) return;
+
+    button.disabled = true;
+    button.textContent = t("refreshing");
+
+    try {
+      const { data, error } = await db
+        .from("enrollments")
+        .insert({
+          student_id: currentUser.id,
+          course_id: courseId,
+          status: "pending"
+        })
+        .select("*")
+        .single();
+
+      if (error) throw error;
+
+      enrollments.push(data);
+
+      renderAll();
+      showMessage(t("enrollSuccess"), "info");
+
+    } catch (error) {
+      console.error("Enrollment error:", error);
+      showMessage(
+        t("enrollError") + (error.message || ""),
+        "error"
+      );
+      button.disabled = false;
+      button.textContent = t("enroll");
+    }
+  }
+
+  function showStudentView(view) {
+    document.querySelectorAll(".dashboard-section").forEach((section) => {
+      section.classList.remove("active");
+    });
+
+    document.querySelectorAll(".nav-item").forEach((button) => {
+      button.classList.remove("active");
+    });
+
+    const target = $("view-" + view);
+    if (target) target.classList.add("active");
+
+    const navButton = document.querySelector(
+      `.nav-item[data-view="${view}"]`
+    );
+
+    if (navButton) navButton.classList.add("active");
+
+    closeMobileMenu();
+  }
+
+  window.showStudentView = showStudentView;
+
+  function openMobileMenu() {
+    const sidebar = $("studentSidebar");
+    const overlay = $("studentSidebarOverlay");
+    const button = $("mobileMenuButton");
+
+    if (!sidebar || !overlay) return;
+
+    sidebar.classList.add("open");
+    overlay.classList.add("visible");
+    document.body.classList.add("menu-open");
+
+    if (button) button.setAttribute("aria-expanded", "true");
+  }
+
+  function closeMobileMenu() {
+    const sidebar = $("studentSidebar");
+    const overlay = $("studentSidebarOverlay");
+    const button = $("mobileMenuButton");
+
+    if (!sidebar || !overlay) return;
+
+    sidebar.classList.remove("open");
+    overlay.classList.remove("visible");
+    document.body.classList.remove("menu-open");
+
+    if (button) button.setAttribute("aria-expanded", "false");
+  }
+
+  async function logout() {
+    showMessage(t("signOut"), "info");
+
+    const { error } = await db.auth.signOut();
+
+    if (error) {
+      showMessage(error.message, "error");
+      return;
+    }
+
+    window.location.href = "/login.html";
+  }
+
+  async function initialize() {
+    $("year").textContent = new Date().getFullYear();
+
+    try {
+      const savedLanguage = localStorage.getItem("academy-language");
+      language = savedLanguage === "en" ? "en" : "ar";
+    } catch (_) {
+      language = "ar";
+    }
+
+    setLanguage(language);
+
+    if (!window.supabase || !window.supabase.createClient) {
+      showMessage("Supabase library failed to load.", "error");
+      return;
+    }
+
+    db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      }
+    );
+
+    try {
+      const { data, error } = await db.auth.getSession();
+
+      if (error) throw error;
+
+      if (!data.session || !data.session.user) {
+        showMessage(t("loginRequired"), "error");
+        window.location.href = "/login.html";
+        return;
+      }
+
+      currentUser = data.session.user;
+
+      const { data: profile, error: profileError } = await db
+        .from("profiles")
+        .select("id, full_name, role")
+        .eq("id", currentUser.id)
+        .single();
+
+      if (profileError || !profile) {
+        console.error("Student profile error:", profileError);
+        showMessage(t("profileError"), "error");
+        return;
+      }
+
+      currentProfile = profile;
+
+      if (profile.role !== "student") {
+        showMessage(t("studentOnly"), "error");
+        return;
+      }
+
+      renderAll();
+      await loadStudentData();
+
+    } catch (error) {
+      console.error("Student portal initialization error:", error);
+      showMessage(
+        t("loadingError") + (error.message || ""),
+        "error"
+      );
+    }
+  }
+
+  /* =========================================
+     EVENT LISTENERS
+  ========================================= */
+
+  $("languageToggle")?.addEventListener("click", () => {
+    setLanguage(language === "ar" ? "en" : "ar");
+  });
+
+  $("refreshButton")?.addEventListener("click", loadStudentData);
+
+  $("logoutButton")?.addEventListener("click", logout);
+
+  $("mobileMenuButton")?.addEventListener("click", openMobileMenu);
+
+  $("sidebarCloseButton")?.addEventListener("click", closeMobileMenu);
+
+  $("studentSidebarOverlay")?.addEventListener(
+    "click",
+    closeMobileMenu
+  );
+
+  document.querySelectorAll(".nav-item[data-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      showStudentView(button.dataset.view);
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeMobileMenu();
+  });
+
+  /* START */
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialize, {
+      once: true
+    });
+  } else {
+    initialize();
+  }
+
+})();

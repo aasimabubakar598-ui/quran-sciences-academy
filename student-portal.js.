@@ -2,50 +2,11 @@
 (() => {
   "use strict";
 
-  const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
+  const SUPABASE_URL =
+    "https://kxaovcknyddctnqvrudi.supabase.co";
 
-  // Paste your complete Supabase anon/public key below.
-  const SUPABASE_ANON_KEY = "PASTE_YOUR_COMPLETE_SUPABASE_ANON_KEY_HERE";
-
-  const supabaseLib = window.supabase;
-
-  function showError(message) {
-    const target =
-      document.getElementById("studentLoading") ||
-      document.getElementById("studentContent");
-
-    if (target) {
-      target.style.display = "block";
-      target.textContent = message;
-    }
-
-    console.error(message);
-  }
-
-  if (!supabaseLib || !supabaseLib.createClient) {
-    showError("Supabase library did not load. Please refresh the page.");
-    return;
-  }
-
-  if (SUPABASE_ANON_KEY.includes("PASTE_YOUR")) {
-    showError("Please add your complete Supabase anon key in student-portal.js.");
-    return;
-  }
-
-  const db = supabaseLib.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
-
-  const state = {
-    language: localStorage.getItem("academy-language") || "en",
-    profile: null,
-    departments: [],
-    courses: [],
-    enrollments: [],
-    attendance: [],
-    loading: false
-  };
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
 
   const translations = {
     en: {
@@ -112,7 +73,21 @@
     }
   };
 
-  const t = key => translations[state.language][key] || key;
+  const state = {
+    language: localStorage.getItem("academy-language") || "en",
+    profile: null,
+    departments: [],
+    courses: [],
+    enrollments: [],
+    attendance: [],
+    loading: false,
+    db: null
+  };
+
+  const t = key =>
+    translations[state.language]?.[key] ||
+    translations.en[key] ||
+    key;
 
   function el(id) {
     return document.getElementById(id);
@@ -126,6 +101,23 @@
       '"': "&quot;",
       "'": "&#039;"
     })[char]);
+  }
+
+  function showError(message) {
+    const loading = el("studentLoading");
+    const content = el("studentContent");
+    const target = loading || content;
+
+    if (target) {
+      target.style.display = "block";
+      target.textContent = message;
+    }
+
+    if (content && content !== target) {
+      content.style.display = "none";
+    }
+
+    console.error("Student Dashboard:", message);
   }
 
   function getCourseTitle(course) {
@@ -152,11 +144,16 @@
       late: t("late")
     };
 
-    return labels[String(status || "").toLowerCase()] || status || "—";
+    return labels[String(status || "").toLowerCase()] ||
+      status ||
+      "—";
   }
 
   function courseName(courseId) {
-    const course = state.courses.find(c => c.id === courseId);
+    const course = state.courses.find(
+      item => item.id === courseId
+    );
+
     return course ? getCourseTitle(course) : "—";
   }
 
@@ -196,11 +193,11 @@
     target.innerHTML = state.courses.length
       ? state.courses.map(course => {
           const department = state.departments.find(
-            d => d.id === course.department_id
+            item => item.id === course.department_id
           );
 
           const existing = state.enrollments.find(
-            e => e.course_id === course.id
+            item => item.course_id === course.id
           );
 
           const button = existing
@@ -292,7 +289,7 @@
 
     try {
       const { data: sessionData, error: sessionError } =
-        await db.auth.getSession();
+        await state.db.auth.getSession();
 
       if (sessionError) throw sessionError;
 
@@ -303,43 +300,45 @@
         return;
       }
 
-      const { data: profile, error: profileError } = await db
-        .from("profiles")
-        .select("id, full_name, role")
-        .eq("id", user.id)
-        .single();
+      const { data: profile, error: profileError } =
+        await state.db
+          .from("profiles")
+          .select("id, full_name, role")
+          .eq("id", user.id)
+          .single();
 
       if (profileError) throw profileError;
 
       if (profile.role !== "student") {
-        throw new Error("This account is not registered as a student.");
+        throw new Error(
+          "This account is not registered as a student."
+        );
       }
 
       state.profile = profile;
 
       const results = await Promise.all([
-        db.from("departments").select("*"),
-        db.from("courses").select("*"),
-        db.from("enrollments")
+        state.db.from("departments").select("*"),
+        state.db.from("courses").select("*"),
+        state.db.from("enrollments")
           .select("*")
           .eq("student_id", user.id),
-        db.from("attendance")
+        state.db.from("attendance")
           .select("*")
           .eq("student_id", user.id)
           .order("attendance_date", { ascending: false })
       ]);
 
-      const errors = results
-        .map(result => result.error)
-        .filter(Boolean);
+      const failed = results.find(result => result.error);
 
-      if (errors.length) throw errors[0];
+      if (failed) throw failed.error;
 
       state.departments = results[0].data || [];
       state.courses = results[1].data || [];
       state.enrollments = results[2].data || [];
       state.attendance = results[3].data || [];
 
+      // If courses have a status column, display published courses only.
       state.courses = state.courses.filter(course =>
         !("status" in course) ||
         String(course.status).toLowerCase() === "published"
@@ -348,7 +347,7 @@
       renderAll();
 
     } catch (error) {
-      console.error("Student dashboard error:", error);
+      console.error("Student dashboard loading failed:", error);
       showError(`${t("error")} ${error.message || ""}`);
 
     } finally {
@@ -357,46 +356,53 @@
   }
 
   async function requestEnrollment(courseId) {
-    const { data: sessionData } = await db.auth.getSession();
-    const user = sessionData.session?.user;
+    try {
+      const { data: sessionData, error: sessionError } =
+        await state.db.auth.getSession();
 
-    if (!user) {
-      window.location.href = "/login.html";
-      return;
+      if (sessionError) throw sessionError;
+
+      const user = sessionData.session?.user;
+
+      if (!user) {
+        window.location.href = "/login.html";
+        return;
+      }
+
+      const existing = state.enrollments.find(
+        item => item.course_id === courseId
+      );
+
+      if (existing) {
+        alert(t("already"));
+        return;
+      }
+
+      const { data, error } = await state.db
+        .from("enrollments")
+        .insert({
+          student_id: user.id,
+          course_id: courseId,
+          status: "pending"
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      state.enrollments.push(data);
+
+      renderAll();
+      alert(t("requested"));
+
+    } catch (error) {
+      console.error("Enrollment request failed:", error);
+      alert(`${t("requestFailed")} ${error.message || ""}`);
     }
-
-    const existing = state.enrollments.find(
-      enrollment => enrollment.course_id === courseId
-    );
-
-    if (existing) {
-      alert(t("already"));
-      return;
-    }
-
-    const { data, error } = await db
-      .from("enrollments")
-      .insert({
-        student_id: user.id,
-        course_id: courseId,
-        status: "pending"
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Enrollment request error:", error);
-      alert(`${t("requestFailed")} ${error.message}`);
-      return;
-    }
-
-    state.enrollments.push(data);
-    renderAll();
-    alert(t("requested"));
   }
 
   async function logout() {
-    const { error } = await db.auth.signOut();
+    const { error } = await state.db.auth.signOut();
 
     if (error) {
       alert(error.message);
@@ -406,33 +412,55 @@
     window.location.href = "/login.html";
   }
 
-  document.addEventListener("click", event => {
-    const enrollButton = event.target.closest("[data-enroll]");
+  function bindEvents() {
+    document.addEventListener("click", event => {
+      const enrollButton = event.target.closest("[data-enroll]");
 
-    if (enrollButton) {
-      requestEnrollment(enrollButton.dataset.enroll);
+      if (enrollButton) {
+        requestEnrollment(enrollButton.dataset.enroll);
+        return;
+      }
+
+      if (event.target.closest("#refreshStudentData")) {
+        loadStudentData();
+        return;
+      }
+
+      if (event.target.closest("#studentLogout")) {
+        logout();
+        return;
+      }
+
+      if (event.target.closest("#languageToggle")) {
+        setLanguage(
+          state.language === "ar" ? "en" : "ar"
+        );
+      }
+    });
+  }
+
+  function initialize() {
+    if (!window.supabase || !window.supabase.createClient) {
+      showError(
+        "Supabase library is missing. Check the Supabase script in your HTML."
+      );
       return;
     }
 
-    if (event.target.closest("#refreshStudentData")) {
-      loadStudentData();
-      return;
-    }
+    state.db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
 
-    if (event.target.closest("#studentLogout")) {
-      logout();
-      return;
-    }
-
-    if (event.target.closest("#languageToggle")) {
-      setLanguage(state.language === "ar" ? "en" : "ar");
-    }
-  });
-
-  document.addEventListener("DOMContentLoaded", () => {
+    bindEvents();
     setLanguage(state.language);
     loadStudentData();
-  });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialize);
+  } else {
+    initialize();
+  }
 
 })();
-

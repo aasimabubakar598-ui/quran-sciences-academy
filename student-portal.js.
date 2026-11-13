@@ -1,1 +1,438 @@
 
+(() => {
+  "use strict";
+
+  const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
+
+  // Paste your complete Supabase anon/public key below.
+  const SUPABASE_ANON_KEY = "PASTE_YOUR_COMPLETE_SUPABASE_ANON_KEY_HERE";
+
+  const supabaseLib = window.supabase;
+
+  function showError(message) {
+    const target =
+      document.getElementById("studentLoading") ||
+      document.getElementById("studentContent");
+
+    if (target) {
+      target.style.display = "block";
+      target.textContent = message;
+    }
+
+    console.error(message);
+  }
+
+  if (!supabaseLib || !supabaseLib.createClient) {
+    showError("Supabase library did not load. Please refresh the page.");
+    return;
+  }
+
+  if (SUPABASE_ANON_KEY.includes("PASTE_YOUR")) {
+    showError("Please add your complete Supabase anon key in student-portal.js.");
+    return;
+  }
+
+  const db = supabaseLib.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+  const state = {
+    language: localStorage.getItem("academy-language") || "en",
+    profile: null,
+    departments: [],
+    courses: [],
+    enrollments: [],
+    attendance: [],
+    loading: false
+  };
+
+  const translations = {
+    en: {
+      loading: "Loading your data...",
+      welcome: "Welcome",
+      departments: "Departments",
+      courses: "Available Courses",
+      enrollments: "My Enrollments",
+      attendance: "My Attendance",
+      materials: "Learning Materials",
+      examinations: "Examinations",
+      refresh: "Refresh Data",
+      logout: "Log Out",
+      noDepartments: "No departments available.",
+      noCourses: "No published courses available.",
+      noEnrollments: "You have no course enrollments yet.",
+      noAttendance: "No attendance records yet.",
+      enroll: "Request Enrollment",
+      pending: "Pending",
+      approved: "Approved",
+      rejected: "Rejected",
+      present: "Present",
+      absent: "Absent",
+      late: "Late",
+      date: "Date",
+      status: "Status",
+      error: "Unable to load your data.",
+      requested: "Your enrollment request has been submitted.",
+      already: "You already have an enrollment request for this course.",
+      requestFailed: "Could not submit your enrollment request.",
+      materialsInfo: "Learning materials for your approved courses will appear here.",
+      examsInfo: "Your available examinations will appear here."
+    },
+    ar: {
+      loading: "جارٍ تحميل بياناتك...",
+      welcome: "مرحباً",
+      departments: "الأقسام",
+      courses: "الدورات المتاحة",
+      enrollments: "تسجيلاتي",
+      attendance: "سجل الحضور",
+      materials: "المواد التعليمية",
+      examinations: "الاختبارات",
+      refresh: "تحديث البيانات",
+      logout: "تسجيل الخروج",
+      noDepartments: "لا توجد أقسام متاحة.",
+      noCourses: "لا توجد دورات منشورة حالياً.",
+      noEnrollments: "لا توجد لديك تسجيلات في الدورات حتى الآن.",
+      noAttendance: "لا توجد سجلات حضور حتى الآن.",
+      enroll: "طلب التسجيل",
+      pending: "قيد الانتظار",
+      approved: "مقبول",
+      rejected: "مرفوض",
+      present: "حاضر",
+      absent: "غائب",
+      late: "متأخر",
+      date: "التاريخ",
+      status: "الحالة",
+      error: "تعذر تحميل بياناتك.",
+      requested: "تم إرسال طلب التسجيل.",
+      already: "لديك طلب تسجيل سابق لهذه الدورة.",
+      requestFailed: "تعذر إرسال طلب التسجيل.",
+      materialsInfo: "ستظهر هنا المواد التعليمية الخاصة بالدورات المقبولة.",
+      examsInfo: "ستظهر هنا الاختبارات المتاحة لك."
+    }
+  };
+
+  const t = key => translations[state.language][key] || key;
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[char]);
+  }
+
+  function getCourseTitle(course) {
+    return state.language === "ar"
+      ? course.title_ar || course.title_en || "دورة"
+      : course.title_en || course.title_ar || "Course";
+  }
+
+  function getDepartmentName(department) {
+    if (!department) return "";
+
+    return state.language === "ar"
+      ? department.name_ar || department.name_en || ""
+      : department.name_en || department.name_ar || "";
+  }
+
+  function statusLabel(status) {
+    const labels = {
+      pending: t("pending"),
+      approved: t("approved"),
+      rejected: t("rejected"),
+      present: t("present"),
+      absent: t("absent"),
+      late: t("late")
+    };
+
+    return labels[String(status || "").toLowerCase()] || status || "—";
+  }
+
+  function courseName(courseId) {
+    const course = state.courses.find(c => c.id === courseId);
+    return course ? getCourseTitle(course) : "—";
+  }
+
+  function setLanguage(language) {
+    state.language = language === "ar" ? "ar" : "en";
+
+    localStorage.setItem("academy-language", state.language);
+
+    document.documentElement.lang = state.language;
+    document.documentElement.dir =
+      state.language === "ar" ? "rtl" : "ltr";
+
+    document.querySelectorAll("[data-student-text]").forEach(node => {
+      node.textContent = t(node.dataset.studentText);
+    });
+
+    renderAll();
+  }
+
+  function renderDepartments() {
+    const target = el("departmentsList");
+    if (!target) return;
+
+    target.innerHTML = state.departments.length
+      ? state.departments.map(department => `
+          <article class="student-card">
+            <h3>${escapeHTML(getDepartmentName(department))}</h3>
+          </article>
+        `).join("")
+      : `<p>${t("noDepartments")}</p>`;
+  }
+
+  function renderCourses() {
+    const target = el("coursesList");
+    if (!target) return;
+
+    target.innerHTML = state.courses.length
+      ? state.courses.map(course => {
+          const department = state.departments.find(
+            d => d.id === course.department_id
+          );
+
+          const existing = state.enrollments.find(
+            e => e.course_id === course.id
+          );
+
+          const button = existing
+            ? `<span class="status">${escapeHTML(statusLabel(existing.status))}</span>`
+            : `<button type="button" data-enroll="${escapeHTML(course.id)}">
+                 ${t("enroll")}
+               </button>`;
+
+          return `
+            <article class="student-card">
+              <h3>${escapeHTML(getCourseTitle(course))}</h3>
+              <p>${escapeHTML(getDepartmentName(department))}</p>
+              <p>${escapeHTML(course.description || "")}</p>
+              ${button}
+            </article>
+          `;
+        }).join("")
+      : `<p>${t("noCourses")}</p>`;
+  }
+
+  function renderEnrollments() {
+    const target = el("enrollmentsList");
+    if (!target) return;
+
+    target.innerHTML = state.enrollments.length
+      ? state.enrollments.map(enrollment => `
+          <article class="student-card">
+            <h3>${escapeHTML(courseName(enrollment.course_id))}</h3>
+            <p>${t("status")}: ${escapeHTML(statusLabel(enrollment.status))}</p>
+          </article>
+        `).join("")
+      : `<p>${t("noEnrollments")}</p>`;
+  }
+
+  function renderAttendance() {
+    const target = el("attendanceList");
+    if (!target) return;
+
+    target.innerHTML = state.attendance.length
+      ? state.attendance.map(record => `
+          <article class="student-card">
+            <h3>${escapeHTML(courseName(record.course_id))}</h3>
+            <p>${t("date")}: ${escapeHTML(record.attendance_date || "—")}</p>
+            <p>${t("status")}: ${escapeHTML(statusLabel(record.status))}</p>
+            ${record.remarks
+              ? `<p>${escapeHTML(record.remarks)}</p>`
+              : ""}
+          </article>
+        `).join("")
+      : `<p>${t("noAttendance")}</p>`;
+  }
+
+  function renderAll() {
+    renderDepartments();
+    renderCourses();
+    renderEnrollments();
+    renderAttendance();
+
+    const name = el("studentName");
+
+    if (name && state.profile) {
+      name.textContent = state.profile.full_name || "";
+    }
+
+    const loading = el("studentLoading");
+    const content = el("studentContent");
+
+    if (loading) loading.style.display = "none";
+    if (content) content.style.display = "block";
+
+    const materials = el("materialsList");
+    if (materials) materials.textContent = t("materialsInfo");
+
+    const exams = el("examinationsList");
+    if (exams) exams.textContent = t("examsInfo");
+  }
+
+  async function loadStudentData() {
+    if (state.loading) return;
+
+    state.loading = true;
+
+    const loading = el("studentLoading");
+
+    if (loading) {
+      loading.style.display = "block";
+      loading.textContent = t("loading");
+    }
+
+    try {
+      const { data: sessionData, error: sessionError } =
+        await db.auth.getSession();
+
+      if (sessionError) throw sessionError;
+
+      const user = sessionData.session?.user;
+
+      if (!user) {
+        window.location.href = "/login.html";
+        return;
+      }
+
+      const { data: profile, error: profileError } = await db
+        .from("profiles")
+        .select("id, full_name, role")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      if (profile.role !== "student") {
+        throw new Error("This account is not registered as a student.");
+      }
+
+      state.profile = profile;
+
+      const results = await Promise.all([
+        db.from("departments").select("*"),
+        db.from("courses").select("*"),
+        db.from("enrollments")
+          .select("*")
+          .eq("student_id", user.id),
+        db.from("attendance")
+          .select("*")
+          .eq("student_id", user.id)
+          .order("attendance_date", { ascending: false })
+      ]);
+
+      const errors = results
+        .map(result => result.error)
+        .filter(Boolean);
+
+      if (errors.length) throw errors[0];
+
+      state.departments = results[0].data || [];
+      state.courses = results[1].data || [];
+      state.enrollments = results[2].data || [];
+      state.attendance = results[3].data || [];
+
+      state.courses = state.courses.filter(course =>
+        !("status" in course) ||
+        String(course.status).toLowerCase() === "published"
+      );
+
+      renderAll();
+
+    } catch (error) {
+      console.error("Student dashboard error:", error);
+      showError(`${t("error")} ${error.message || ""}`);
+
+    } finally {
+      state.loading = false;
+    }
+  }
+
+  async function requestEnrollment(courseId) {
+    const { data: sessionData } = await db.auth.getSession();
+    const user = sessionData.session?.user;
+
+    if (!user) {
+      window.location.href = "/login.html";
+      return;
+    }
+
+    const existing = state.enrollments.find(
+      enrollment => enrollment.course_id === courseId
+    );
+
+    if (existing) {
+      alert(t("already"));
+      return;
+    }
+
+    const { data, error } = await db
+      .from("enrollments")
+      .insert({
+        student_id: user.id,
+        course_id: courseId,
+        status: "pending"
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Enrollment request error:", error);
+      alert(`${t("requestFailed")} ${error.message}`);
+      return;
+    }
+
+    state.enrollments.push(data);
+    renderAll();
+    alert(t("requested"));
+  }
+
+  async function logout() {
+    const { error } = await db.auth.signOut();
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    window.location.href = "/login.html";
+  }
+
+  document.addEventListener("click", event => {
+    const enrollButton = event.target.closest("[data-enroll]");
+
+    if (enrollButton) {
+      requestEnrollment(enrollButton.dataset.enroll);
+      return;
+    }
+
+    if (event.target.closest("#refreshStudentData")) {
+      loadStudentData();
+      return;
+    }
+
+    if (event.target.closest("#studentLogout")) {
+      logout();
+      return;
+    }
+
+    if (event.target.closest("#languageToggle")) {
+      setLanguage(state.language === "ar" ? "en" : "ar");
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    setLanguage(state.language);
+    loadStudentData();
+  });
+
+})();
+

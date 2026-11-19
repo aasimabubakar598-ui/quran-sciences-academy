@@ -1,19 +1,120 @@
 
 /* =========================================================
    QURAN SCIENCES ACADEMY
-   STUDENT PORTAL — CORRECTED JAVASCRIPT
+   STUDENT PORTAL — UNIFIED BILINGUAL VERSION
    ========================================================= */
+
+"use strict";
 
 const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJr eGE ov..." .replaceAll(" ", "");
+
+/* =========================================================
+   TRANSLATIONS
+   ========================================================= */
+
+const STUDENT_TRANSLATIONS = {
+  ar: {
+    academy: "أكاديمية القرآن الكريم",
+    academyFull: "أكاديمية القرآن الكريم وعلومه",
+    departments: "الأقسام العلمية",
+    courses: "المقررات المتاحة",
+    myCourses: "مقرراتي المسجلة",
+    materials: "المواد التعليمية",
+    exams: "الاختبارات",
+    attendance: "الحضور والغياب",
+    menu: "☰ القائمة",
+    welcome: "مرحباً بك في الأكاديمية",
+    welcomeDesc: "هذه لوحتك الخاصة لمتابعة مقرراتك الدراسية.",
+    refresh: "تحديث البيانات",
+    home: "الصفحة الرئيسية",
+    logout: "تسجيل الخروج",
+    loading: "جارٍ التحميل...",
+    loadingData: "جارٍ تحميل بياناتك...",
+    refreshing: "جارٍ التحديث...",
+    noDepartments: "لا توجد أقسام متاحة حالياً.",
+    noCourses: "لا توجد مقررات منشورة حالياً.",
+    noEnrollments: "لم ترسل أي طلب تسجيل بعد.",
+    noAttendance: "لا توجد سجلات حضور حتى الآن.",
+    noMaterials: "سيتم عرض المواد التعليمية المعتمدة هنا.",
+    noExams: "لا توجد بيانات اختبارات متاحة للعرض حالياً.",
+    materialsDesc: "الملفات التعليمية الخاصة بالمقررات المقبولة في تسجيلك.",
+    pending: "قيد الانتظار",
+    approved: "مقبول",
+    rejected: "مرفوض",
+    present: "حاضر",
+    absent: "غائب",
+    late: "متأخر",
+    course: "دورة",
+    enrollmentRequested: "تم إرسال طلب التسجيل",
+    requestEnrollment: "طلب التسجيل",
+    enrollmentSuccess: "تم إرسال طلب التسجيل بنجاح.",
+    enrollmentError: "تعذر إرسال طلب التسجيل:",
+    dataError: "تعذر تحميل البيانات:",
+    unknownError: "خطأ غير معروف",
+    studentError: "حدث خطأ أثناء تحميل لوحة الطالب:",
+    welcomeStudent: "الطالب",
+    closeMenu: "إغلاق القائمة",
+    studentNavigation: "قائمة تنقل الطالب"
+  },
+
+  en: {
+    academy: "Quran Sciences Academy",
+    academyFull: "Quran Sciences Academy",
+    departments: "Academic Departments",
+    courses: "Available Courses",
+    myCourses: "My Enrolled Courses",
+    materials: "Learning Materials",
+    exams: "Examinations",
+    attendance: "Attendance",
+    menu: "☰ Menu",
+    welcome: "Welcome to the Academy",
+    welcomeDesc: "Your personal dashboard for following your courses.",
+    refresh: "Refresh Data",
+    home: "Home",
+    logout: "Log Out",
+    loading: "Loading...",
+    loadingData: "Loading your data...",
+    refreshing: "Refreshing...",
+    noDepartments: "No departments are currently available.",
+    noCourses: "No published courses are currently available.",
+    noEnrollments: "You have not submitted any enrollment requests yet.",
+    noAttendance: "There are no attendance records yet.",
+    noMaterials: "Approved learning materials will appear here.",
+    noExams: "No examination information is currently available.",
+    materialsDesc: "Learning files for courses in which your enrollment has been approved.",
+    pending: "Pending",
+    approved: "Approved",
+    rejected: "Rejected",
+    present: "Present",
+    absent: "Absent",
+    late: "Late",
+    course: "Course",
+    enrollmentRequested: "Enrollment Requested",
+    requestEnrollment: "Request Enrollment",
+    enrollmentSuccess: "Your enrollment request was submitted successfully.",
+    enrollmentError: "Could not submit enrollment request:",
+    dataError: "Could not load data:",
+    unknownError: "Unknown error",
+    studentError: "Student dashboard error:",
+    welcomeStudent: "Student",
+    closeMenu: "Close menu",
+    studentNavigation: "Student navigation"
+  }
+};
+
+/* =========================================================
+   GENERAL VARIABLES
+   ========================================================= */
 
 const $ = id => document.getElementById(id);
 
 function getSavedLanguage() {
   try {
-    const saved = localStorage.getItem("academy-language");
-    return saved === "en" ? "en" : "ar";
+    return localStorage.getItem("academy-language") === "en"
+      ? "en"
+      : "ar";
   } catch {
     return "ar";
   }
@@ -31,12 +132,14 @@ let studentData = {
   attendance: []
 };
 
-/* =========================================================
-   GENERAL HELPERS
-   ========================================================= */
-
 function isArabic() {
   return currentLanguage === "ar";
+}
+
+function t(key) {
+  return STUDENT_TRANSLATIONS[currentLanguage][key] ||
+    STUDENT_TRANSLATIONS.ar[key] ||
+    key;
 }
 
 function escapeHTML(value) {
@@ -49,6 +152,18 @@ function escapeHTML(value) {
   })[character]);
 }
 
+function localizedValue(item, arabicKey, englishKey, fallbackKey) {
+  if (isArabic()) {
+    return item[arabicKey] || item[englishKey] || item[fallbackKey] || "";
+  }
+
+  return item[englishKey] || item[arabicKey] || item[fallbackKey] || "";
+}
+
+/* =========================================================
+   MESSAGE AND BUTTON HELPERS
+   ========================================================= */
+
 function setMessage(message = "", isError = false) {
   const element = $("dashboardMessage");
   if (!element) return;
@@ -56,7 +171,9 @@ function setMessage(message = "", isError = false) {
   element.textContent = message;
   element.hidden = !message;
   element.style.display = message ? "block" : "none";
-  element.style.color = isError ? "#b42318" : "";
+
+  element.classList.toggle("error", isError);
+  element.classList.toggle("info", !isError);
 }
 
 function setRefreshButton(loading) {
@@ -64,16 +181,23 @@ function setRefreshButton(loading) {
   if (!button) return;
 
   button.disabled = loading;
-  button.textContent = loading
-    ? (isArabic() ? "جارٍ التحديث..." : "Refreshing...")
-    : (isArabic() ? "تحديث البيانات" : "Refresh Data");
+  button.textContent = loading ? t("refreshing") : t("refresh");
 }
 
-function updateLanguage() {
-  document.documentElement.lang = currentLanguage;
-  document.documentElement.dir = isArabic() ? "rtl" : "ltr";
+/* =========================================================
+   UNIFIED LANGUAGE SYSTEM
+   ========================================================= */
 
-  document.body.dir = document.documentElement.dir;
+function updateLanguage() {
+  const direction = isArabic() ? "rtl" : "ltr";
+
+  document.documentElement.lang = currentLanguage;
+  document.documentElement.dir = direction;
+
+  document.body.dir = direction;
+
+  document.body.classList.toggle("language-ar", isArabic());
+  document.body.classList.toggle("language-en", !isArabic());
 
   try {
     localStorage.setItem("academy-language", currentLanguage);
@@ -81,19 +205,66 @@ function updateLanguage() {
     console.warn("Could not save language preference:", error);
   }
 
+  // Translate all static HTML elements.
+  document.querySelectorAll("[data-i18n]").forEach(element => {
+    const key = element.dataset.i18n;
+
+    if (key === "welcome" && currentProfile) return;
+
+    if (STUDENT_TRANSLATIONS[currentLanguage][key]) {
+      element.textContent = t(key);
+    }
+  });
+
+  // Update language button.
   const toggle = $("languageToggle");
 
   if (toggle) {
     toggle.textContent = isArabic() ? "English" : "العربية";
   }
 
-  if (currentProfile && $("welcomeTitle")) {
-    $("welcomeTitle").textContent = isArabic()
-      ? `مرحباً، ${currentProfile.full_name || "الطالب"}`
-      : `Welcome, ${currentProfile.full_name || "Student"}`;
+  // Update accessibility labels.
+  $("studentSidebar")?.setAttribute("aria-label", t("studentNavigation"));
+  $("sidebarCloseButton")?.setAttribute("aria-label", t("closeMenu"));
+  $("studentSidebarOverlay")?.setAttribute("aria-label", t("closeMenu"));
+
+  // Personalized welcome.
+  if ($("welcomeTitle")) {
+    $("welcomeTitle").textContent = currentProfile
+      ? (isArabic()
+          ? `مرحباً، ${currentProfile.full_name || t("welcomeStudent")}`
+          : `Welcome, ${currentProfile.full_name || t("welcomeStudent")}`)
+      : t("welcome");
   }
 
+  // Translate initial loading placeholders.
+  [
+    "departmentsList",
+    "coursesList",
+    "enrollmentsList",
+    "materialsList",
+    "attendanceList"
+  ].forEach(id => {
+    const container = $(id);
+
+    if (
+      container &&
+      container.children.length === 1 &&
+      container.firstElementChild?.classList.contains("empty-state")
+    ) {
+      container.firstElementChild.textContent = t("loading");
+    }
+  });
+
+  const materialsMessage = $("materialsMessage");
+
+  if (materialsMessage && !studentData.courses.length) {
+    materialsMessage.textContent = t("loading");
+  }
+
+  // Translate existing dynamic content.
   renderAll();
+  setRefreshButton(false);
 }
 
 /* =========================================================
@@ -105,7 +276,6 @@ function showStudentView(view) {
     section.classList.remove("active");
   });
 
-  // Correct HTML IDs: view-departments, view-courses, etc.
   const target = document.getElementById(`view-${view}`);
 
   if (target) {
@@ -128,6 +298,7 @@ function openMobileSidebar() {
   $("studentSidebar")?.classList.add("open");
   $("studentSidebarOverlay")?.classList.add("visible");
   document.body.classList.add("menu-open");
+
   $("mobileMenuButton")?.setAttribute("aria-expanded", "true");
 }
 
@@ -135,6 +306,7 @@ function closeMobileSidebar() {
   $("studentSidebar")?.classList.remove("open");
   $("studentSidebarOverlay")?.classList.remove("visible");
   document.body.classList.remove("menu-open");
+
   $("mobileMenuButton")?.setAttribute("aria-expanded", "false");
 }
 
@@ -148,17 +320,18 @@ function renderDepartments() {
 
   if (!studentData.departments.length) {
     container.innerHTML = `
-      <p>${isArabic()
-        ? "لا توجد أقسام متاحة حالياً."
-        : "No departments available."}</p>
+      <p class="empty-state">${escapeHTML(t("noDepartments"))}</p>
     `;
     return;
   }
 
   container.innerHTML = studentData.departments.map(department => {
-    const name = isArabic()
-      ? department.name_ar || department.name_en || department.name
-      : department.name_en || department.name_ar || department.name;
+    const name = localizedValue(
+      department,
+      "name_ar",
+      "name_en",
+      "name"
+    );
 
     return `
       <article class="dashboard-card">
@@ -173,9 +346,21 @@ function renderDepartments() {
    ========================================================= */
 
 function getCourseTitle(course) {
-  return isArabic()
-    ? course.title_ar || course.title_en || course.title || ""
-    : course.title_en || course.title_ar || course.title || "";
+  return localizedValue(
+    course,
+    "title_ar",
+    "title_en",
+    "title"
+  );
+}
+
+function getCourseDescription(course) {
+  return localizedValue(
+    course,
+    "description_ar",
+    "description_en",
+    "description"
+  );
 }
 
 function renderCourses() {
@@ -184,9 +369,7 @@ function renderCourses() {
 
   if (!studentData.courses.length) {
     container.innerHTML = `
-      <p>${isArabic()
-        ? "لا توجد دورات منشورة حالياً."
-        : "No published courses available."}</p>
+      <p class="empty-state">${escapeHTML(t("noCourses"))}</p>
     `;
     return;
   }
@@ -200,7 +383,7 @@ function renderCourses() {
       <article class="dashboard-card">
         <h3>${escapeHTML(getCourseTitle(course))}</h3>
 
-        <p>${escapeHTML(course.description || "")}</p>
+        <p>${escapeHTML(getCourseDescription(course))}</p>
 
         <button
           type="button"
@@ -208,9 +391,7 @@ function renderCourses() {
           data-course-id="${escapeHTML(course.id)}"
           ${requested ? "disabled" : ""}
         >
-          ${requested
-            ? (isArabic() ? "تم إرسال طلب التسجيل" : "Enrollment Requested")
-            : (isArabic() ? "طلب التسجيل" : "Request Enrollment")}
+          ${requested ? escapeHTML(t("enrollmentRequested")) : escapeHTML(t("requestEnrollment"))}
         </button>
       </article>
     `;
@@ -227,17 +408,15 @@ function renderEnrollments() {
 
   if (!studentData.enrollments.length) {
     container.innerHTML = `
-      <p>${isArabic()
-        ? "لم ترسل أي طلب تسجيل بعد."
-        : "You have no enrollment requests yet."}</p>
+      <p class="empty-state">${escapeHTML(t("noEnrollments"))}</p>
     `;
     return;
   }
 
   const statuses = {
-    pending: isArabic() ? "قيد الانتظار" : "Pending",
-    approved: isArabic() ? "مقبول" : "Approved",
-    rejected: isArabic() ? "مرفوض" : "Rejected"
+    pending: t("pending"),
+    approved: t("approved"),
+    rejected: t("rejected")
   };
 
   container.innerHTML = studentData.enrollments.map(enrollment => {
@@ -248,9 +427,7 @@ function renderEnrollments() {
     return `
       <article class="dashboard-card">
         <h3>${escapeHTML(
-          course
-            ? getCourseTitle(course)
-            : (isArabic() ? "دورة" : "Course")
+          course ? getCourseTitle(course) : t("course")
         )}</h3>
 
         <p>${escapeHTML(
@@ -272,21 +449,19 @@ function renderAttendance() {
   const records = studentData.attendance;
 
   const labels = {
-    present: isArabic() ? "حاضر" : "Present",
-    absent: isArabic() ? "غائب" : "Absent",
-    late: isArabic() ? "متأخر" : "Late"
+    present: t("present"),
+    absent: t("absent"),
+    late: t("late")
   };
 
   if (container) {
     if (!records.length) {
       container.innerHTML = `
-        <p>${isArabic()
-          ? "لا توجد سجلات حضور حتى الآن."
-          : "No attendance records yet."}</p>
+        <p class="empty-state">${escapeHTML(t("noAttendance"))}</p>
       `;
     } else {
       container.innerHTML = records.map(record => `
-        <article class="dashboard-card">
+        <article class="attendance-record">
           <p>
             <strong>${escapeHTML(record.attendance_date || "")}</strong>
           </p>
@@ -296,7 +471,12 @@ function renderAttendance() {
           )}</p>
 
           ${record.remarks
-            ? `<p>${escapeHTML(record.remarks)}</p>`
+            ? `<p>${escapeHTML(localizedValue(
+                record,
+                "remarks_ar",
+                "remarks_en",
+                "remarks"
+              ))}</p>`
             : ""}
         </article>
       `).join("");
@@ -317,19 +497,19 @@ function renderAttendance() {
     ).length;
 
     summary.innerHTML = `
-      <div class="dashboard-card">
-        <strong>${isArabic() ? "حاضر" : "Present"}</strong>
-        <p>${present}</p>
+      <div class="attendance-stat">
+        <strong>${present}</strong>
+        <span>${escapeHTML(t("present"))}</span>
       </div>
 
-      <div class="dashboard-card">
-        <strong>${isArabic() ? "غائب" : "Absent"}</strong>
-        <p>${absent}</p>
+      <div class="attendance-stat">
+        <strong>${absent}</strong>
+        <span>${escapeHTML(t("absent"))}</span>
       </div>
 
-      <div class="dashboard-card">
-        <strong>${isArabic() ? "متأخر" : "Late"}</strong>
-        <p>${late}</p>
+      <div class="attendance-stat">
+        <strong>${late}</strong>
+        <span>${escapeHTML(t("late"))}</span>
       </div>
     `;
   }
@@ -344,10 +524,14 @@ function renderMaterials() {
   if (!container) return;
 
   container.innerHTML = `
-    <p>${isArabic()
-      ? "سيتم عرض المواد التعليمية المعتمدة هنا."
-      : "Approved learning materials will appear here."}</p>
+    <p class="empty-state">${escapeHTML(t("noMaterials"))}</p>
   `;
+
+  const description = $("materialsDescription");
+
+  if (description) {
+    description.textContent = t("materialsDesc");
+  }
 }
 
 /* =========================================================
@@ -359,13 +543,14 @@ function renderExams() {
   if (!container) return;
 
   container.innerHTML = `
-    <p>${isArabic()
-      ? "لا توجد بيانات اختبارات متاحة للعرض حالياً."
-      : "No examination information is available here yet."}</p>
+    <p class="empty-state">${escapeHTML(t("noExams"))}</p>
   `;
 
   const message = $("examsMessage");
-  if (message) message.textContent = "";
+
+  if (message) {
+    message.textContent = "";
+  }
 }
 
 /* =========================================================
@@ -381,6 +566,7 @@ function renderAll() {
   renderExams();
 
   const year = $("year");
+
   if (year) {
     year.textContent = new Date().getFullYear();
   }
@@ -444,9 +630,7 @@ async function loadStudentData() {
     console.error("Student data error:", error);
 
     setMessage(
-      isArabic()
-        ? `تعذر تحميل البيانات: ${error.message || "خطأ غير معروف"}`
-        : `Could not load data: ${error.message || "Unknown error"}`,
+      `${t("dataError")} ${error.message || t("unknownError")}`,
       true
     );
 
@@ -479,11 +663,7 @@ async function requestEnrollment(courseId) {
 
     if (error) throw error;
 
-    setMessage(
-      isArabic()
-        ? "تم إرسال طلب التسجيل بنجاح."
-        : "Your enrollment request was submitted."
-    );
+    setMessage(t("enrollmentSuccess"));
 
     await loadStudentData();
 
@@ -491,9 +671,7 @@ async function requestEnrollment(courseId) {
     console.error("Enrollment error:", error);
 
     setMessage(
-      isArabic()
-        ? `تعذر إرسال الطلب: ${error.message || "خطأ غير معروف"}`
-        : `Could not submit request: ${error.message || "Unknown error"}`,
+      `${t("enrollmentError")} ${error.message || t("unknownError")}`,
       true
     );
   }
@@ -522,11 +700,9 @@ async function logoutStudent() {
 
 async function initializeStudentPortal() {
   try {
-    setMessage(
-      isArabic()
-        ? "جارٍ تحميل بياناتك..."
-        : "Loading your data..."
-    );
+    updateLanguage();
+
+    setMessage(t("loadingData"));
 
     if (!window.supabase || !window.supabase.createClient) {
       throw new Error(
@@ -574,9 +750,7 @@ async function initializeStudentPortal() {
     console.error("Student portal initialization error:", error);
 
     setMessage(
-      isArabic()
-        ? `حدث خطأ أثناء تحميل لوحة الطالب: ${error.message || "خطأ غير معروف"}`
-        : `Student dashboard error: ${error.message || "Unknown error"}`,
+      `${t("studentError")} ${error.message || t("unknownError")}`,
       true
     );
   }

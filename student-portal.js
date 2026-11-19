@@ -1,14 +1,18 @@
 
 /* =========================================================
    QURAN SCIENCES ACADEMY
-   STUDENT PORTAL — UNIFIED BILINGUAL VERSION
+   STUDENT PORTAL — CORRECTED UNIFIED BILINGUAL VERSION
    ========================================================= */
 
 "use strict";
 
+/* =========================================================
+   SUPABASE CONFIGURATION
+   ========================================================= */
+
 const SUPABASE_URL = "https://kxaovcknyddctnqvrudi.supabase.co";
 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJr eGE ov..." .replaceAll(" ", "");
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4YW92Y2tueWRkY3RucXZydWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODkxNjcsImV4cCI6MjEwOTU2NTE2N30.tYbKJreF9S44jH4YtQMzM67Rzlbhr0Ungw4H2x985iI";
 
 /* =========================================================
    TRANSLATIONS
@@ -56,7 +60,8 @@ const STUDENT_TRANSLATIONS = {
     studentError: "حدث خطأ أثناء تحميل لوحة الطالب:",
     welcomeStudent: "الطالب",
     closeMenu: "إغلاق القائمة",
-    studentNavigation: "قائمة تنقل الطالب"
+    studentNavigation: "قائمة تنقل الطالب",
+    pageTitle: "لوحة الطالب | أكاديمية القرآن الكريم وعلومه"
   },
 
   en: {
@@ -100,7 +105,8 @@ const STUDENT_TRANSLATIONS = {
     studentError: "Student dashboard error:",
     welcomeStudent: "Student",
     closeMenu: "Close menu",
-    studentNavigation: "Student navigation"
+    studentNavigation: "Student navigation",
+    pageTitle: "Student Dashboard | Quran Sciences Academy"
   }
 };
 
@@ -112,10 +118,9 @@ const $ = id => document.getElementById(id);
 
 function getSavedLanguage() {
   try {
-    return localStorage.getItem("academy-language") === "en"
-      ? "en"
-      : "ar";
-  } catch {
+    const saved = localStorage.getItem("academy-language");
+    return saved === "en" ? "en" : "ar";
+  } catch (error) {
     return "ar";
   }
 }
@@ -124,6 +129,7 @@ let currentLanguage = getSavedLanguage();
 let currentUser = null;
 let currentProfile = null;
 let academy = null;
+let isLoading = false;
 
 let studentData = {
   departments: [],
@@ -142,6 +148,10 @@ function t(key) {
     key;
 }
 
+/* =========================================================
+   SAFE HTML AND LANGUAGE HELPERS
+   ========================================================= */
+
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, character => ({
     "&": "&amp;",
@@ -153,11 +163,19 @@ function escapeHTML(value) {
 }
 
 function localizedValue(item, arabicKey, englishKey, fallbackKey) {
+  if (!item) return "";
+
   if (isArabic()) {
-    return item[arabicKey] || item[englishKey] || item[fallbackKey] || "";
+    return item[arabicKey] ||
+      item[englishKey] ||
+      item[fallbackKey] ||
+      "";
   }
 
-  return item[englishKey] || item[arabicKey] || item[fallbackKey] || "";
+  return item[englishKey] ||
+    item[arabicKey] ||
+    item[fallbackKey] ||
+    "";
 }
 
 /* =========================================================
@@ -177,6 +195,8 @@ function setMessage(message = "", isError = false) {
 }
 
 function setRefreshButton(loading) {
+  isLoading = loading;
+
   const button = $("refreshButton");
   if (!button) return;
 
@@ -199,13 +219,16 @@ function updateLanguage() {
   document.body.classList.toggle("language-ar", isArabic());
   document.body.classList.toggle("language-en", !isArabic());
 
+  document.title = t("pageTitle");
+
   try {
     localStorage.setItem("academy-language", currentLanguage);
   } catch (error) {
     console.warn("Could not save language preference:", error);
   }
 
-  // Translate all static HTML elements.
+  /* Translate static HTML elements. */
+
   document.querySelectorAll("[data-i18n]").forEach(element => {
     const key = element.dataset.i18n;
 
@@ -216,28 +239,49 @@ function updateLanguage() {
     }
   });
 
-  // Update language button.
+  /* Update language button. */
+
   const toggle = $("languageToggle");
 
   if (toggle) {
     toggle.textContent = isArabic() ? "English" : "العربية";
+    toggle.setAttribute(
+      "aria-label",
+      isArabic() ? "Switch to English" : "التبديل إلى العربية"
+    );
   }
 
-  // Update accessibility labels.
-  $("studentSidebar")?.setAttribute("aria-label", t("studentNavigation"));
-  $("sidebarCloseButton")?.setAttribute("aria-label", t("closeMenu"));
-  $("studentSidebarOverlay")?.setAttribute("aria-label", t("closeMenu"));
+  /* Update accessibility labels. */
 
-  // Personalized welcome.
+  $("studentSidebar")?.setAttribute(
+    "aria-label",
+    t("studentNavigation")
+  );
+
+  $("sidebarCloseButton")?.setAttribute(
+    "aria-label",
+    t("closeMenu")
+  );
+
+  $("studentSidebarOverlay")?.setAttribute(
+    "aria-label",
+    t("closeMenu")
+  );
+
+  /* Update personalized welcome. */
+
   if ($("welcomeTitle")) {
     $("welcomeTitle").textContent = currentProfile
-      ? (isArabic()
-          ? `مرحباً، ${currentProfile.full_name || t("welcomeStudent")}`
-          : `Welcome, ${currentProfile.full_name || t("welcomeStudent")}`)
+      ? (
+          isArabic()
+            ? `مرحباً، ${currentProfile.full_name || t("welcomeStudent")}`
+            : `Welcome, ${currentProfile.full_name || t("welcomeStudent")}`
+        )
       : t("welcome");
   }
 
-  // Translate initial loading placeholders.
+  /* Update initial loading placeholders. */
+
   [
     "departmentsList",
     "coursesList",
@@ -262,9 +306,10 @@ function updateLanguage() {
     materialsMessage.textContent = t("loading");
   }
 
-  // Translate existing dynamic content.
+  /* Re-render dynamic content in the selected language. */
+
   renderAll();
-  setRefreshButton(false);
+  setRefreshButton(isLoading);
 }
 
 /* =========================================================
@@ -379,11 +424,15 @@ function renderCourses() {
       enrollment => enrollment.course_id === course.id
     );
 
+    const description = getCourseDescription(course);
+
     return `
       <article class="dashboard-card">
         <h3>${escapeHTML(getCourseTitle(course))}</h3>
 
-        <p>${escapeHTML(getCourseDescription(course))}</p>
+        ${description
+          ? `<p>${escapeHTML(description)}</p>`
+          : ""}
 
         <button
           type="button"
@@ -391,7 +440,9 @@ function renderCourses() {
           data-course-id="${escapeHTML(course.id)}"
           ${requested ? "disabled" : ""}
         >
-          ${requested ? escapeHTML(t("enrollmentRequested")) : escapeHTML(t("requestEnrollment"))}
+          ${requested
+            ? escapeHTML(t("enrollmentRequested"))
+            : escapeHTML(t("requestEnrollment"))}
         </button>
       </article>
     `;
@@ -460,26 +511,30 @@ function renderAttendance() {
         <p class="empty-state">${escapeHTML(t("noAttendance"))}</p>
       `;
     } else {
-      container.innerHTML = records.map(record => `
-        <article class="attendance-record">
-          <p>
-            <strong>${escapeHTML(record.attendance_date || "")}</strong>
-          </p>
+      container.innerHTML = records.map(record => {
+        const remarks = localizedValue(
+          record,
+          "remarks_ar",
+          "remarks_en",
+          "remarks"
+        );
 
-          <p>${escapeHTML(
-            labels[record.status] || record.status || ""
-          )}</p>
+        return `
+          <article class="attendance-record">
+            <p>
+              <strong>${escapeHTML(record.attendance_date || "")}</strong>
+            </p>
 
-          ${record.remarks
-            ? `<p>${escapeHTML(localizedValue(
-                record,
-                "remarks_ar",
-                "remarks_en",
-                "remarks"
-              ))}</p>`
-            : ""}
-        </article>
-      `).join("");
+            <p>${escapeHTML(
+              labels[record.status] || record.status || ""
+            )}</p>
+
+            ${remarks
+              ? `<p>${escapeHTML(remarks)}</p>`
+              : ""}
+          </article>
+        `;
+      }).join("");
     }
   }
 
@@ -726,7 +781,10 @@ async function initializeStudentPortal() {
 
     currentUser = data.session.user;
 
-    const { data: profile, error: profileError } = await academy
+    const {
+      data: profile,
+      error: profileError
+    } = await academy
       .from("profiles")
       .select("id, full_name, role")
       .eq("id", currentUser.id)
@@ -768,20 +826,35 @@ document.addEventListener("click", event => {
   }
 });
 
-$("refreshButton")?.addEventListener("click", loadStudentData);
+$("refreshButton")?.addEventListener(
+  "click",
+  loadStudentData
+);
 
-$("logoutButton")?.addEventListener("click", logoutStudent);
+$("logoutButton")?.addEventListener(
+  "click",
+  logoutStudent
+);
 
 $("languageToggle")?.addEventListener("click", () => {
   currentLanguage = isArabic() ? "en" : "ar";
   updateLanguage();
 });
 
-$("mobileMenuButton")?.addEventListener("click", openMobileSidebar);
+$("mobileMenuButton")?.addEventListener(
+  "click",
+  openMobileSidebar
+);
 
-$("sidebarCloseButton")?.addEventListener("click", closeMobileSidebar);
+$("sidebarCloseButton")?.addEventListener(
+  "click",
+  closeMobileSidebar
+);
 
-$("studentSidebarOverlay")?.addEventListener("click", closeMobileSidebar);
+$("studentSidebarOverlay")?.addEventListener(
+  "click",
+  closeMobileSidebar
+);
 
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") {

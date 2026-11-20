@@ -172,11 +172,14 @@ background:var(--menu-green);
 border-radius:5px 0 0 5px
 }
 
+/* English navigation direction */
+
 [dir=ltr] .nav-item{text-align:left}
 
 [dir=ltr] .nav-item.active:before{
 right:auto;
-left:0
+left:0;
+border-radius:0 5px 5px 0
 }
 
 .portal-content{min-width:0}
@@ -210,6 +213,8 @@ z-index:998
 }
 
 .sidebar-overlay.visible{display:block}
+
+/* Welcome */
 
 .welcome-card{
 background:linear-gradient(125deg,var(--green),var(--green2));
@@ -280,6 +285,8 @@ opacity:.6;
 cursor:wait
 }
 
+/* Messages */
+
 .dashboard-message{
 padding:14px 17px;
 border-radius:10px;
@@ -300,6 +307,8 @@ background:#edf4ee;
 color:#176438;
 border:1px solid #d9e9dc
 }
+
+/* Sections */
 
 .dashboard-section{
 display:none;
@@ -327,6 +336,8 @@ display:grid;
 grid-template-columns:repeat(auto-fit,minmax(235px,1fr));
 gap:17px
 }
+
+/* Cards */
 
 .dashboard-card,
 .material-card,
@@ -407,6 +418,8 @@ opacity:.65;
 cursor:not-allowed
 }
 
+/* Attendance */
+
 .attendance-summary{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
@@ -444,6 +457,8 @@ font-weight:bold
 .attendance-status.present{background:#e7f5eb;color:#176438}
 .attendance-status.absent{background:#fcebea;color:#a12622}
 .attendance-status.late{background:#fff4dc;color:#8a5a00}
+
+/* Learning materials */
 
 .material-card{margin-bottom:14px}
 
@@ -670,6 +685,8 @@ font-weight:bold;
 margin-bottom:15px
 }
 
+/* Footer */
+
 .site-footer{
 text-align:center;
 padding:25px 15px;
@@ -679,7 +696,7 @@ border-top:1px solid var(--border);
 background:#fff
 }
 
-/* Responsive */
+/* Responsive desktop/tablet */
 
 @media(max-width:900px){
 .portal-layout{
@@ -689,7 +706,10 @@ gap:17px
 .welcome-card{padding:25px}
 }
 
+/* Mobile sidebar */
+
 @media(max-width:800px){
+
 .portal-layout{
 display:block;
 margin:17px auto;
@@ -703,8 +723,10 @@ display:block;
 position:fixed;
 top:0;
 right:0;
+left:auto;
 bottom:0;
 width:min(290px,85vw);
+height:100vh;
 height:100dvh;
 min-height:100vh;
 margin:0;
@@ -731,11 +753,39 @@ justify-content:center
 }
 
 .sidebar-nav{grid-template-columns:1fr;gap:9px}
-.nav-item{font-size:14px;padding:13px 14px;min-height:48px}
+
+.nav-item{
+font-size:14px;
+padding:13px 14px;
+min-height:48px
+}
+
 .welcome-card{padding:23px}
+
+/* CORRECTION: English mobile sidebar opens from the LEFT */
+
+[dir="ltr"] .sidebar{
+right:auto;
+left:0;
+box-shadow:8px 0 28px #00000020;
+transform:translateX(-110%)
+}
+
+[dir="ltr"] .sidebar.open{
+transform:translateX(0);
+visibility:visible
+}
+
+[dir="ltr"] .nav-item.active:before{
+right:auto;
+left:0;
+border-radius:0 5px 5px 0
+}
+
 }
 
 @media(max-width:520px){
+
 .site-header{padding:12px 14px;min-height:65px}
 .site-header .logo{font-size:16px}
 .portal-layout{padding:0 11px;margin:13px auto}
@@ -752,6 +802,7 @@ justify-content:center
 .material-actions{flex-direction:column}
 .material-actions button{width:100%}
 .exam-question{padding:15px}
+
 }
 
 @media(prefers-reduced-motion:reduce){

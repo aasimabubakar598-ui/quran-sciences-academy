@@ -693,7 +693,7 @@ async function createExam(){
  }finally{
   btn.disabled=false;
  }
-async function changeExamStatus(e,status){const {error}=await supabase.from("exams").update({status}).eq("id",e.id).eq("teacher_id",teacherId);if(error){message("examMessage",error.message,"error");return;}await loadExams();}
+ }async function changeExamStatus(e,status){const {error}=await supabase.from("exams").update({status}).eq("id",e.id).eq("teacher_id",teacherId);if(error){message("examMessage",error.message,"error");return;}await loadExams();}
 async function loadQuestions(){
  const examId=$("questionExamSelect").value,box=$("questionsList");box.innerHTML="";if(!examId)return;
  const {data,error}=await supabase.from("exam_questions").select("id,exam_id,question_ar,question_en,question_type,options,points,sort_order").eq("exam_id",examId).order("sort_order",{ascending:true});

@@ -237,7 +237,7 @@ const SUPABASE_URL="https://kxaovcknyddctnqvrudi.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_MDfn2oc-LWTXJqDtp7V7Lg__89pJGUQ";
 const MATERIALS_BUCKET="academy-learning-materials";
 const EXAM_BUCKET="academy-exam-files";
-const MAX_FILE_SIZE=10*1024*1024;
+const MAX_FILE_SIZE=50*1024*1024;
 const MAX_EXAM_FILE_SIZE=50*1024*1024;
 if(!window.supabase){alert("Supabase library failed to load. Please refresh.");return;}
 const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
@@ -336,7 +336,7 @@ async function uploadMaterial(){
  if(!courseId||!courses.some(c=>String(c.id)===String(courseId))){message("materialsMessage",t("يرجى اختيار مقرر معين لك.","Select a course assigned to you."),"error");return;}
  if(!titleAr||!titleEn){message("materialsMessage",t("أدخل العنوان بالعربية والإنجليزية.","Enter both Arabic and English titles."),"error");return;}
  if(!file||!file.name.toLowerCase().endsWith(".pdf")||(file.type&&file.type!=="application/pdf")){message("materialsMessage",t("اختر ملف PDF صحيحاً.","Choose a valid PDF file."),"error");return;}
- if(file.size>MAX_FILE_SIZE){message("materialsMessage",t("حجم الملف يتجاوز 10 ميجابايت.","File exceeds 10 MB."),"error");return;}
+ if(file.size>MAX_FILE_SIZE){message("materialsMessage",t("حجم الملف يتجاوز 50 ميجابايت.","File exceeds 50 MB."),"error");return;}
  const btn=$("uploadMaterialBtn");btn.disabled=true;let path=null;
  try{path=courseId+"/"+uniqueId()+".pdf";const up=await supabase.storage.from(MATERIALS_BUCKET).upload(path,file,{upsert:false,contentType:"application/pdf"});if(up.error)throw up.error;
  const ins=await supabase.from("learning_materials").insert({course_id:courseId,teacher_id:teacherId,title_ar:titleAr,title_en:titleEn,description:description||null,file_path:path,file_name:file.name});
@@ -511,6 +511,161 @@ async function createExam(){
  ["examTitleAr","examTitleEn","examStart","examEnd","examDescription"].forEach(id=>$(id).value="");message("examMessage",t("تم إنشاء الاختبار كمسودة. أضف الأسئلة أو ارفع الورقة ثم انشره.","Exam created as a draft. Add questions or upload the paper before publishing."),"success");await loadExams();
  }catch(e){message("examMessage",t("تعذر إنشاء الاختبار: ","Could not create exam: ")+e.message,"error");}finally{btn.disabled=false;}
 }
+ 
+ async function addQuestion(){
+ const examId=$("questionExamSelect").value;
+ const type=$("questionType").value;
+ const ar=$("questionAr").value.trim();
+ const en=$("questionEn").value.trim();
+ const points=Number($("questionPoints").value);
+
+ if(
+  !examId||
+  !ar||
+  !en||
+  !Number.isFinite(points)||
+  points<=0
+ ){
+  message("examMessage",t(
+   "اختر اختباراً وأدخل نص السؤال والدرجة.",
+   "Select an exam and enter both question texts and points."
+  ),"error");
+  return;
+ }
+
+ const exam=exams.find(e=>String(e.id)===String(examId));
+
+ if(!exam||!["online","both"].includes(exam.exam_mode)){
+  message("examMessage",t(
+   "هذا الاختبار ليس اختباراً إلكترونياً.",
+   "This exam does not support online questions."
+  ),"error");
+  return;
+ }
+
+ let options=null;
+ let correct=null;
+
+ if(type==="multiple_choice"){
+  const lines=$("questionOptions").value
+   .split("\n")
+   .map(x=>x.trim())
+   .filter(Boolean);
+
+  options=lines.map(line=>{
+   const parts=line.split("|");
+   return {
+    id:(parts[0]||"").trim(),
+    text_ar:(parts[1]||"").trim(),
+    text_en:(parts.slice(2).join("|")||"").trim()
+   };
+  });
+
+  const answer=$("correctOption").value.trim();
+
+  if(
+   options.length<2||
+   options.some(o=>!o.id||!o.text_ar||!o.text_en)||
+   new Set(options.map(o=>o.id)).size!==options.length||
+   !options.some(o=>o.id===answer)
+  ){
+   message("examMessage",t(
+    "أدخل خيارين صحيحين على الأقل وحدد رمز إجابة موجوداً.",
+    "Enter at least two valid options and a matching correct option ID."
+   ),"error");
+   return;
+  }
+
+  correct={id:answer};
+ }
+
+ const btn=$("addQuestionBtn");
+ btn.disabled=true;
+ let insertedQuestionId=null;
+
+ try{
+  const {data:existing,error:readError}=await supabase
+   .from("exam_questions")
+   .select("id,sort_order")
+   .eq("exam_id",examId)
+   .order("sort_order",{ascending:false})
+   .limit(1);
+
+  if(readError)throw readError;
+
+  const sort=(existing?.[0]?.sort_order??0)+1;
+
+  const {data:q,error}=await supabase
+   .from("exam_questions")
+   .insert({
+    exam_id:examId,
+    question_ar:ar,
+    question_en:en,
+    question_type:type,
+    options,
+    points,
+    sort_order:sort
+   })
+   .select("id")
+   .single();
+
+  if(error)throw error;
+
+  insertedQuestionId=q.id;
+
+  if(type==="multiple_choice"){
+   const key=await supabase
+    .from("exam_answer_keys")
+    .insert({
+     question_id:insertedQuestionId,
+     correct_answer:correct
+    });
+
+   if(key.error)throw key.error;
+  }
+
+  $("questionAr").value="";
+  $("questionEn").value="";
+  $("questionOptions").value="";
+  $("correctOption").value="";
+
+  message("examMessage",t("تمت إضافة السؤال.","Question added."),"success");
+
+  await loadQuestions();
+
+ }catch(e){
+
+  if(insertedQuestionId){
+   const cleanup=await supabase
+    .from("exam_questions")
+    .delete()
+    .eq("id",insertedQuestionId)
+    .eq("exam_id",examId);
+
+   if(cleanup.error){
+    message("examMessage",
+     t(
+      "فشلت إضافة مفتاح الإجابة، وتعذر تنظيف السؤال غير المكتمل: ",
+      "Answer-key insertion failed, and the incomplete question could not be cleaned up: "
+     )+e.message+" / "+cleanup.error.message,
+     "error"
+    );
+   }else{
+    message("examMessage",
+     t(
+      "تعذرت إضافة السؤال، وتم التراجع عن السؤال غير المكتمل: ",
+      "Question creation failed; the incomplete question was rolled back: "
+     )+e.message,
+     "error"
+    );
+   }
+  }else{
+   message("examMessage",t("تعذرت إضافة السؤال: ","Could not add question: ")+e.message,"error");
+  }
+
+ }finally{
+  btn.disabled=false;
+ }
 async function changeExamStatus(e,status){const {error}=await supabase.from("exams").update({status}).eq("id",e.id).eq("teacher_id",teacherId);if(error){message("examMessage",error.message,"error");return;}await loadExams();}
 async function loadQuestions(){
  const examId=$("questionExamSelect").value,box=$("questionsList");box.innerHTML="";if(!examId)return;
@@ -518,27 +673,6 @@ async function loadQuestions(){
  if(error){message("examMessage","Could not load questions: "+error.message,"error");return;}
  if(!data?.length){box.textContent=t("لا توجد أسئلة مضافة.","No questions have been added.");return;}
  data.forEach((q,i)=>{const card=document.createElement("div");card.className="item-card";const h=document.createElement("h3");h.textContent=(i+1)+". "+(language==="ar"?(q.question_ar||q.question_en):(q.question_en||q.question_ar));const p=document.createElement("p");p.textContent=q.question_type+" • "+t("الدرجة: ","Points: ")+q.points;if(q.question_type==="multiple_choice"&&Array.isArray(q.options)){const list=document.createElement("ul");q.options.forEach(o=>{const li=document.createElement("li");li.textContent=(o.id||"")+" — "+(language==="ar"?(o.text_ar||o.text_en):(o.text_en||o.text_ar));list.appendChild(li);});card.append(h,p,list);}else card.append(h,p);box.appendChild(card);});
-}
-async function addQuestion(){
- const examId=$("questionExamSelect").value,type=$("questionType").value,ar=$("questionAr").value.trim(),en=$("questionEn").value.trim(),points=Number($("questionPoints").value);
- if(!examId||!ar||!en||!Number.isFinite(points)||points<=0){message("examMessage",t("اختر اختباراً وأدخل نص السؤال والدرجة.","Select an exam and enter both question texts and points."),"error");return;}
- const exam=exams.find(e=>e.id===examId);if(!exam||!["online","both"].includes(exam.exam_mode)){message("examMessage",t("هذا الاختبار ليس اختباراً إلكترونياً.","This exam does not support online questions."),"error");return;}
- let options=null,correct=null;
- if(type==="multiple_choice"){
-  const lines=$("questionOptions").value.split("\n").map(x=>x.trim()).filter(Boolean);
-  options=lines.map(line=>{const parts=line.split("|");return{id:(parts[0]||"").trim(),text_ar:(parts[1]||"").trim(),text_en:(parts.slice(2).join("|")||"").trim()};});
-  const answer=$("correctOption").value.trim();
-  if(options.length<2||options.some(o=>!o.id||!o.text_ar||!o.text_en)||new Set(options.map(o=>o.id)).size!==options.length||!options.some(o=>o.id===answer)){message("examMessage",t("أدخل خيارين صحيحين على الأقل وحدد رمز إجابة موجوداً.","Enter at least two valid options and a matching correct option ID."),"error");return;}
-  correct={id:answer};
- }
- const btn=$("addQuestionBtn");btn.disabled=true;
- try{
-  const {data:existing,error:readError}=await supabase.from("exam_questions").select("id,sort_order").eq("exam_id",examId).order("sort_order",{ascending:false}).limit(1);if(readError)throw readError;
-  const sort=(existing?.[0]?.sort_order??0)+1;
-  const {data:q,error}=await supabase.from("exam_questions").insert({exam_id:examId,question_ar:ar,question_en:en,question_type:type,options,points,sort_order:sort}).select("id").single();if(error)throw error;
-  if(type==="multiple_choice"){const key=await supabase.from("exam_answer_keys").insert({question_id:q.id,correct_answer:correct});if(key.error)throw key.error;}
-  $("questionAr").value="";$("questionEn").value="";$("questionOptions").value="";$("correctOption").value="";message("examMessage",t("تمت إضافة السؤال.","Question added."),"success");await loadQuestions();
- }catch(e){message("examMessage",t("تعذرت إضافة السؤال: ","Could not add question: ")+e.message,"error");}finally{btn.disabled=false;}
 }
 async function uploadExamPaper(){
  const examId=$("paperExamSelect").value,file=$("examPaperFile").files[0],exam=exams.find(e=>e.id===examId);

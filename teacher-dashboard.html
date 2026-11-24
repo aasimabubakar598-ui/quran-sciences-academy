@@ -4613,6 +4613,7 @@ async function loadAttemptProfiles(studentIds, profileMap, examMap) {
 }
   
 
+
 async function viewAttemptDetails(attemptId) {
   const attempt = examAttempts.find(item => item.id === attemptId);
   if (!attempt) return;
@@ -4661,9 +4662,9 @@ async function viewAttemptDetails(attemptId) {
 
   const answerRows = (answers || []).map((answer, index) => {
     const question = questionMap[answer.question_id] || {};
-    const answerValue = answer.answer ??
-      answer.answer_text ??
-      answer.response ??
+
+    const answerValue = answer.answer_text ??
+      answer.selected_option ??
       "";
 
     return `
@@ -4686,15 +4687,15 @@ async function viewAttemptDetails(attemptId) {
 
         <div class="card-meta">
           <span>
-            ${currentLanguage === "ar" ? "الدرجة الممنوحة:" : "Marks awarded:"}
-            ${escapeHTML(String(answer.awarded_marks ?? answer.marks_awarded ?? "—"))}
+            ${currentLanguage === "ar" ? "الدرجة الممنوحة:" : "Points awarded:"}
+            ${escapeHTML(String(answer.awarded_points ?? "—"))}
           </span>
         </div>
 
         ${question.question_type === "written" ||
           question.question_type === "short_answer" ? `
           <button class="btn btn-primary"
-            onclick="openWrittenAnswerGrading('${answer.id}')">
+            onclick="openWrittenAnswerGrading('${attempt.id}', '${question.id}')">
             ${currentLanguage === "ar" ? "تصحيح الإجابة" : "Grade Answer"}
           </button>
         ` : ""}
@@ -4703,6 +4704,11 @@ async function viewAttemptDetails(attemptId) {
   }).join("");
 
   const modalHost = document.getElementById("modalHost");
+  if (!modalHost) return;
+
+  const examTitle = currentLanguage === "ar"
+    ? (exam?.title_ar || exam?.title_en || "")
+    : (exam?.title_en || exam?.title_ar || "");
 
   modalHost.innerHTML = `
     <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
@@ -4710,7 +4716,7 @@ async function viewAttemptDetails(attemptId) {
         <div class="modal-header">
           <div>
             <h2>${currentLanguage === "ar" ? "تفاصيل المحاولة" : "Attempt Details"}</h2>
-            <p class="muted">${escapeHTML(exam?.title || "")}</p>
+            <p class="muted">${escapeHTML(examTitle)}</p>
           </div>
           <button class="modal-close" onclick="closeModal()">×</button>
         </div>
@@ -4722,7 +4728,7 @@ async function viewAttemptDetails(attemptId) {
           </span>
           <span>
             ${currentLanguage === "ar" ? "الدرجة:" : "Score:"}
-            ${escapeHTML(String(attempt.score ?? attempt.total_score ?? "—"))}
+            ${escapeHTML(String(attempt.score ?? "—"))}
           </span>
         </div>
 
@@ -4745,6 +4751,9 @@ async function viewAttemptDetails(attemptId) {
     </div>
   `;
 }
+  
+    
+        
 
 async function openAttemptSubmission(attemptId) {
   const attempt = examAttempts.find(item => item.id === attemptId);
@@ -4938,6 +4947,21 @@ async function openWrittenAnswerGrading(answerId) {
     item => item.id === answer.question_id
   );
 
+  if (!question) {
+    showToast(
+      currentLanguage === "ar"
+        ? "تعذر العثور على السؤال."
+        : "Could not find the question.",
+      "error"
+    );
+    return;
+  }
+
+  const studentAnswer = answer.answer_text ??
+    (answer.selected_option
+      ? JSON.stringify(answer.selected_option)
+      : "");
+
   const modalHost = document.getElementById("modalHost");
 
   modalHost.innerHTML = `
@@ -4950,30 +4974,27 @@ async function openWrittenAnswerGrading(answerId) {
 
         <div class="field">
           <label>${currentLanguage === "ar" ? "السؤال" : "Question"}</label>
-          <p>${escapeHTML(getExamQuestionText(question || {}))}</p>
+          <p>${escapeHTML(getExamQuestionText(question))}</p>
+          <small>
+            ${currentLanguage === "ar" ? "الدرجة القصوى:" : "Maximum points:"}
+            ${escapeHTML(String(question.points ?? 0))}
+          </small>
         </div>
 
         <div class="field">
           <label>${currentLanguage === "ar" ? "إجابة الطالب" : "Student Answer"}</label>
-          <p>${escapeHTML(String(
-            answer.answer ??
-            answer.answer_text ??
-            answer.response ??
-            ""
-          ))}</p>
+          <p>${escapeHTML(String(studentAnswer))}</p>
         </div>
 
         <form id="writtenAnswerGradeForm">
           <div class="field">
-            <label>${currentLanguage === "ar" ? "الدرجة الممنوحة" : "Marks Awarded"}</label>
-            <input name="marks" type="number" min="0" step="0.5"
-              value="${escapeHTML(String(answer.awarded_marks ?? answer.marks_awarded ?? ""))}"
+            <label>${currentLanguage === "ar" ? "الدرجة الممنوحة" : "Points Awarded"}</label>
+            <input name="marks" type="number"
+              min="0"
+              max="${Number(question.points ?? 0)}"
+              step="0.5"
+              value="${escapeHTML(String(answer.awarded_points ?? ""))}"
               required>
-          </div>
-
-          <div class="field">
-            <label>${currentLanguage === "ar" ? "ملاحظات المعلم" : "Teacher Feedback"}</label>
-            <textarea name="feedback" rows="4">${escapeHTML(answer.teacher_feedback || "")}</textarea>
           </div>
 
           <div class="modal-actions">
@@ -4991,7 +5012,11 @@ async function openWrittenAnswerGrading(answerId) {
 
   document.getElementById("writtenAnswerGradeForm")
     .addEventListener("submit", event =>
-      saveWrittenAnswerGrade(event, answerId, question)
+      saveWrittenAnswerGrade(
+        event,
+        answer.attempt_id,
+        answer.question_id
+      )
     );
 }
 

@@ -5018,22 +5018,8 @@ async function saveWrittenAnswerGrade(event, answerId, question) {
   await loadExamAttempts();
 }
 
-/* =========================================================
-   REFRESH DATA
-   ========================================================= */
-
 async function refreshData() {
-  if (refreshInProgress) return;
-
-  if (!currentUser) {
-    showToast(
-      currentLanguage === "ar"
-        ? "يرجى تسجيل الدخول أولاً."
-        : "Please sign in first.",
-      "warning"
-    );
-    return;
-  }
+  if (refreshInProgress || !currentUser) return;
 
   refreshInProgress = true;
 
@@ -5054,13 +5040,7 @@ async function refreshData() {
 
     if (profileError) throw profileError;
 
-    if (profile.role !== "teacher") {
-      showToast(
-        currentLanguage === "ar"
-          ? "هذا الحساب ليس حساب معلم."
-          : "This account is not a teacher account.",
-        "error"
-      );
+    if (!profile || profile.role !== "teacher") {
       await db.auth.signOut();
       window.location.href = "/login.html";
       return;
@@ -5070,37 +5050,32 @@ async function refreshData() {
 
     await loadCourses();
 
-    const tasks = await Promise.allSettled([
+    const results = await Promise.allSettled([
       loadEnrollments(),
       loadStudents(),
       loadMaterials(),
       loadAssignments(),
-      loadExaminations()
+      loadExaminations(),
+      loadExamQuestions(),
+      loadExamAttempts()
     ]);
 
-    const failures = tasks.filter(task => task.status === "rejected");
-
-    if (failures.length) {
-      console.error("Some dashboard refresh tasks failed:", failures);
-      showToast(
-        currentLanguage === "ar"
-          ? "تم التحديث جزئياً. راجع الأخطاء في الأقسام."
-          : "Dashboard partially refreshed. Check section errors.",
-        "warning"
-      );
-    } else {
-      await loadExamQuestions();
-      await loadExamAttempts();
-
-      showToast(
-        currentLanguage === "ar"
-          ? "تم تحديث البيانات."
-          : "Data refreshed successfully.",
-        "success"
-      );
-    }
-
+    populateCourseSelectors();
+    populateAttendanceCourses();
     await renderCurrentPage();
+
+    const failed = results.filter(r => r.status === "rejected");
+
+    showToast(
+      currentLanguage === "ar"
+        ? failed.length
+          ? "تم التحديث جزئياً."
+          : "تم تحديث البيانات."
+        : failed.length
+          ? "Dashboard partially refreshed."
+          : "Data refreshed successfully.",
+      failed.length ? "warning" : "success"
+    );
 
   } catch (error) {
     console.error("Dashboard refresh error:", error);
@@ -5122,8 +5097,7 @@ async function refreshData() {
         currentLanguage === "ar" ? "تحديث البيانات" : "Refresh Data";
     }
   }
-}
-
+  }
 /* =========================================================
    DASHBOARD INITIALIZATION
    ========================================================= */

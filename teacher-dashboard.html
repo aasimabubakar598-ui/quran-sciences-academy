@@ -3632,10 +3632,11 @@ async function changeExamStatus(examId, newStatus) {
   await loadExaminations();
 }
 
+
 async function openExamFile(examId) {
   const exam = examinations.find(item => item.id === examId);
 
-  if (!exam || !exam.file_path) {
+  if (!exam || !exam.exam_file_path) {
     showToast(
       currentLanguage === "ar"
         ? "لا يوجد ملف مرفق لهذا الاختبار."
@@ -3647,7 +3648,7 @@ async function openExamFile(examId) {
 
   const { data, error } = await db.storage
     .from(EXAM_BUCKET)
-    .createSignedUrl(exam.file_path, 300);
+    .createSignedUrl(exam.exam_file_path, 300);
 
   if (error || !data || !data.signedUrl) {
     console.error("Exam PDF opening error:", error);
@@ -3664,6 +3665,7 @@ async function openExamFile(examId) {
 
   window.open(data.signedUrl, "_blank", "noopener,noreferrer");
 }
+  
 
 function viewExamDetails(examId) {
   const exam = examinations.find(item => item.id === examId);

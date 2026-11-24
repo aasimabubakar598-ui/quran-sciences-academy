@@ -5020,6 +5020,8 @@ async function openWrittenAnswerGrading(answerId) {
     );
 }
 
+        
+
 async function saveWrittenAnswerGrade(event, answerId, question) {
   event.preventDefault();
 
@@ -5061,56 +5063,7 @@ async function saveWrittenAnswerGrade(event, answerId, question) {
     showToast(
       currentLanguage === "ar"
         ? "تعذر العثور على إجابة الطالب."
-        : "Could not find the student's answer.",
-      "error"
-    );
-    return;
-  }
 
-  const submitButton = form.querySelector('button[type="submit"]');
-  submitButton.disabled = true;
-
-  try {
-    const { data, error } = await db.rpc(
-      "grade_written_exam_answer",
-      {
-        p_attempt_id: answer.attempt_id,
-        p_question_id: answer.question_id,
-        p_awarded_points: marks
-      }
-    );
-
-    if (error) throw error;
-
-    if (!data || !data.length) {
-      throw new Error("No grading result returned.");
-    }
-
-    closeModal();
-
-    showToast(
-      currentLanguage === "ar"
-        ? "تم حفظ التصحيح بنجاح."
-        : "Answer graded successfully.",
-      "success"
-    );
-
-    await loadExamAttempts();
-
-  } catch (error) {
-    console.error("Written answer grading error:", error);
-
-    showToast(
-      (currentLanguage === "ar"
-        ? "تعذر حفظ التصحيح: "
-        : "Could not save grading: ") + error.message,
-      "error"
-    );
-
-  } finally {
-    submitButton.disabled = false;
-  }
-}
 /* =========================================================
    REFRESH DATA
    ========================================================= */

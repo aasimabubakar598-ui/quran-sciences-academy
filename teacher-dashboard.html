@@ -1749,117 +1749,130 @@ function openMaterialModal() {
    UPLOAD MATERIAL
 -------------------------- */
 
-async function uploadMaterial(event) {
+  async function uploadMaterial(event) {
   event.preventDefault();
 
-  const button = $("uploadMaterialBtn");
-  const courseId = $("materialCourse")?.value;
-  const title = $("materialTitle")?.value.trim();
-  const description = $("materialDescription")?.value.trim() || "";
-  const file = $("materialFile")?.files?.[0];
+  if (!currentUser) return;
+
+  const form = document.getElementById("materialForm");
+  const courseId = document.getElementById("materialCourse").value;
+  const title = document.getElementById("materialTitle").value.trim();
+  const description = document.getElementById("materialDescription").value.trim();
+  const fileInput = document.getElementById("materialFile");
+  const file = fileInput.files[0];
+
+  if (!courseId || !title || !file) {
+    showToast(
+      currentLanguage === "ar"
+        ? "يرجى إكمال البيانات واختيار ملف PDF."
+        : "Complete the fields and select a PDF file.",
+      "warning"
+    );
+    return;
+  }
 
   if (!isCourseOwned(courseId)) {
-    showError(t("accessDenied"));
-    return;
-  }
-
-  if (!title || !file) {
-    showError(t("error"));
-    return;
-  }
-
-  if (file.size <= 0 || file.size > MAX_MATERIAL_SIZE) {
-    showError(
-      isArabic()
-        ? "حجم الملف غير صالح. الحد الأقصى 50 ميجابايت."
-        : "Invalid file size. Maximum allowed size is 50 MB."
+    showToast(
+      currentLanguage === "ar"
+        ? "لا تملك صلاحية لهذا المقرر."
+        : "You do not have permission for this course.",
+      "error"
     );
     return;
   }
 
-  const isPDF =
-    file.type === "application/pdf" ||
-    file.name.toLowerCase().endsWith(".pdf");
-
-  if (!isPDF) {
-    showError(
-      isArabic()
-        ? "يسمح برفع ملفات PDF فقط."
-        : "Only PDF files are allowed."
+  if (
+    file.type !== "application/pdf" ||
+    !file.name.toLowerCase().endsWith(".pdf")
+  ) {
+    showToast(
+      currentLanguage === "ar"
+        ? "يسمح بملفات PDF فقط."
+        : "PDF files only.",
+      "warning"
     );
     return;
   }
 
+  if (file.size > 50 * 1024 * 1024) {
+    showToast(
+      currentLanguage === "ar"
+        ? "حجم الملف يجب ألا يتجاوز 50 ميجابايت."
+        : "File size must not exceed 50 MB.",
+      "warning"
+    );
+    return;
+  }
+
+  const button = document.getElementById("uploadMaterialBtn");
   button.disabled = true;
-  button.textContent = t("loading");
+  button.textContent =
+    currentLanguage === "ar" ? "جارٍ الرفع..." : "Uploading...";
 
-  let uploadedPath = null;
+  const safeName = file.name
+    .replace(/[^a-zA-Z0-9._-]/g, "_")
+    .replace(/_+/g, "_");
+
+  const filePath =
+    `${courseId}/${Date.now()}_${safeName}`;
 
   try {
-    const safeFileName = file.name
-      .normalize("NFKC")
-      .replace(/[^\w.-]+/g, "_")
-      .replace(/_+/g, "_")
-      .slice(-100) || "material.pdf";
-
-    const uniqueName =
-      `${Date.now()}_${crypto.randomUUID()}_${safeFileName}`;
-
-    const objectPath = `${courseId}/${uniqueName}`;
-
-    const { data: uploadData, error: uploadError } = await db.storage
-      .from(MATERIAL_BUCKET)
-      .upload(objectPath, file, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: "application/pdf"
+    const { error: uploadError } = await db.storage
+      .from("academy-learning-materials")
+      .upload(filePath, file, {
+        contentType: "application/pdf",
+        upsert: false
       });
 
     if (uploadError) throw uploadError;
-
-    uploadedPath = uploadData.path;
 
     const { error: insertError } = await db
       .from("learning_materials")
       .insert({
         course_id: courseId,
-        title,
-        description,
-        file_path: uploadedPath,
-        uploaded_by: currentUser.id
+        teacher_id: currentUser.id,
+        title_ar: title,
+        title_en: title,
+        description: description || null,
+        file_path: filePath,
+        file_name: file.name
       });
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      await db.storage
+        .from("academy-learning-materials")
+        .remove([filePath]);
 
-    showSuccess(t("success"));
+      throw insertError;
+    }
+
     closeModal();
+
+    showToast(
+      currentLanguage === "ar"
+        ? "تم رفع المادة التعليمية بنجاح."
+        : "Learning material uploaded successfully.",
+      "success"
+    );
 
     await loadLearningMaterials();
 
   } catch (error) {
-    console.error("uploadMaterial:", error);
+    console.error("Material upload error:", error);
 
-    // Remove an uploaded object if its database record could not be created.
-    if (uploadedPath) {
-      const { error: cleanupError } = await db.storage
-        .from(MATERIAL_BUCKET)
-        .remove([uploadedPath]);
-
-      if (cleanupError) {
-        console.error("Material cleanup failed:", cleanupError);
-      }
-    }
-
-    showError(error.message || t("error"));
+    showToast(
+      (currentLanguage === "ar"
+        ? "تعذر رفع المادة: "
+        : "Could not upload material: ") + error.message,
+      "error"
+    );
 
   } finally {
-    if ($("uploadMaterialBtn")) {
-      $("uploadMaterialBtn").disabled = false;
-      $("uploadMaterialBtn").textContent = t("upload");
-    }
+    button.disabled = false;
+    button.textContent =
+      currentLanguage === "ar" ? "رفع المادة" : "Upload Material";
   }
-}
-
+                                       }
 /* -------------------------
    LOAD MATERIALS
 -------------------------- */
@@ -1912,7 +1925,9 @@ function renderMaterials() {
 
     return `
       <article class="item-card">
-        <h4>📄 ${escapeHTML(material.title || "PDF")}</h4>
+        <h4>📄 ${escapeHTML(${currentLanguage === "ar"
+  ? material.title_ar
+  : material.title_en} || "PDF")}</h4>
 
         <div class="item-meta">
           <span>📚 ${escapeHTML(course ? getCourseName(course) : "—")}</span>
@@ -5053,7 +5068,10 @@ async function saveWrittenAnswerGrade(event, answerId, question) {
     submitButton.disabled = false;
   }
 }
-
+/* =========================================================
+   REFRESH DATA
+   ========================================================= */
+  
 async function refreshData() {
   if (refreshInProgress || !currentUser) return;
 
@@ -5089,7 +5107,7 @@ async function refreshData() {
     const results = await Promise.allSettled([
       loadEnrollments(),
       loadStudents(),
-      loadMaterials(),
+      loadLearningMaterials(),
       loadAssignments(),
       loadExaminations(),
       loadExamQuestions(),
@@ -5194,7 +5212,7 @@ async function initializeDashboard() {
     await Promise.allSettled([
       loadEnrollments(),
       loadStudents(),
-      loadMaterials(),
+      loadLearningMaterials(),
       loadAssignments(),
       loadExaminations()
     ]);

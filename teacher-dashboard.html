@@ -4418,7 +4418,8 @@ function getAttemptStatusLabel(status) {
     expired: currentLanguage === "ar" ? "انتهى الوقت" : "Expired"
   };
 
-  return labels[status] || status || "—";
+  return labels[status] ||
+    (currentLanguage === "ar" ? "غير محدد" : "Unknown");
 }
 
 function renderExamAttempts() {
@@ -4513,8 +4514,9 @@ async function loadAttemptProfiles(studentIds, profileMap, examMap) {
           (currentLanguage === "ar" ? "طالب" : "Student");
 
         const score = attempt.score ??
-          attempt.total_score ??
-          null;
+  attempt.final_score ??
+  attempt.total_score ??
+  null;
 
         return `
           <div class="panel attempt-card">

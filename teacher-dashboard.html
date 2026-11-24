@@ -4807,18 +4807,9 @@ async function saveFileExamGrade(event, attemptId) {
 
   const form = event.currentTarget;
   const formData = new FormData(form);
+
   const score = Number(formData.get("score"));
   const feedback = String(formData.get("feedback") || "").trim();
-
-  if (!Number.isFinite(score) || score < 0) {
-    showToast(
-      currentLanguage === "ar"
-        ? "أدخل درجة صحيحة."
-        : "Enter a valid score.",
-      "warning"
-    );
-    return;
-  }
 
   const attempt = examAttempts.find(item => item.id === attemptId);
   const exam = attempt
@@ -4827,50 +4818,68 @@ async function saveFileExamGrade(event, attemptId) {
 
   if (!attempt || !exam) return;
 
+  if (!Number.isFinite(score) || score < 0) {
+    showToast(
+      currentLanguage === "ar" ? "أدخل درجة صحيحة." : "Enter a valid score.",
+      "warning"
+    );
+    return;
+  }
+
+  const maxScore = Number(exam.max_score);
+
+  if (Number.isFinite(maxScore) && score > maxScore) {
+    showToast(
+      currentLanguage === "ar"
+        ? "الدرجة تتجاوز الدرجة النهائية للاختبار."
+        : "The score exceeds the examination's maximum score.",
+      "warning"
+    );
+    return;
+  }
+
   const submitButton = form.querySelector('button[type="submit"]');
   submitButton.disabled = true;
-  submitButton.textContent =
-    currentLanguage === "ar" ? "جارٍ الحفظ..." : "Saving...";
 
-  /*
-    The database grading function is intentionally not called here
-    because its exact RPC argument signature must match your SQL.
-    This saves the teacher's score and feedback to the attempt record.
-  */
+  try {
+    const { data, error } = await db.rpc("grade_file_exam", {
+      p_attempt_id: attemptId,
+      p_score: score,
+      p_feedback: feedback
+    });
 
-  const { error } = await db
-    .from("exam_attempts")
-    .update({
-      score,
-      teacher_feedback: feedback,
-      status: "graded"
-    })
-    .eq("id", attemptId);
+    if (error) throw error;
 
-  submitButton.disabled = false;
+    if (!data || !data.length) {
+      throw new Error("No grading result returned.");
+    }
 
-  if (error) {
+    closeModal();
+
+    showToast(
+      currentLanguage === "ar"
+        ? "تم حفظ الدرجة بنجاح."
+        : "Grade saved successfully.",
+      "success"
+    );
+
+    await loadExamAttempts();
+
+  } catch (error) {
     console.error("File exam grading error:", error);
+
     showToast(
       (currentLanguage === "ar"
         ? "تعذر حفظ الدرجة: "
         : "Could not save grade: ") + error.message,
       "error"
     );
-    return;
+
+  } finally {
+    submitButton.disabled = false;
+  }
   }
 
-  closeModal();
-
-  showToast(
-    currentLanguage === "ar"
-      ? "تم حفظ الدرجة."
-      : "Grade saved.",
-    "success"
-  );
-
-  await loadExamAttempts();
-}
 
 async function openWrittenAnswerGrading(answerId) {
   const { data: answer, error } = await db
@@ -4957,7 +4966,6 @@ async function saveWrittenAnswerGrade(event, answerId, question) {
   const form = event.currentTarget;
   const formData = new FormData(form);
   const marks = Number(formData.get("marks"));
-  const feedback = String(formData.get("feedback") || "").trim();
 
   if (!Number.isFinite(marks) || marks < 0) {
     showToast(
@@ -4969,53 +4977,79 @@ async function saveWrittenAnswerGrade(event, answerId, question) {
     return;
   }
 
-  if (question && Number.isFinite(Number(question.marks)) &&
-      marks > Number(question.marks)) {
+  if (
+    question &&
+    Number.isFinite(Number(question.points)) &&
+    marks > Number(question.points)
+  ) {
     showToast(
       currentLanguage === "ar"
-        ? "الدرجة لا يمكن أن تتجاوز الدرجة المخصصة للسؤال."
-        : "The awarded marks cannot exceed the question's maximum marks.",
+        ? "الدرجة تتجاوز الدرجة المخصصة للسؤال."
+        : "The awarded points exceed the question's maximum points.",
       "warning"
+    );
+    return;
+  }
+
+  const { data: answer, error: answerError } = await db
+    .from("exam_answers")
+    .select("attempt_id, question_id")
+    .eq("id", answerId)
+    .single();
+
+  if (answerError || !answer) {
+    showToast(
+      currentLanguage === "ar"
+        ? "تعذر العثور على إجابة الطالب."
+        : "Could not find the student's answer.",
+      "error"
     );
     return;
   }
 
   const submitButton = form.querySelector('button[type="submit"]');
   submitButton.disabled = true;
-  submitButton.textContent =
-    currentLanguage === "ar" ? "جارٍ الحفظ..." : "Saving...";
 
-  const { error } = await db
-    .from("exam_answers")
-    .update({
-      awarded_marks: marks,
-      teacher_feedback: feedback
-    })
-    .eq("id", answerId);
+  try {
+    const { data, error } = await db.rpc(
+      "grade_written_exam_answer",
+      {
+        p_attempt_id: answer.attempt_id,
+        p_question_id: answer.question_id,
+        p_awarded_points: marks
+      }
+    );
 
-  submitButton.disabled = false;
+    if (error) throw error;
 
-  if (error) {
+    if (!data || !data.length) {
+      throw new Error("No grading result returned.");
+    }
+
+    closeModal();
+
+    showToast(
+      currentLanguage === "ar"
+        ? "تم حفظ التصحيح بنجاح."
+        : "Answer graded successfully.",
+      "success"
+    );
+
+    await loadExamAttempts();
+
+  } catch (error) {
     console.error("Written answer grading error:", error);
+
     showToast(
       (currentLanguage === "ar"
         ? "تعذر حفظ التصحيح: "
         : "Could not save grading: ") + error.message,
       "error"
     );
-    return;
+
+  } finally {
+    submitButton.disabled = false;
   }
-
-  closeModal();
-
-  showToast(
-    currentLanguage === "ar"
-      ? "تم حفظ تصحيح الإجابة."
-      : "Answer grading saved.",
-    "success"
-  );
-
-  await loadExamAttempts();
 }
 
 async function refreshData() {

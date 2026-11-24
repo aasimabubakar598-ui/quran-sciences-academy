@@ -3667,6 +3667,7 @@ async function openExamFile(examId) {
 }
   
 
+
 function viewExamDetails(examId) {
   const exam = examinations.find(item => item.id === examId);
   if (!exam) return;
@@ -3679,13 +3680,22 @@ function viewExamDetails(examId) {
     ? getCourseName(course)
     : (currentLanguage === "ar" ? "مقرر" : "Course");
 
+  const examTitle = currentLanguage === "ar"
+    ? (exam.title_ar || exam.title_en || "")
+    : (exam.title_en || exam.title_ar || "");
+
+  const examDescription = currentLanguage === "ar"
+    ? (exam.description_ar || exam.description_en || "—")
+    : (exam.description_en || exam.description_ar || "—");
+
   const modalHost = document.getElementById("modalHost");
+  if (!modalHost) return;
 
   modalHost.innerHTML = `
     <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
       <div class="modal">
         <div class="modal-header">
-          <h2>${escapeHTML(exam.title || "")}</h2>
+          <h2>${escapeHTML(examTitle)}</h2>
           <button class="modal-close" onclick="closeModal()">×</button>
         </div>
 
@@ -3697,7 +3707,7 @@ function viewExamDetails(examId) {
 
           <p>
             <strong>${currentLanguage === "ar" ? "الوصف:" : "Description:"}</strong>
-            ${escapeHTML(exam.description || "—")}
+            ${escapeHTML(examDescription)}
           </p>
 
           <p>
@@ -3720,24 +3730,28 @@ function viewExamDetails(examId) {
 
           <p>
             <strong>${currentLanguage === "ar" ? "البداية:" : "Start:"}</strong>
-            ${exam.start_at ? escapeHTML(formatDateTime(exam.start_at)) : "—"}
+            ${exam.start_time
+              ? escapeHTML(formatDateTime(exam.start_time))
+              : "—"}
           </p>
 
           <p>
             <strong>${currentLanguage === "ar" ? "النهاية:" : "End:"}</strong>
-            ${exam.end_at ? escapeHTML(formatDateTime(exam.end_at)) : "—"}
+            ${exam.end_time
+              ? escapeHTML(formatDateTime(exam.end_time))
+              : "—"}
           </p>
 
           <p>
             <strong>${currentLanguage === "ar" ? "ملف الاختبار:" : "Exam file:"}</strong>
-            ${exam.file_path
+            ${exam.exam_file_path
               ? (currentLanguage === "ar" ? "مرفق" : "Attached")
               : (currentLanguage === "ar" ? "لا يوجد ملف" : "No file attached")}
           </p>
         </div>
 
         <div class="modal-actions">
-          ${exam.file_path ? `
+          ${exam.exam_file_path ? `
             <button class="btn btn-primary"
               onclick="openExamFile('${exam.id}')">
               ${currentLanguage === "ar" ? "فتح ملف PDF" : "Open PDF"}
@@ -3752,11 +3766,7 @@ function viewExamDetails(examId) {
     </div>
   `;
 }
-
-/* End of Part 7 */
-</script>
-
-<script>
+  
 /* =========================================================
    PART 8 — EXAM QUESTIONS & ANSWER KEYS
    ========================================================= */
@@ -4501,6 +4511,7 @@ function renderExamAttempts() {
   loadAttemptProfiles(studentIds, profileMap, examMap);
 }
 
+
 async function loadAttemptProfiles(studentIds, profileMap, examMap) {
   if (studentIds.length) {
     const { data, error } = await db
@@ -4530,17 +4541,21 @@ async function loadAttemptProfiles(studentIds, profileMap, examMap) {
           profile.email ||
           (currentLanguage === "ar" ? "طالب" : "Student");
 
+        const examTitle = currentLanguage === "ar"
+          ? (exam.title_ar || exam.title_en || "")
+          : (exam.title_en || exam.title_ar || "");
+
         const score = attempt.score ??
-  attempt.final_score ??
-  attempt.total_score ??
-  null;
+          attempt.final_score ??
+          attempt.total_score ??
+          null;
 
         return `
           <div class="panel attempt-card">
             <div class="card-header">
               <div>
                 <h3>${escapeHTML(studentName)}</h3>
-                <p class="muted">${escapeHTML(exam.title || "")}</p>
+                <p class="muted">${escapeHTML(examTitle)}</p>
               </div>
 
               <span class="status-badge">
@@ -4596,6 +4611,7 @@ async function loadAttemptProfiles(studentIds, profileMap, examMap) {
     </div>
   `;
 }
+  
 
 async function viewAttemptDetails(attemptId) {
   const attempt = examAttempts.find(item => item.id === attemptId);
